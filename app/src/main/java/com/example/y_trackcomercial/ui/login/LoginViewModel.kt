@@ -5,14 +5,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.y_trackcomercial.ui.login.domain.LoginUseCase
+import com.example.y_trackcomercial.ui.login2.data.network.response.Usuarios
+import com.example.y_trackcomercial.ui.login2.domain.AuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase) : ViewModel() {
+class LoginViewModel @Inject constructor(private val authUseCase: AuthUseCase) : ViewModel() {
 
     private val _loggedIn = MutableLiveData<Boolean>()
     val loggedIn: LiveData<Boolean> = _loggedIn
@@ -54,14 +55,16 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
             } else {
 
-                val result = loginUseCase(userName.value!!, password.value!!)
-                if (result) {
+                val result = authUseCase(userName.value!!, password.value!!)
+                val rol = result?.get(0)?.yemsys_role?.descripcion
+
+                Log.i("Rol", rol.toString())
+                //  if (result) {
                     //Navegar a la siguiente pantalla
-                    Log.i("aris", "result OK")
-                    _botonCargar.value=false
+                     _botonCargar.value=false
                     _loggedIn.value=false
 
-                }
+               // }
 
                 //  val result = loginUseCase(userName.value!!, password.value!!)
                 //  val usuario = loginRepository.login(userName.value!!, password.value!!)

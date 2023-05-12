@@ -1,6 +1,7 @@
 package com.example.y_trackcomercial.core.di
 
  import com.example.y_trackcomercial.ui.login.data.network.LoginClient
+ import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
  import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,5 +27,11 @@ class NetworkModule {
     @Provides
     fun provideLoginClient(retrofit: Retrofit):LoginClient{
         return retrofit.create(LoginClient::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthClient(retrofit: Retrofit):AuthClient{
+        return retrofit.create(AuthClient::class.java)
     }
 }
