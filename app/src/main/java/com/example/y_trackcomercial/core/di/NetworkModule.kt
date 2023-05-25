@@ -1,19 +1,27 @@
 package com.example.y_trackcomercial.core.di
 
+ import android.app.Application
+ import android.content.Context
  import com.example.y_trackcomercial.ui.login.data.network.LoginClient
  import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
+ import com.example.y_trackcomercial.util.DataManager
  import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
+ import dagger.Provides
+ import dagger.hilt.InstallIn
+ import dagger.hilt.android.qualifiers.ApplicationContext
+ import dagger.hilt.components.SingletonComponent
+ import retrofit2.Retrofit
+ import retrofit2.converter.gson.GsonConverterFactory
+ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
-
+    @Singleton
+    @Provides
+    fun provideContext(application: Application): Context {
+        return application.applicationContext
+    }
     @Singleton
     @Provides
     fun provideRetrofit():Retrofit{
@@ -34,4 +42,8 @@ class NetworkModule {
     fun provideAuthClient(retrofit: Retrofit):AuthClient{
         return retrofit.create(AuthClient::class.java)
     }
-}
+
+
+
+ }
+

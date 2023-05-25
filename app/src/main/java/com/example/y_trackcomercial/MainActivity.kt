@@ -4,41 +4,49 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
- import com.example.y_trackcomercial.ui.theme.YTrackComercialTheme
-import com.example.y_trackcomercial.ui.login.LoginScreen2
-import com.example.y_trackcomercial.ui.login.LoginViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.y_trackcomercial.ui.login2.LoginScreen
+import com.example.y_trackcomercial.ui.login2.LoginViewModel
+import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
+import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
+    private val menuPrincipalViewModel: MenuPrincipalViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-           LoginScreen2(loginViewModel)
-            //RequiredFieldExample()
-         }
+            MaterialTheme {
+                val navController = rememberNavController()
+                Router(navController, loginViewModel,menuPrincipalViewModel)
+            }
+        }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-            text = "Hello $name!",
-            modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    YTrackComercialTheme {
-       // LoginScreen()
+fun Router(
+    navController: NavHostController,
+    loginViewModel: LoginViewModel,
+    menuPrincipalViewModel: MenuPrincipalViewModel
+) {
+    NavHost(
+        navController = navController,
+        startDestination = "login"
+    ) {
+        composable("login") { LoginScreen(loginViewModel, navController) }
+      composable("menu") { MenuPrincipal(loginViewModel, navController,menuPrincipalViewModel) }
+        //  composable("menu") { sendWhatsAppMessage() }
+
+
     }
 }

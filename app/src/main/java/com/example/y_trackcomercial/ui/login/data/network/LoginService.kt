@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 class LoginService @Inject constructor(private val loginClient: LoginClient){
     suspend fun doLoginServices(user:String, password:String):Boolean{
         return withContext(Dispatchers.IO){
-            val response = loginClient.doLogin()
+            val response = loginClient.doLogin(user,password)
             response.body()?.success ?: false
         }
     }
