@@ -1,10 +1,8 @@
 package com.example.y_trackcomercial.model
 
-import com.example.y_trackcomercial.model.dao.UsuariosDao
-import com.example.y_trackcomercial.model.entities.UsuariosEntity
 import javax.inject.Inject
 import javax.inject.Singleton
-
+/*
 
 @Singleton
 class UsuariosRepository @Inject constructor(private val usuariosDao: UsuariosDao) {
@@ -26,4 +24,4 @@ class UsuariosRepository @Inject constructor(private val usuariosDao: UsuariosDa
 
 fun UsuariosModel.toData(): UsuariosEntity {
     return UsuariosEntity(this.id, this.nombre_usuario, this.clave)
-}
+}*/

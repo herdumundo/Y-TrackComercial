@@ -6,12 +6,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -26,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.y_trackcomercial.ui.theme.ColorGradientRojoNegro
 
 
@@ -34,12 +40,14 @@ import com.example.y_trackcomercial.ui.theme.ColorGradientRojoNegro
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
     openDialogCustom: MutableState<Boolean>,
+    text: String,
+    imageResId: Int,
     funcion: () -> Unit
-){
+) {
 
     Card(
-         shape = RoundedCornerShape(10.dp),
-         modifier = Modifier
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier
             .padding(10.dp, 5.dp, 10.dp, 10.dp)
             .clip(
                 RoundedCornerShape(
@@ -55,11 +63,11 @@ fun CustomDialogUI(
             modifier
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_exit),
+                painter = painterResource(id = imageResId),
                 contentDescription = null, // decorative
                 contentScale = ContentScale.Fit,
-                colorFilter  = ColorFilter.tint(
-                    color =  Color(0xFFCE0303)
+                colorFilter = ColorFilter.tint(
+                    color = Color(0xFFCE0303)
                 ),
                 modifier = Modifier
                     .padding(top = 35.dp)
@@ -79,7 +87,7 @@ fun CustomDialogUI(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "¿Deseas cerrar sesión?.",
+                    text = text,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .padding(top = 10.dp, start = 25.dp, end = 25.dp)
@@ -93,7 +101,8 @@ fun CustomDialogUI(
                     .fillMaxWidth()
                     .padding(top = 10.dp)
                     .background(brush = Brush.verticalGradient(colors = ColorGradientRojoNegro)),
-                horizontalArrangement = Arrangement.SpaceAround) {
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
 
                 TextButton(onClick = {
                     openDialogCustom.value = false
@@ -103,7 +112,7 @@ fun CustomDialogUI(
                         "No",
                         style = MaterialTheme.typography.subtitle1,
                         fontWeight = FontWeight.Bold,
-                        color =  Color(0xFFC5C0C0),
+                        color = Color(0xFFC5C0C0),
                         modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                     )
                 }
@@ -111,11 +120,11 @@ fun CustomDialogUI(
                     openDialogCustom.value = false
                     funcion()
                 }) {
-                      Text(
+                    Text(
                         "Si",
                         style = MaterialTheme.typography.subtitle1,
                         fontWeight = FontWeight.W900,
-                        color =  Color(0xFFE9E9E9),
+                        color = Color(0xFFE9E9E9),
                         modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                     )
                 }
@@ -126,17 +135,11 @@ fun CustomDialogUI(
 
 
 
-@Composable
-fun CustomDialog(openDialogCustom: MutableState<Boolean>, finish: () -> Unit) {
 
-    Dialog(onDismissRequest = { openDialogCustom.value = false}) {
-        CustomDialogUI(openDialogCustom = openDialogCustom,funcion = finish)
-    }
-}
 
 @SuppressLint("UnrememberedMutableState")
-@Preview (name="Custom Dialog")
+@Preview(name = "Custom Dialog")
 @Composable
-fun MyDialogUIPreview(){
+fun MyDialogUIPreview() {
     //CustomDialogUI(openDialogCustom = mutableStateOf(false))
 }
