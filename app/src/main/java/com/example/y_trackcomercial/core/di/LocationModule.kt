@@ -1,6 +1,6 @@
 package com.example.y_trackcomercial.core.di
 
- import com.example.y_trackcomercial.gps.locationGMS.LocationService
+ import com.example.y_trackcomercial.services.gps.locationGMS.LocationService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

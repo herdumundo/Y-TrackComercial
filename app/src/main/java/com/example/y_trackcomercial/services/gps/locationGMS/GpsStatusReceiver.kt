@@ -1,4 +1,4 @@
-package com.example.y_trackcomercial.gps.locationGMS
+package com.example.y_trackcomercial.services.gps.locationGMS
 
 import android.content.BroadcastReceiver
 import android.content.Context

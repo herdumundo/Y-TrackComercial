@@ -20,7 +20,7 @@ class AuthService @Inject constructor(private val AuthClient: AuthClient) {
 class AuthService @Inject constructor(private val authClient: AuthClient) {
     suspend fun iniciarSesionServices(user: String, password: String): UsuarioResponse? {
         return withContext(Dispatchers.IO) {
-            val response = authClient.iniciarSesion(user, password)
+            val response = authClient.iniciarSesion(user, password,"ANDROID")
             response.body()
         }
     }

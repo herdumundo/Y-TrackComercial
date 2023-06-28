@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.y_trackcomercial.model.entities.OcrdUbicacionEntity
 import com.example.y_trackcomercial.model.entities.RutasAccesosEntity
 
 @Dao
@@ -21,4 +20,9 @@ interface RutasAccesosDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
     suspend fun insertAllRutasAccesos(rutasAccesos: List<RutasAccesosEntity>)
+
+
+    @Query("DELETE FROM rutasaccesos")
+    suspend fun deleteAllRutasaccesos()
+
 }

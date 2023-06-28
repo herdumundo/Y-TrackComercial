@@ -24,16 +24,18 @@ class SharedPreferences @Inject constructor(private val context: Context) {
     private val PASS_USER = "passUser"
     private val RUTAS_ACCESOS = "rutasAccesos"
     private val USER_LOGIN = "userLogin"
+    private val ÍD_USER = "userId"
 
 
 
-    fun savePreferences(Rol: String, UserName: String, Token: String,PassUserName:String,UserLogin:String, rutasAccesos: List<RutasAccesos>) {
+    fun savePreferences(Rol: String, UserName: String, Token: String,PassUserName:String,UserLogin:String,UserID:Int, rutasAccesos: List<RutasAccesos>) {
         val editor = sharedPreferences.edit()
         editor.putString(ROL_USER, Rol)
         editor.putString(TOKEN_KEY, Token)
         editor.putString(NAME_USER, UserName)
         editor.putString(PASS_USER, PassUserName)
         editor.putString(USER_LOGIN, UserLogin)
+        editor.putInt(ÍD_USER, UserID)
 
         // Convertir la lista de RutaAcceso a una cadena JSON
         val rutasAccesosJson = Gson().toJson(rutasAccesos)
@@ -54,6 +56,9 @@ class SharedPreferences @Inject constructor(private val context: Context) {
     fun getUserLogin(): String? {
         return sharedPreferences.getString(USER_LOGIN, null)
 
+    }
+    fun getUserId(): Int {
+        return sharedPreferences.getInt(ÍD_USER, 0)
     }
 
     fun getRol(): String? {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.example.y_trackcomercial.repository.OcrdUbicacionesRepository
+import com.example.y_trackcomercial.repository.PermisosVisitasRepository
 import com.example.y_trackcomercial.repository.RutasAccesosRepository
 import com.example.y_trackcomercial.ui.login2.domain.AuthUseCase
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ class MenuPrincipalViewModel @Inject constructor(
     private val lotesListasRepository: LotesListasRepository,
     private val ocrdUbicacionesRepository: OcrdUbicacionesRepository,
     private val rutasAccesosRepository: RutasAccesosRepository,
+    private val permisosVisitasRepository: PermisosVisitasRepository,
     private val authUseCase: AuthUseCase,
 
 
@@ -41,10 +43,6 @@ class MenuPrincipalViewModel @Inject constructor(
     private val _rol = mutableStateOf("")
     val rol: State<String> = _rol
 
-   // private val _rutas = sharedPreferences.getRutasAccesos() //mutableStateListOf<RutasAccesos>()//
-   // val rutas: List<RutasAccesos> = _rutas
-   private val _rutas: MutableLiveData<List<RutasAccesosEntity>> = MutableLiveData()
-    val rutas: LiveData<List<RutasAccesosEntity>> = _rutas
 
     private val _customers = MutableLiveData<List<OCRD>>()
     val customers: LiveData<List<OCRDEntity>> = customerRepository.customers
@@ -61,10 +59,14 @@ class MenuPrincipalViewModel @Inject constructor(
     private val _mensajeDialog: MutableLiveData<String> = MutableLiveData()
     val mensajeDialog: LiveData<String> = _mensajeDialog
 
+    private val _permisosUsuarios: MutableLiveData<List<RutasAccesosEntity>> = MutableLiveData()
+    val permisosUsuarios: LiveData<List<RutasAccesosEntity>> = _permisosUsuarios
+
     fun getUserName(): String = sharedPreferences.getUserName().toString()
     fun getRol(): String = sharedPreferences.getRol().toString()
     fun getPasswordUserName(): String = sharedPreferences.getPasswordUserName().toString()
     fun getUserLogin(): String = sharedPreferences.getUserLogin().toString()
+    fun getUserId(): Int = sharedPreferences.getUserId()
   //  fun getRutasAccesos(): List<RutasAccesos> = sharedPreferences.getRutasAccesos()
 
     fun getOCRD() {
@@ -87,10 +89,17 @@ class MenuPrincipalViewModel @Inject constructor(
                 _progress.postValue(progress)
             }
 
-            _mensajeDialog.value="Cargando Permisos Otorgados..."
+            _mensajeDialog.value="Cargando Permisos ..."
 
             val result = authUseCase(getUserLogin(), getPasswordUserName())
-            rutasAccesosRepository.fetchRutasAccesos(result!!.RutasAccesos)
+            rutasAccesosRepository.deleteAndInsertAllRutasAccesos(result!!.RutasAccesos)
+
+            obtenerRutasAccesosDesdeRoom()
+
+
+            _mensajeDialog.value="Cargando Permisos de visitas ..."
+
+            permisosVisitasRepository.fetchPermisosVisitas(getUserId())
 
 
             _mensajeDialog.value="Datos importados correctamente."
@@ -115,7 +124,7 @@ class MenuPrincipalViewModel @Inject constructor(
        viewModelScope.launch(Dispatchers.IO) {
            val rutasAccesos = rutasAccesosRepository.getAllRutasAccesos()
            withContext(Dispatchers.Main) {
-               _rutas.value = rutasAccesos
+               _permisosUsuarios.value = rutasAccesos
            }
        }
    }

@@ -22,8 +22,6 @@ class LoginViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
     private val sharedPreferences: SharedPreferences,
     private val rutasAccesosRepository: RutasAccesosRepository,
-
-
 ) : ViewModel() {
 
     private val _loggedIn = MutableLiveData<Boolean>()
@@ -59,7 +57,6 @@ class LoginViewModel @Inject constructor(
     fun onLoginChanged(userName: String, password: String) {
         _userName.value = userName
         _password.value = password
-
     }
 
     fun onDialogClose() {
@@ -86,10 +83,11 @@ class LoginViewModel @Inject constructor(
                     result.Token,
                     password.value!!,
                     userName.value!!,
+                    result.Usuario[0].id,
                     result.RutasAccesos
                 )
 
-                rutasAccesosRepository.fetchRutasAccesos(result.RutasAccesos)
+                rutasAccesosRepository.deleteAndInsertAllRutasAccesos(result.RutasAccesos)
 
 
                 _mensajeBoton.value = "Iniciar Sesión"

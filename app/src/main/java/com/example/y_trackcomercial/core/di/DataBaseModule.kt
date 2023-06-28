@@ -5,7 +5,9 @@ import androidx.room.Room
 import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.dao.LotesListasDao
 import com.example.y_trackcomercial.model.dao.OcrdUbicacionesDao
+import com.example.y_trackcomercial.model.dao.PermisosVisitasDao
 import com.example.y_trackcomercial.model.dao.RutasAccesosDao
+import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
 import com.example.y_trackcomercial.model.entities.database.YtrackDatabase
 import dagger.Module
 import dagger.Provides
@@ -22,8 +24,11 @@ class DataBaseModule() {
     @Singleton
     fun provideTodoDatabase(@ApplicationContext appContext: Context): YtrackDatabase {
         return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
+          //  .addMigrations(YtrackDatabase.MyMigration(3,4))
+            .fallbackToDestructiveMigration()
             .build()
     }
+
 
     @Provides
     @Singleton
@@ -47,6 +52,18 @@ class DataBaseModule() {
     @Singleton
     fun provideRutasAccesosDao(database: YtrackDatabase): RutasAccesosDao {
         return database.rutasAccesosDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideVisitasDao(database: YtrackDatabase): VisitasDao {
+        return database.VisitasDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideVisitasPermisosDao(database: YtrackDatabase): PermisosVisitasDao {
+        return database.PermisosVisitasDao()
     }
 
 }

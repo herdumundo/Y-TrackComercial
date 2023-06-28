@@ -1,8 +1,8 @@
-package com.example.y_trackcomercial.gps
+package com.example.y_trackcomercial.services.gps
 
 import android.util.Log
 
-fun calculoMetrosPuntosGps( latitudOrigen :Double,longitudOrigen:Double): Int {
+fun calculoMetrosPuntosGps( latitudOrigen :Double,longitudOrigen:Double, latitudDestino :Double,longitudDestino:Double,): Int {
     var metros = 0
     val radioTierra = 6371.0 // en kilómetros
 
@@ -11,9 +11,9 @@ fun calculoMetrosPuntosGps( latitudOrigen :Double,longitudOrigen:Double): Int {
     val longitudOrigen = -57.56995713407824
 */
     // UBICACION DEL PUNTO DE VENTA
-    val latitudDestino = -25.31708118246417
+  /*  val latitudDestino = -25.31708118246417
     val longitudDestino = -57.57165013246648
-
+*/
     val dLat = Math.toRadians(latitudDestino - latitudOrigen)
     val dLng = Math.toRadians(longitudDestino - longitudOrigen)
 

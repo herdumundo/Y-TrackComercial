@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.entities.OCRDEntity
  import com.example.y_trackcomercial.data.network.OcrdClient
+import com.example.y_trackcomercial.model.models.OcrdItem
 import javax.inject.Inject
 
 
@@ -27,4 +28,9 @@ class CustomerRepository @Inject constructor(
     fun getOcrdCount():  Int  {
         return customerDao.getCustomerCount()
     }
+
+    fun getAddresses(): List<OcrdItem> {
+        return customerDao.getOcrdAddresses()
+    }
+
 }

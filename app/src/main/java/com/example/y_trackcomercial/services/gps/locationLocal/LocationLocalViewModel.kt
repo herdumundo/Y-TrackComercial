@@ -1,10 +1,9 @@
-package com.example.y_trackcomercial.gps.locationLocal
+package com.example.y_trackcomercial.services.gps.locationLocal
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-//import com.google.android.gms.location.LocationServices
 
 class LocationLocalViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -39,6 +38,7 @@ class LocationLocalViewModel(application: Application) : AndroidViewModel(applic
     fun setGpsIsPermission(permission: Boolean) {
         _gpsIsPermission.value = permission
     }
+
 }
 
 
@@ -46,9 +46,7 @@ class LocationLocalViewModel(application: Application) : AndroidViewModel(applic
 // private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
 
 // Bloque init, se ejecuta al crear una instancia del ViewModel
-/* init {
-   obtenerUbicacionGPS()
- }*/
+
 //Función para obtener la ubicación GPS
 /* @SuppressLint("MissingPermission")
  fun obtenerUbicacionGPS() {

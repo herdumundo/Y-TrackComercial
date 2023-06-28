@@ -3,15 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools">
 
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".YtrackApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -21,18 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.YTrackComercial"
         android:usesCleartextTraffic="true"
-        android:name=".YtrackApp"
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="31">
+
         <service
-            android:name=".locationLocal.LocationService"
+            android:name=".services.gps.locationGMS.LocationService"
             android:enabled="true"
             android:exported="false" />
-        <service
-            android:name=".gps.locationGMS.LocationService"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver android:name=".gps.locationGMS.GpsStatusReceiver" />
+
+        <receiver android:name=".services.gps.locationGMS.GpsStatusReceiver" />
 
         <activity
             android:name=".MainActivity"

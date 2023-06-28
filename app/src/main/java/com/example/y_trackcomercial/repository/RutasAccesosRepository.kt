@@ -39,6 +39,19 @@ class RutasAccesosRepository @Inject constructor(
         return rutasAccesosDao.getRutasAccesosCount()
     }
 
+    suspend fun deleteAndInsertAllRutasAccesos(rutasAccesos: List<RutasAccesos>) {
+        try {
+            rutasAccesosDao.deleteAllRutasaccesos() // Borra todos los registros existentes
+
+            val rutasAccesosEntities = rutasAccesos.map { rutasAcceso ->
+                convertToRutasAccesosEntity(rutasAcceso)
+            }
+            rutasAccesosDao.insertAllRutasAccesos(rutasAccesosEntities) // Inserta los nuevos registros
+
+        } catch (e: Exception) {
+
+        }
+    }
 
 
 }

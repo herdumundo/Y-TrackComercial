@@ -13,7 +13,8 @@ interface LotesListasDao {
     @Query("SELECT * FROM LOTES_LISTA   ")
     fun getLotesListas(): LiveData<List<LotesListasEntity>>
 
-
+    @Query("SELECT count(*) FROM LOTES_LISTA   ")
+    fun getLotesListasCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction

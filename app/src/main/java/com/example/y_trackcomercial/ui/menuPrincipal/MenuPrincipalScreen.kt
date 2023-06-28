@@ -17,8 +17,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,8 +49,11 @@ import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.DialogLoading
 import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.InfoDialogOk
+import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.model.entities.OCRDEntity
 import com.example.y_trackcomercial.ui.login2.LoginViewModel
+import com.example.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
+import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 //import com.example.y_trackcomercial.ui.registroEntradaPromotoras.cargar
@@ -61,7 +66,9 @@ fun MenuPrincipal(
     loginViewModel: LoginViewModel,
     navControllerPrincipal: NavController,
     menuPrincipalViewModel: MenuPrincipalViewModel,
-    tablasRegistradasViewModel: TablasRegistradasViewModel
+    tablasRegistradasViewModel: TablasRegistradasViewModel,
+    locationViewModel: LocationLocalViewModel,
+    marcacionPromotoraViewModel: MarcacionPromotoraViewModel
 ) {
 
     if (loginViewModel.loggedIn.value == true) {
@@ -90,7 +97,8 @@ fun MenuPrincipal(
                     menuPrincipalViewModel,
                     openDialogSesion,
                     openDialogSincro,
-                    activity
+                    activity,
+                    marcacionPromotoraViewModel
                 )
             },
             scaffoldState = scaffoldState,
@@ -110,7 +118,6 @@ fun MenuPrincipal(
             if (openDialogSesion.value) {
 
                 // CustomDialog(openDialogCustom = openDialogSincro,"¿Deseas actualizar los datos del telefono?.",R.drawable.ic_sincro) { menuPrincipalViewModel.getOCRD() }
-
                 InfoDialog(title = "Atenciòn!",
                     desc = "¿Deseas cerrar sesión?.",
                     R.drawable.icono_exit,
@@ -140,76 +147,31 @@ fun MenuPrincipal(
                         menuPrincipalViewModel.cerrarAviso()
                     })
             }
-
                    NavHost(navController, startDestination = "home") {
                     composable("home") {
                         HomeScreen()
                     }
-                    composable("registroNuevo") {
-                        ScreenTablasRegistradas(tablasRegistradasViewModel)
-                    }
+                       composable("registroNuevo") {
+                           ScreenTablasRegistradas(tablasRegistradasViewModel)
+                       }
+                       composable("marcacionPromotora") {
+                           DisposableEffect(Unit) {
+                               onDispose {
+                                   marcacionPromotoraViewModel.limpiarValores()
+                               }
+                           }
+                           GpsLocationScreen(
+                               locationViewModel = locationViewModel,
+                               marcacionPromotoraViewModel = marcacionPromotoraViewModel
+                           )
+                       }
                 }
-
         }
     } else {
         navControllerPrincipal.navigate("login")
     }
 }
 
-
-@Composable
-fun CircularProgressBar(progress: Float) {
-    val animatedProgress by animateFloatAsState(targetValue = progress)
-
-    Box(contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(
-            progress = animatedProgress,
-            modifier = Modifier.size(64.dp)
-        )
-        Text(
-            text = "${(animatedProgress * 100).toInt()}%",
-            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(top = 8.dp)
-        )
-    }
-}
-
-@Composable
-fun MyUI(menuPrincipalViewModel: MenuPrincipalViewModel) {
-    // progress value
-//    var progress by remember {   mutableStateOf(0f)   }
-    var progress = 0f//by menuPrincipalViewModel.progress.observeAsState(0f)
-    // CircularProgressIndicator(progress = progress.toFloat())
-
-    // animation
-    val progressAnimate by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
-
-    CircularProgressIndicator(
-        progress = progressAnimate,
-        modifier = Modifier.size(size = 64.dp),
-        color = Color.Magenta,
-        strokeWidth = 6.dp
-    )
-
-    Spacer(modifier = Modifier.height(height = 16.dp))
-
-    Button(
-        onClick = {
-            progress += 1f
-        },
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Magenta
-        )
-    ) {
-        Text(
-            text = "Random",
-            color = Color.White
-        )
-    }
-}
 
 private fun openWhatsApp(
     context: Context, menuPrincipalViewModel: MenuPrincipalViewModel
@@ -242,8 +204,15 @@ fun MyTopAppBar(
     openDialogCustom: MutableState<Boolean>,
     openDialogSincro: MutableState<Boolean>,
     activity: Activity,
+    marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
 
     ) {
+    var showSnackbar by remember { mutableStateOf(false) }
+    val registrosConPendiente: Int by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(0)
+    val ocrdNameLivedata: String by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
+
+
+
 
     TopAppBar(backgroundColor = Color(0xFFCE0303), contentColor = Color.White,
 
@@ -279,6 +248,29 @@ fun MyTopAppBar(
                 )
             }
 
+             if(registrosConPendiente>0){
+
+            IconButton(onClick = {
+                 "Tienes un punto de venta pendiente"
+                showSnackbar = true
+                // Lógica para manejar el clic en el icono de notificaciones
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.White
+                )
+              //  if (notificacionesPendientes > 0) {
+                    Badge(
+                        modifier = Modifier.offset(x = 8.dp, y = (-8).dp),
+                        content = {
+                            Text(text = "1", color = Color.White)
+                        }
+                    )
+                //}
+            }
+
+            }
             IconButton(
                 onClick = { onMoreOptionsClick() }, modifier = Modifier.padding(end = 16.dp)
             ) {
@@ -308,6 +300,20 @@ fun MyTopAppBar(
                 }
             }
         })
+    if (showSnackbar) {
+        Snackbar(
+            modifier = Modifier.padding(bottom = 16.dp),
+            action = {
+                Button(onClick = { showSnackbar = false },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFf910000)) // Color de fondo personalizado
+                ) {
+                    Text(text = "Cerrar")
+                }
+            }
+        ) {
+            Text(text = "Visita iniciada en: $ocrdNameLivedata")
+        }
+    }
 }
 
 
@@ -322,8 +328,7 @@ fun MyDrawer(
 ) {
     val rol = menuPrincipalViewModel.getRol()
     val userName = menuPrincipalViewModel.getUserName()
-    //val acesso = menuPrincipalViewModel.getRutasAccesos()
-    val acesso = menuPrincipalViewModel.rutas.value ?: emptyList()
+    val acessoState by menuPrincipalViewModel.permisosUsuarios.observeAsState(initial = emptyList())
 
 
     val gradientColors: List<Color> = listOf(Color(0xFFf910000), Color(0xFF090808))
@@ -365,14 +370,13 @@ fun MyDrawer(
                 .height(1.dp)
                 .fillMaxWidth()
         )
+        acessoState.forEach { rutaAcceso ->
+                val icono = rutaAcceso.icono  // Obtener el icono correspondiente
+                val nombre = rutaAcceso.name
+                val ruta = rutaAcceso.ruta
 
-        acesso.forEach { rutaAcceso ->
-            val icono = rutaAcceso.icono  // Obtener el icono correspondiente
-            val nombre = rutaAcceso.name
-            val ruta = rutaAcceso.ruta
-
-            DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
-        }
+                DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
+         }
     }
 }
 
@@ -422,26 +426,14 @@ fun String.toIcon(): ImageVector = when (this) {
 
 @Composable
 fun HomeScreen() {
-    Text(text = "hola mundo", style = MaterialTheme.typography.body1, color = Color.Black)
 
+    Image(
+        painter = painterResource(R.drawable.ytrack2), // Ruta de la imagen
+        contentDescription = "My Image",
+        modifier = Modifier.fillMaxWidth().fillMaxHeight() // Tamaño de la imagen
+    )
 }
 
-/*
-@Composable
-fun RegistroNuevo(menuPrincipalViewModel: MenuPrincipalViewModel) {
-     val customers by menuPrincipalViewModel.customers.observeAsState(emptyList())
-
-// Obtiene los clientes cuando se realiza la llamada a la API
-    LaunchedEffect(menuPrincipalViewModel.customers) {
-        menuPrincipalViewModel.getOCRD()
-    }
-    LazyColumn  {
-        items(customers) { OCRD  ->
-            CustomerItem(OCRD)
-        }
-    }
-
-}*/
 @Composable
 fun CustomerItem(customer: OCRDEntity) {
     // Item de la lista para cada cliente

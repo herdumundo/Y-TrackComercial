@@ -1,4 +1,4 @@
-package com.example.y_trackcomercial.gps.locationLocal
+package com.example.y_trackcomercial.services.gps.locationLocal
 
 import android.content.Context
 import android.location.LocationListener
@@ -12,6 +12,8 @@ fun obtenerUbicacionGPS(context: Context, locationViewModel: LocationLocalViewMo
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     // Verificar si el proveedor de GPS está habilitado
     val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+    locationViewModel.setGpsEnabled(isGpsEnabled)
 
     if (isGpsEnabled) {
         try {

@@ -11,18 +11,8 @@ interface AuthClient {
     @FormUrlEncoded
     suspend fun iniciarSesion(
         @Field("user") user: String,
-        @Field("password") password: String
+        @Field("password") password: String,
+        @Field("app") app: String
     )   : Response<UsuarioResponse>
-
 }
 
-/*
-interface AuthClient {
-    @POST("/usuariosYemsys")
-    @FormUrlEncoded
-    suspend fun iniciarSesion(
-        @Field("user") user: String,
-        @Field("password") password: String
-    )   : Response<AuthTokenResponse>
-
-}*/

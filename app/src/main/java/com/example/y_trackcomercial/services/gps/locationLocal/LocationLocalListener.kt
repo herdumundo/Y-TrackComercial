@@ -1,4 +1,4 @@
-package com.example.y_trackcomercial.gps.locationLocal
+package com.example.y_trackcomercial.services.gps.locationLocal
 
 import android.location.Location
 import android.location.LocationListener
@@ -23,7 +23,5 @@ class LocationLocalListener(private val locationViewModel: LocationLocalViewMode
     override fun onProviderDisabled(provider: String) {
         locationViewModel.setGpsEnabled(false) // Actualizar gpsEnabled cuando el proveedor de ubicación se deshabilita
     }
-
-
 
 }

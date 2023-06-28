@@ -32,6 +32,7 @@ fun ScreenTablasRegistradas(tablasRegistradasViewModel: TablasRegistradasViewMod
     val ocrdCount by tablasRegistradasViewModel.ocrdCount.observeAsState()
     val ubicacionesCount by tablasRegistradasViewModel.ocrdUbicacionesCount.observeAsState()
     val rutasAccesosCount by tablasRegistradasViewModel.rutasAccesoCount.observeAsState()
+    val lotesListasCount by tablasRegistradasViewModel.lotesListasCount.observeAsState()
 
     LaunchedEffect(Unit) {
         tablasRegistradasViewModel.getCustomerCount()
@@ -51,6 +52,11 @@ fun ScreenTablasRegistradas(tablasRegistradasViewModel: TablasRegistradasViewMod
             title = "Permisos otorgados",
             subTitle = rutasAccesosCount.toString(),
             image = R.drawable.ic_permisos
+        )
+        cardViewRegistrosTablas(
+            title = "Lotes cargados",
+            subTitle = lotesListasCount.toString(),
+            image = R.drawable.ic_lotes
         )
     }
 }
@@ -102,5 +108,7 @@ fun cardViewRegistrosTablas(
                 }
             })
     }
+
+
 }
 

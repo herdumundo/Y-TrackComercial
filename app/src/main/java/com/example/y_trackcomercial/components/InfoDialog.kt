@@ -205,7 +205,7 @@ fun InfoDialogOk(
 
                     Row() {
                         Button(
-                            onClick = { onDismiss()},
+                            onClick = { onDismiss();funcion()},
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCE0303)),
                             //.clip(RoundedCornerShape(25.dp))
                         ) {
@@ -241,8 +241,9 @@ fun InfoDialogUnBoton(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+            //    .fillMaxWidth()
+                .width(390.dp)
+              //  .fillMaxHeight()
                 .background(
                     color = Color.Transparent,
                 )
