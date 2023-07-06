@@ -1,11 +1,14 @@
 package com.example.y_trackcomercial.core.di
 
+ import android.content.Context
+ import android.os.Handler
+ import com.example.y_trackcomercial.services.developerMode.DeveloperModeObserver
  import com.example.y_trackcomercial.services.gps.locationGMS.LocationService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
-import javax.inject.Singleton
+  import javax.inject.Singleton
 
 @Module
 @InstallIn(ServiceComponent::class)
@@ -17,4 +20,5 @@ object LocationModule {
  fun provideLocationService(): LocationService {
   return LocationService()
  }
+
 }

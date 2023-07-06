@@ -5,10 +5,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 
 private const val MIN_TIME_INTERVAL: Long = 5000 // Intervalo de tiempo mínimo en milisegundos (ejemplo: 1000ms = 1 segundo)
-private const val MIN_DISTANCE: Float = 5f // Distancia mínima en metros
+private const val MIN_DISTANCE: Float = 10f // Distancia mínima en metros
 
-//@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-fun obtenerUbicacionGPS(context: Context, locationViewModel: LocationLocalViewModel, locationListener: LocationListener) {
+ fun obtenerUbicacionGPS(context: Context, locationViewModel: LocationLocalViewModel, locationListener: LocationListener) {
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     // Verificar si el proveedor de GPS está habilitado
     val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -28,7 +27,7 @@ fun obtenerUbicacionGPS(context: Context, locationViewModel: LocationLocalViewMo
             val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             // Actualizar el ViewModel con la última ubicación conocida
             lastKnownLocation?.let {
-                locationViewModel.actualizarUbicacion(it.latitude, it.longitude)
+                locationViewModel.actualizarUbicacion(it.latitude, it.longitude ,it.speed )
             }
         } catch (e: SecurityException) {
             e.printStackTrace()

@@ -40,7 +40,6 @@ data class VisitasEntity(
     @NonNull
     var longitudPV: Double,
 
-
     var porcentajeBateria: Int,
 
     val idA: Int?,
@@ -53,10 +52,14 @@ data class VisitasEntity(
 
     var ocrdName: String?,
 
-
     @ColumnInfo(name = "pendienteSincro", defaultValue = "P")
     var pendienteSincro: String? = "P",
 
     @ColumnInfo(name = "estadoVisita", defaultValue = "A")
-    val estadoVisita: String? = "A"
+    val estadoVisita: String? = "A",
+
+    @NonNull
+    @ColumnInfo(name = "llegadaTardia")
+    var tarde : String
+
 )

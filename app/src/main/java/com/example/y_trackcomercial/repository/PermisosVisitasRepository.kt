@@ -6,6 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import java.util.Date
+
 
 class PermisosVisitasRepository @Inject constructor(
     private val permisosVisitasApiClient: PermisosVisitasApiClient,
@@ -22,24 +26,23 @@ class PermisosVisitasRepository @Inject constructor(
         }
     }
 
+    suspend fun verificarPermisoVisita(/*token: String, claveSecreta: String*/): Boolean {
+        return try {
+            val algorithm = Algorithm.HMAC256("1tZPe7SN1")
+            val verifier = JWT.require(algorithm).build()
+            val jwt = verifier.verify(permisosVisitasDao.getToken())
 
-  /*  suspend fun fetchPermisosVisitas(idUsuario: Int) {
-        try {
-            val response = apiClient.getPermisosVisitas(idUsuario)
-            val dd=response
+            val fechaExpiracion: Date = jwt.expiresAt
+            val fechaActual = Date()
 
-            if (response.isSuccessful) {
-                val permisosVisitas = response.body()
-                permisosVisitas?.let {
-                    withContext(Dispatchers.IO) {
-                        permisosVisitasDao.insertPermisoVisita(it)
-                    }
-                }
-            } else {
-                // Manejar el error de la respuesta del servicio
-            }
+            fechaExpiracion.after(fechaActual) // Devuelve true si la fecha de expiración es posterior a la fecha actual, de lo contrario, devuelve false
         } catch (e: Exception) {
-            // Manejar el error de la solicitud de red
+            // Manejo de errores
+            e.printStackTrace()
+            false // El token es inválido
         }
-    }*/
+    }
+
+
+
 }

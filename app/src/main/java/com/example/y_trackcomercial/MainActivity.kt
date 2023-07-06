@@ -33,7 +33,9 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraView
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.util.logUtils.LogUtils
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -92,8 +94,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun GpsAvisoPermisos(locationViewModel: LocationLocalViewModel) {
-        val latitud by locationViewModel.latitud.observeAsState()
-        val longitud by locationViewModel.longitud.observeAsState()
         val gpsEnabled by locationViewModel.gpsEnabled.observeAsState()
         val gpsIsPermission by locationViewModel.gpsIsPermission.observeAsState()
 
@@ -114,6 +114,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (gpsEnabled == false) {
+
             // El GPS está deshabilitado, mostrar diálogo o realizar alguna acción
             InfoDialogUnBoton(
                 title = "Atención!",
@@ -156,10 +157,3 @@ fun Router(
         }
     }
 }
-/*
-@Composable
-fun MyComposable() {
-    val context = LocalContext.current
-
-
-}*/

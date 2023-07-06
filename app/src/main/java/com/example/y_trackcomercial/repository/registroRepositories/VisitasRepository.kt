@@ -1,4 +1,4 @@
-package com.example.y_trackcomercial.repository
+package com.example.y_trackcomercial.repository.registroRepositories
 
 import androidx.lifecycle.LiveData
 import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao

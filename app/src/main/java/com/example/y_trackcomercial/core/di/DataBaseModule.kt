@@ -3,11 +3,14 @@ package com.example.y_trackcomercial.core.di
 import android.content.Context
 import androidx.room.Room
 import com.example.y_trackcomercial.model.dao.CustomerDao
+import com.example.y_trackcomercial.model.dao.HorariosUsuarioDao
 import com.example.y_trackcomercial.model.dao.LotesListasDao
 import com.example.y_trackcomercial.model.dao.OcrdUbicacionesDao
 import com.example.y_trackcomercial.model.dao.PermisosVisitasDao
 import com.example.y_trackcomercial.model.dao.RutasAccesosDao
+import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.LogDao
 import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
+import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.AuditTrailDao
 import com.example.y_trackcomercial.model.entities.database.YtrackDatabase
 import dagger.Module
 import dagger.Provides
@@ -28,7 +31,6 @@ class DataBaseModule() {
             .fallbackToDestructiveMigration()
             .build()
     }
-
 
     @Provides
     @Singleton
@@ -66,4 +68,20 @@ class DataBaseModule() {
         return database.PermisosVisitasDao()
     }
 
+    @Provides
+    @Singleton
+    fun provideHorariosUsuarioDao(database: YtrackDatabase): HorariosUsuarioDao {
+        return database.HorariosUsuarioDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogDao(database: YtrackDatabase): LogDao {
+        return database.LogDao()
+    }
+    @Provides
+    @Singleton
+    fun provideAuditTrailDao(database: YtrackDatabase): AuditTrailDao {
+        return database.AuditTrailDao()
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.y_trackcomercial.ui.menuPrincipal
 
 import RutasAccesos
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -12,8 +13,8 @@ import com.example.y_trackcomercial.repository.LotesListasRepository
 import com.example.y_trackcomercial.repository.UsuarioRepository
 import com.example.y_trackcomercial.repository.CustomerRepository
 import com.example.y_trackcomercial.data.network.response.OCRD
-import com.example.y_trackcomercial.model.dao.RutasAccesosDao
-import com.example.y_trackcomercial.model.entities.RutasAccesosEntity
+ import com.example.y_trackcomercial.model.entities.RutasAccesosEntity
+import com.example.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.example.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,8 +23,13 @@ import javax.inject.Inject
 import com.example.y_trackcomercial.repository.OcrdUbicacionesRepository
 import com.example.y_trackcomercial.repository.PermisosVisitasRepository
 import com.example.y_trackcomercial.repository.RutasAccesosRepository
+import com.example.y_trackcomercial.services.developerMode.DeveloperModeListener
+import com.example.y_trackcomercial.services.developerMode.DeveloperModeObserver
 import com.example.y_trackcomercial.ui.login2.domain.AuthUseCase
 import kotlinx.coroutines.withContext
+import android.os.Handler
+import android.provider.Settings
+import com.example.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 
 @HiltViewModel
 class MenuPrincipalViewModel @Inject constructor(
@@ -35,9 +41,12 @@ class MenuPrincipalViewModel @Inject constructor(
     private val rutasAccesosRepository: RutasAccesosRepository,
     private val permisosVisitasRepository: PermisosVisitasRepository,
     private val authUseCase: AuthUseCase,
+    private val horariosUsuarioRepository: HorariosUsuarioRepository,
+  //  private var developerModeObserver: DeveloperModeObserver,
+    private val context: Context
 
 
-    ) : ViewModel() {
+) : ViewModel() {
 
 
     private val _rol = mutableStateOf("")
@@ -69,6 +78,12 @@ class MenuPrincipalViewModel @Inject constructor(
     fun getUserId(): Int = sharedPreferences.getUserId()
   //  fun getRutasAccesos(): List<RutasAccesos> = sharedPreferences.getRutasAccesos()
 
+
+    init {
+        obtenerRutasAccesosDesdeRoom()
+     }
+
+
     fun getOCRD() {
         _showLoading.value = true
         viewModelScope.launch(Dispatchers.Main)  {
@@ -98,9 +113,11 @@ class MenuPrincipalViewModel @Inject constructor(
 
 
             _mensajeDialog.value="Cargando Permisos de visitas ..."
-
             permisosVisitasRepository.fetchPermisosVisitas(getUserId())
 
+
+            _mensajeDialog.value="Cargando horarios ..."
+            horariosUsuarioRepository.fetchHorariosUsuario(getUserId())
 
             _mensajeDialog.value="Datos importados correctamente."
             _showLoading.value = false
@@ -113,13 +130,6 @@ class MenuPrincipalViewModel @Inject constructor(
         _showLoadingOk.value = false
     }
 
-
-   /* private fun obtenerRutasAccesosDesdeRoom() {
-        viewModelScope.launch {
-            val rutasAccesos = rutasAccesosDao.getAllRutasaccesos()
-            _rutas.postValue(rutasAccesos)
-        }
-    }*/
    private fun obtenerRutasAccesosDesdeRoom() {
        viewModelScope.launch(Dispatchers.IO) {
            val rutasAccesos = rutasAccesosRepository.getAllRutasAccesos()
@@ -130,7 +140,5 @@ class MenuPrincipalViewModel @Inject constructor(
    }
 
 
-    init {
-        obtenerRutasAccesosDesdeRoom()
-    }
+
 }

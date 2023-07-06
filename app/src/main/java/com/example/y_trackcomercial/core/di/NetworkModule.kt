@@ -3,6 +3,7 @@ package com.example.y_trackcomercial.core.di
 import android.app.Application
 import android.content.Context
 import com.example.y_trackcomercial.data.network.ApiService
+import com.example.y_trackcomercial.data.network.HorariosUsuarioApiClient
 import com.example.y_trackcomercial.data.network.LotesListasApiClient
 import com.example.y_trackcomercial.data.network.OcrdUbicacionesApiClient
 import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
@@ -29,8 +30,8 @@ class NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-           // .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
-            .baseUrl("http://192.168.6.126:8000/")
+            .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
+            //.baseUrl("http://192.168.6.126:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -72,6 +73,12 @@ class NetworkModule {
     @Singleton
     fun providePermisosVisitas(retrofit: Retrofit): PermisosVisitasApiClient {
         return retrofit.create(PermisosVisitasApiClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHorariosUsuario(retrofit: Retrofit): HorariosUsuarioApiClient {
+        return retrofit.create(HorariosUsuarioApiClient::class.java)
     }
 }
 

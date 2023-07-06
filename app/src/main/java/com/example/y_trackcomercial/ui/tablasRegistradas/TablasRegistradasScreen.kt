@@ -33,6 +33,8 @@ fun ScreenTablasRegistradas(tablasRegistradasViewModel: TablasRegistradasViewMod
     val ubicacionesCount by tablasRegistradasViewModel.ocrdUbicacionesCount.observeAsState()
     val rutasAccesosCount by tablasRegistradasViewModel.rutasAccesoCount.observeAsState()
     val lotesListasCount by tablasRegistradasViewModel.lotesListasCount.observeAsState()
+    val horariosUsuarioCount by tablasRegistradasViewModel.horariosUsuarioCount.observeAsState()
+    val auditTrailCount by tablasRegistradasViewModel.auditTrailCount.observeAsState()
 
     LaunchedEffect(Unit) {
         tablasRegistradasViewModel.getCustomerCount()
@@ -57,6 +59,17 @@ fun ScreenTablasRegistradas(tablasRegistradasViewModel: TablasRegistradasViewMod
             title = "Lotes cargados",
             subTitle = lotesListasCount.toString(),
             image = R.drawable.ic_lotes
+        )
+        cardViewRegistrosTablas(
+            title = "Horarios cargados",
+            subTitle = horariosUsuarioCount.toString(),
+            image = R.drawable.ic_horario
+        )
+
+        cardViewRegistrosTablas(
+            title = "Auditoria de camino",
+            subTitle = auditTrailCount.toString(),
+            image = R.drawable.ic_step
         )
     }
 }

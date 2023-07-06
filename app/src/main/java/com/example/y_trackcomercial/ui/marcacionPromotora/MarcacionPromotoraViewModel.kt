@@ -5,15 +5,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.y_trackcomercial.model.entities.logs.LogEntity
 import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
 import com.example.y_trackcomercial.model.models.OcrdItem
 import com.example.y_trackcomercial.repository.CustomerRepository
-import com.example.y_trackcomercial.repository.VisitasRepository
+import com.example.y_trackcomercial.repository.PermisosVisitasRepository
+import com.example.y_trackcomercial.repository.registroRepositories.VisitasRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.example.y_trackcomercial.services.battery.getBatteryPercentage
+import com.example.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 import com.example.y_trackcomercial.services.gps.calculoMetrosPuntosGps
 import com.example.y_trackcomercial.services.time_zone.isAutomaticDateTime
 import com.example.y_trackcomercial.services.time_zone.isAutomaticTimeZone
 import com.example.y_trackcomercial.util.SharedPreferences
+import com.example.y_trackcomercial.util.logUtils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +32,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val customerRepository: CustomerRepository,
     private val visitasRepository: VisitasRepository,
     private val sharedPreferences: SharedPreferences,
+    private val permisosVisitasRepository: PermisosVisitasRepository,
+    private val logRepository: LogRepository,
     private val context: Context
 ) : ViewModel() {
 
@@ -34,7 +41,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
 
     val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
     val OcrdNameLivedata: LiveData<String> = visitasRepository.getOcrdNameRepository()
-
 
 
     private val _metros: MutableLiveData<Int> = MutableLiveData()
@@ -71,6 +77,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val _buttonTextRegistro: MutableLiveData<String> = MutableLiveData()
     val buttonTextRegistro: MutableLiveData<String> = _buttonTextRegistro
 
+    private val _developerModeEnabled = MutableLiveData<Boolean>()
+    val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
 
     fun getAddresses() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -81,15 +89,16 @@ class MarcacionPromotoraViewModel @Inject constructor(
             }
         }
     }
+
     init {
         getAddresses()
-     }
+    }
 
     fun getStoredAddresses(): List<OcrdItem> {
         return _addressesList
     }
 
-    fun setIdOcrd(idOcrd: String, ocrd: String ) {
+    fun setIdOcrd(idOcrd: String, ocrd: String) {
         _idOcrd.value = idOcrd
         _ocrdName.value = ocrd
         _showButtonPv.value = true
@@ -103,103 +112,133 @@ class MarcacionPromotoraViewModel @Inject constructor(
             val visitaEstadoF = visitasRepository.getVisitaActiva("F")
             val isAutomaticTimeZone = isAutomaticTimeZone(context)
             val isAutomaticDateTime = isAutomaticDateTime(context)
+            _developerModeEnabled.value= isDeveloperModeEnabled(context)
 
-            if(isAutomaticTimeZone==0){
+
+            if (_developerModeEnabled.value==true) {
+                mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
+                LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
+            }
+             else
+
+            // SI SE COLOCO LA ZONA HORARIA MANUAL
+                if (isAutomaticTimeZone == 0) {
                 mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
+                LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
             }
-            else if (isAutomaticDateTime==0) {
+            // SI SE COLOCO LA HORA MANUAL
+            else if (isAutomaticDateTime == 0) {
                 mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
+                LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Hora y fecha manual ", "Hora y fecha activado manualmente", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
             }
+            else //COMIENZA EL INTENTO PARA REGISTRO.
+            {
+                var horario=true
 
-           else if (visitaEstadoF != null) {
-                val latitudPvVal = visitaEstadoF.latitudPV
-                val longitudPvVal = visitaEstadoF.longitudPV
+                if(horario)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
+                {
+                    //CASO PARA FINALIZAR LA VISITA INICIADA. ACTUALIZA EL REGISTRO DE FINALIZACION EN MODO MANUAL.
+                    if (visitaEstadoF != null) {
+                        val latitudPvVal = visitaEstadoF.latitudPV
+                        val longitudPvVal = visitaEstadoF.longitudPV
 
-                val metros = calculoMetrosPuntosGps(
-                    latitudUsuarioVal,
-                    longitudUsuarioVal,
-                    latitudPvVal,
-                    longitudPvVal
-                )
-
-                visitaEstadoF.apply {
-                    createdAt = LocalDateTime.now().toString()
-                    createdAtLong = System.currentTimeMillis()
-                    latitudUsuario = latitudUsuarioVal
-                    longitudUsuario = longitudUsuarioVal
-                    porcentajeBateria = porceBateria
-                    distanciaMetros = metros
-                    pendienteSincro = "P"
-                    tipoRegistro = "M"
-                }
-                if (metros > 100) {
-                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
-                } else {
-                    visitasRepository.updateVisita(visitaEstadoF)
-                    _showDialog.value = true
-                    _showButtonSelectPv.value = true
-                    _mensajeDialog.value = "Visita finalizada con éxito"
-                    _buttonTextRegistro.value = "Iniciar visita"
-
-                }
-            } else {
-                val latitudPv = latitudPv.value!!
-                val longitudPv = longitudPv.value!!
-
-                val metros = calculoMetrosPuntosGps(
-                    latitudUsuarioVal,
-                    longitudUsuarioVal,
-                    latitudPv,
-                    longitudPv
-                )
-
-                if (idOcrd.value == null) {
-                    mostrarMensajeDialogo("No se ha seleccionado el punto de venta")
-                } else if (metros > 100) {
-                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
-                } else {
-                    val visitaApertura = crearVisitaEntity(
-                        latitudUsuarioVal,
-                        longitudUsuarioVal,
-                        porceBateria,
-                        metros,
-                        "A",
-                        "M",
-                        latitudPv,
-                        longitudPv,
-                        ocrdName=ocrdName.value!!
-                    )
-                    val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
-
-                    if (idPrimeraVisita != -1L) {
-                        val visitaCierre = crearVisitaEntity(
+                        val metros = calculoMetrosPuntosGps(
                             latitudUsuarioVal,
                             longitudUsuarioVal,
-                            porceBateria,
-                            metros,
-                            estadoVisita = "F",
-                            tipoRegistro = "A",
-                            latitudPv,
-                            longitudPv,
-                            idA = idPrimeraVisita.toInt(),
-                            pendienteSincro = "N",
-                            ocrdName=ocrdName.value!!
-
+                            latitudPvVal,
+                            longitudPvVal
                         )
-                        val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
 
-                        if (idSegundaVisita != -1L) {
-                            _showDialog.value = true
-                            _showButtonSelectPv.value = false
-                            _mensajeDialog.value = "Visita realizada con éxito"
-                            _buttonTextRegistro.value = "Finalizar visita"
-                            limpiarValores()
-                        } else {
-                            mostrarMensajeDialogo("Error al insertar la visita")
+                        visitaEstadoF.apply {
+                            createdAt = LocalDateTime.now().toString()
+                            createdAtLong = System.currentTimeMillis()
+                            latitudUsuario = latitudUsuarioVal
+                            longitudUsuario = longitudUsuarioVal
+                            porcentajeBateria = porceBateria
+                            distanciaMetros = metros
+                            pendienteSincro = "P"
+                            tipoRegistro = "M"
                         }
-                    } else {
-                        mostrarMensajeDialogo("Error al insertar la visita")
+                        if (metros > 100) {
+                            mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                        } else {
+                            visitasRepository.updateVisita(visitaEstadoF)
+                            _showDialog.value = true
+                            _showButtonSelectPv.value = true
+                            _mensajeDialog.value = "Visita finalizada con éxito"
+                            _buttonTextRegistro.value = "Iniciar visita"
+
+                        }
                     }
+                    //CASO PARA INICIAR UNA VISITA, TAMBIEN SE REGISTRA LA FINALIZACION PERO COMO AUTOMATICO
+                    else {
+                        val latitudPv = latitudPv.value!!
+                        val longitudPv = longitudPv.value!!
+
+                        val metros = calculoMetrosPuntosGps(
+                            latitudUsuarioVal,
+                            longitudUsuarioVal,
+                            latitudPv,
+                            longitudPv
+                        )
+
+                        if (idOcrd.value == null) {
+                            mostrarMensajeDialogo("No se ha seleccionado el punto de venta")
+                        } else if (metros > 100) {
+                            mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                        } else {
+                            val visitaApertura = crearVisitaEntity(
+                                latitudUsuarioVal,
+                                longitudUsuarioVal,
+                                porceBateria,
+                                metros,
+                                "A",
+                                "M",
+                                latitudPv,
+                                longitudPv,
+                                ocrdName = ocrdName.value!!,
+                                tardia = "NO"
+                            )
+                            val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
+
+                            if (idPrimeraVisita != -1L) {
+                                val visitaCierre = crearVisitaEntity(
+                                    latitudUsuarioVal,
+                                    longitudUsuarioVal,
+                                    porceBateria,
+                                    metros,
+                                    estadoVisita = "F",
+                                    tipoRegistro = "A",
+                                    latitudPv,
+                                    longitudPv,
+                                    idA = idPrimeraVisita.toInt(),
+                                    pendienteSincro = "N",
+                                    ocrdName = ocrdName.value!!,
+                                    tardia = "NO"
+
+                                )
+                                val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
+
+                                if (idSegundaVisita != -1L) {
+                                    _showDialog.value = true
+                                    _showButtonSelectPv.value = false
+                                    _mensajeDialog.value = "Visita realizada con éxito"
+                                    _buttonTextRegistro.value = "Finalizar visita"
+                                    limpiarValores()
+                                } else {
+                                    mostrarMensajeDialogo("Error al insertar la visita")
+                                }
+                            } else {
+                                mostrarMensajeDialogo("Error al insertar la visita")
+                            }
+                        }
+                    }
+                }
+
+                else //SI INTENTO MARCAR CON LLEGADA TARDIA
+                {
+                    // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
+                    val permisoVisitaToken = permisosVisitasRepository.verificarPermisoVisita()
                 }
             }
         }
@@ -221,7 +260,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
         longitudPV: Double,
         idA: Int = 0,
         pendienteSincro: String = "P",
-        ocrdName:String
+        ocrdName: String,
+        tardia:String
     ): VisitasEntity {
         return VisitasEntity(
             id = null,
@@ -240,7 +280,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
             tipoRegistro = tipoRegistro,
             latitudPV = latitudPV,
             longitudPV = longitudPV,
-            ocrdName=ocrdName
+            ocrdName = ocrdName,
+            tarde = tardia
 
         )
     }
@@ -281,4 +322,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
         // _showDialog.value = false
         //_mensajeDialog.value = ""
     }
-}
+
+
+   }
