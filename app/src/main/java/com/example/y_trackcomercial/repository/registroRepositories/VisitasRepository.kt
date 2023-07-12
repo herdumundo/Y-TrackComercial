@@ -32,7 +32,8 @@ class VisitasRepository @Inject constructor
             visita.porcentajeBateria,
             visita.distanciaMetros,
             visita.pendienteSincro,
-            visita.tipoRegistro
+            visita.tipoRegistro,
+            visita.tipoCierre
         )
     }
 

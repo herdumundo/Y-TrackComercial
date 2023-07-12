@@ -14,4 +14,5 @@ data class PermisosVisitasEntity(
     val token: String,
     val createdAt: String,
     val idEstado: String,
+    val tipoPermiso: String// SI ES POR VISITA TARDIA, SI ES POR MARCAR FUERA DEL PUNTO.
 )

@@ -60,6 +60,12 @@ data class VisitasEntity(
 
     @NonNull
     @ColumnInfo(name = "llegadaTardia")
-    var tarde : String
+    var tarde : String,
+
+    @NonNull
+    @ColumnInfo(name = "idTurno")
+    var idTurno : Int,
+
+    var tipoCierre : String // FORZADO O NORMAL
 
 )

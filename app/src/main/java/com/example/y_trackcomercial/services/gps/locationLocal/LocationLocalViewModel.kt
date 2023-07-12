@@ -19,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationLocalViewModel @Inject constructor(
-    /*,application: Application*/
     private val auditTrailRepository: AuditTrailRepository,
     private val sharedPreferences: SharedPreferences,
 
@@ -83,7 +82,7 @@ class LocationLocalViewModel @Inject constructor(
     fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
         _latitud.value = latitud
         _longitud.value = longitud
-        if (calcularDistancia(latitud, longitud) >= 5) {
+        if (calcularDistancia(latitud, longitud) >= 50  && (latitud != _latitudInsert.value || longitud != _longitudInsert.value)) {
             _latitudInsert.value = latitud
             _longitudInsert.value = longitud
             _speed.value = speed
@@ -116,25 +115,3 @@ class LocationLocalViewModel @Inject constructor(
     }
 }
 
-
-/*
-
-    init {
-        //    startLocationCapture()
-    }
-private lateinit var scheduledExecutor: ScheduledExecutorService
-
- private fun startLocationCapture() {
-     scheduledExecutor = Executors.newSingleThreadScheduledExecutor()
-     scheduledExecutor.scheduleAtFixedRate(
-         {
-             viewModelScope.launch {
-                 captureLocation()
-             }
-         },
-         0,
-         3,
-         TimeUnit.MINUTES
-     )
- }
-*/

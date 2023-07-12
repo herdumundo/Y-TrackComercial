@@ -8,6 +8,7 @@ import com.example.y_trackcomercial.data.network.LotesListasApiClient
 import com.example.y_trackcomercial.data.network.OcrdUbicacionesApiClient
 import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
 import com.example.y_trackcomercial.data.network.OcrdClient
+import com.example.y_trackcomercial.data.network.ParametrosClient
 import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
 import dagger.Module
 import dagger.Provides
@@ -80,5 +81,13 @@ class NetworkModule {
     fun provideHorariosUsuario(retrofit: Retrofit): HorariosUsuarioApiClient {
         return retrofit.create(HorariosUsuarioApiClient::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideParametros(retrofit: Retrofit): ParametrosClient {
+        return retrofit.create(ParametrosClient::class.java)
+    }
+
+
 }
 

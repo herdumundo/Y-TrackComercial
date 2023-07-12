@@ -26,11 +26,11 @@ class PermisosVisitasRepository @Inject constructor(
         }
     }
 
-    suspend fun verificarPermisoVisita(/*token: String, claveSecreta: String*/): Boolean {
+    suspend fun verificarPermisoVisita(): Boolean {
         return try {
             val algorithm = Algorithm.HMAC256("1tZPe7SN1")
             val verifier = JWT.require(algorithm).build()
-            val jwt = verifier.verify(permisosVisitasDao.getToken())
+            val jwt = verifier.verify(permisosVisitasDao.getToken("INICIOVISITA"))
 
             val fechaExpiracion: Date = jwt.expiresAt
             val fechaActual = Date()

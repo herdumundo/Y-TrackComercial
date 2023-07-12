@@ -6,6 +6,7 @@ import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.dao.HorariosUsuarioDao
 import com.example.y_trackcomercial.model.dao.LotesListasDao
 import com.example.y_trackcomercial.model.dao.OcrdUbicacionesDao
+import com.example.y_trackcomercial.model.dao.ParametrosDao
 import com.example.y_trackcomercial.model.dao.PermisosVisitasDao
 import com.example.y_trackcomercial.model.dao.RutasAccesosDao
 import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.LogDao
@@ -17,6 +18,7 @@ import com.example.y_trackcomercial.model.entities.OcrdUbicacionEntity
 import com.example.y_trackcomercial.model.entities.PermisosVisitasEntity
 import com.example.y_trackcomercial.model.entities.RutasAccesosEntity
 import com.example.y_trackcomercial.model.entities.HorariosUsuarioEntity
+import com.example.y_trackcomercial.model.entities.ParametrosEntity
 import com.example.y_trackcomercial.model.entities.logs.AuditTrailEntity
 import com.example.y_trackcomercial.model.entities.logs.LogEntity
 import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
@@ -32,6 +34,7 @@ import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEnti
         HorariosUsuarioEntity::class,
         LogEntity::class,
         AuditTrailEntity::class,
+        ParametrosEntity::class,
         PermisosVisitasEntity::class
     ],
     version =1,
@@ -58,6 +61,9 @@ abstract class YtrackDatabase : RoomDatabase() {
 
     abstract fun LogDao(): LogDao
     abstract fun AuditTrailDao(): AuditTrailDao
+
+    abstract fun ParametrosDao(): ParametrosDao
+
 
 
 

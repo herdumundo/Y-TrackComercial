@@ -19,7 +19,7 @@ interface VisitasDao {
     @Query("SELECT * FROM VISITAS WHERE tipoRegistro='A' and estadoVisita = :estado LIMIT 1 ")
     suspend fun getVisitaActiva(estado: String): VisitasEntity?
 
-    @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro = :pendienteSincro, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
+    @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud,tipoCierre=:tipoCierre, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro = :pendienteSincro, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
     suspend fun updateVisita(
         visitaId: Int?,
         createdAt: String,
@@ -29,12 +29,18 @@ interface VisitasDao {
         porcentajeBateria: Int,
         distanciaMetros: Int?,
         pendienteSincro: String?,
-        tipoRegistro: String
+        tipoRegistro: String,
+        tipoCierre: String,
     )
     @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro = 'N'")
     fun getCantidadRegistrosPendientes(): LiveData<Int>
 
     @Query("SELECT ocrdName FROM visitas WHERE pendienteSincro = 'N'")
     fun getOcrdPendiente(): LiveData<String>
+
+
+
+    @Query("SELECT count(*) FROM visitas WHERE strftime('%d/%m/%Y', createdAt) = :fecha AND idTurno = :idTurno")
+    suspend fun getEsPrimeraVisita(fecha: String, idTurno: Int): Int
 
 }

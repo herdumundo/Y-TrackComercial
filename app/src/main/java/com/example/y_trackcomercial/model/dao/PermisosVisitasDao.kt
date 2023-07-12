@@ -11,8 +11,8 @@ import com.example.y_trackcomercial.model.entities.PermisosVisitasEntity
 @Dao
 interface PermisosVisitasDao {
 
-    @Query("SELECT token FROM PERMISOS_VISITAS   where idEstado=1 LIMIT 1")
-    suspend fun getToken(): String
+    @Query("SELECT token FROM PERMISOS_VISITAS WHERE idEstado = 1 and tipoPermiso=:tipoPermiso ORDER BY id DESC LIMIT 1")
+    suspend fun getToken(tipoPermiso : String ): String
 
 
 

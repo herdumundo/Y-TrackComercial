@@ -25,9 +25,13 @@ data class HorariosUsuarioEntity(
     @ColumnInfo(name = "horaSal")
     var horaSalida: String,
 
-    @ColumnInfo(name = "tolSal")
+    @ColumnInfo(name = "tolEnt")
     @NonNull
     var toleranciaEntrada: String,
+
+    @ColumnInfo(name = "tolSal")
+    @NonNull
+    var toleranciaSalida: String,
 
     @ColumnInfo(name = "inicioEnt")
     @NonNull
