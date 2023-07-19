@@ -19,6 +19,9 @@ interface VisitasDao {
     @Query("SELECT * FROM VISITAS WHERE tipoRegistro='A' and estadoVisita = :estado LIMIT 1 ")
     suspend fun getVisitaActiva(estado: String): VisitasEntity?
 
+    @Query("SELECT IDa FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
+    suspend fun getIdVisitaActiva(): Int
+
     @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud,tipoCierre=:tipoCierre, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro = :pendienteSincro, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
     suspend fun updateVisita(
         visitaId: Int?,

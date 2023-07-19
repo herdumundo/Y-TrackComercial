@@ -97,7 +97,6 @@ fun InfoDialog(
                         Button(
                             onClick = { onDismiss()},
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCE0303)),
-                            //.clip(RoundedCornerShape(25.dp))
                         ) {
                             Text(
                                 text = "No",
@@ -108,10 +107,7 @@ fun InfoDialog(
                         Spacer(modifier = Modifier.width(24.dp))
                         Button(
                             onClick = { onDismiss(); funcion()  },
-                            //shape = Shapes.small,
-                            //    modifier = Modifier.align(Alignment.CenterHorizontally),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCE0303)),
-                            //.clip(RoundedCornerShape(25.dp))
                         ) {
                             Text(
                                 text = "Si",

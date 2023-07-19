@@ -28,13 +28,13 @@ class HorariosUsuarioRepository @Inject constructor(
     private val visitasDao: VisitasDao,
     private val horariosUsuarioDao: HorariosUsuarioDao
 ) {
-    suspend fun fetchHorariosUsuario(idUsuario: Int) {
-        try {
+
+    suspend fun fetchHorariosUsuario(idUsuario: Int): Int {
+        return withContext(Dispatchers.IO) {
             val horariosResponse = horariosUsuarioApiClient.getHorarioUsuario(idUsuario)
             val horariosEntityList = convertToEntityList(horariosResponse)
             horariosUsuarioDao.insertAllTurnosHorarios(horariosEntityList)
-        } catch (e: Exception) {
-            val dasd = e.toString()
+            return@withContext getTurnosHorariosCountRepository()
         }
     }
 
@@ -66,7 +66,6 @@ class HorariosUsuarioRepository @Inject constructor(
         }
         return entityList
     }
-
 
     /** Estados de respuestas.
     *
@@ -131,8 +130,6 @@ class HorariosUsuarioRepository @Inject constructor(
             return@withContext ValidacionInicioHoraResult(respuestaVisita, mensaje)
         }
     }
-
-
 
     suspend fun esPrimeraVisitaTurno(idTurno: Int): Boolean {
         val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")

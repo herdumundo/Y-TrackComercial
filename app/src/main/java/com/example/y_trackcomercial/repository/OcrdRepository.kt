@@ -5,6 +5,8 @@ import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.entities.OCRDEntity
  import com.example.y_trackcomercial.data.network.OcrdClient
 import com.example.y_trackcomercial.model.models.OcrdItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -14,14 +16,11 @@ class CustomerRepository @Inject constructor(
     ) {
 
     val customers: LiveData<List<OCRDEntity>> = customerDao.getCustomers()
-    suspend fun fetchCustomers(progressCallback: (Float) -> Unit) {
-        try {
+    suspend fun fetchCustomers(): Int {
+        return withContext(Dispatchers.IO) {
             val customers = customerService.getCustomers()
             customerDao.insertAllCustomers(customers)
-            progressCallback(100f)
-
-        } catch (e: Exception) {
-            // Manejar la excepción
+            return@withContext getOcrdCount()
         }
     }
 

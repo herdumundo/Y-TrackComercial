@@ -11,11 +11,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -27,15 +25,14 @@ import com.example.y_trackcomercial.components.InfoDialogUnBoton
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPS
+import com.example.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.example.y_trackcomercial.ui.login2.LoginScreen
 import com.example.y_trackcomercial.ui.login2.LoginViewModel
 import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
-import com.example.y_trackcomercial.util.logUtils.LogUtils
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDateTime
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private val tablasRegistradasViewModel: TablasRegistradasViewModel by viewModels()
     private val menuPrincipalViewModel: MenuPrincipalViewModel by viewModels()
     private val marcacionPromotoraViewModel: MarcacionPromotoraViewModel by viewModels()
+    private val inventarioViewModel: InventarioViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +63,8 @@ class MainActivity : ComponentActivity() {
                     menuPrincipalViewModel,
                     tablasRegistradasViewModel,
                     locationViewModel,
-                    marcacionPromotoraViewModel
+                    marcacionPromotoraViewModel,
+                    inventarioViewModel
                 )
             }
         }
@@ -141,7 +140,8 @@ fun Router(
     menuPrincipalViewModel: MenuPrincipalViewModel,
     tablasRegistradasViewModel: TablasRegistradasViewModel,
     locationViewModel: LocationLocalViewModel,
-    marcacionPromotoraViewModel: MarcacionPromotoraViewModel
+    marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
+    inventarioViewModel: InventarioViewModel
 ) {
     NavHost(
         navController = navController,
@@ -151,8 +151,13 @@ fun Router(
         composable("login") { LoginScreen(loginViewModel, navController) }
         composable("menu") {
             MenuPrincipal(
-                loginViewModel, navController, menuPrincipalViewModel,
-                tablasRegistradasViewModel, locationViewModel,marcacionPromotoraViewModel
+                loginViewModel,
+                navController,
+                menuPrincipalViewModel,
+                tablasRegistradasViewModel,
+                locationViewModel,
+                marcacionPromotoraViewModel,
+                inventarioViewModel
             )
         }
     }

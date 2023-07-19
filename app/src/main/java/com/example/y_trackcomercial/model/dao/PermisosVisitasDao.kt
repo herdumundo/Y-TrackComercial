@@ -14,6 +14,8 @@ interface PermisosVisitasDao {
     @Query("SELECT token FROM PERMISOS_VISITAS WHERE idEstado = 1 and tipoPermiso=:tipoPermiso ORDER BY id DESC LIMIT 1")
     suspend fun getToken(tipoPermiso : String ): String
 
+    @Query("SELECT count(*) FROM PERMISOS_VISITAS WHERE idEstado = 1 ")
+      fun getPermisoVisitaCount(): Int
 
 
     @Insert(onConflict =  OnConflictStrategy.REPLACE)

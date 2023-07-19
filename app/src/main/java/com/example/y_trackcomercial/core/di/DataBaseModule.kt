@@ -5,9 +5,13 @@ import androidx.room.Room
 import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.dao.HorariosUsuarioDao
 import com.example.y_trackcomercial.model.dao.LotesListasDao
+import com.example.y_trackcomercial.model.dao.OcrdOitmDao
 import com.example.y_trackcomercial.model.dao.OcrdUbicacionesDao
+import com.example.y_trackcomercial.model.dao.OitmDao
 import com.example.y_trackcomercial.model.dao.PermisosVisitasDao
 import com.example.y_trackcomercial.model.dao.RutasAccesosDao
+import com.example.y_trackcomercial.model.dao.UbicacionesPvDao
+import com.example.y_trackcomercial.model.dao.registroDaos.MovimientosDao
 import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.LogDao
 import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
 import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.AuditTrailDao
@@ -83,5 +87,30 @@ class DataBaseModule() {
     @Singleton
     fun provideAuditTrailDao(database: YtrackDatabase): AuditTrailDao {
         return database.AuditTrailDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOitmDao(database: YtrackDatabase): OitmDao {
+        return database.OitmDao()
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideOcrdOitmDao(database: YtrackDatabase): OcrdOitmDao {
+        return database.OcrdOitmDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUbicacionesPvDao(database: YtrackDatabase): UbicacionesPvDao {
+        return database.UbicacionesPvDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMovimientosDao(database: YtrackDatabase): MovimientosDao {
+        return database.MovimientosDao()
     }
 }

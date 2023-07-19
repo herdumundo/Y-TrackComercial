@@ -8,14 +8,19 @@ import com.example.y_trackcomercial.data.network.LotesListasApiClient
 import com.example.y_trackcomercial.data.network.OcrdUbicacionesApiClient
 import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
 import com.example.y_trackcomercial.data.network.OcrdClient
+import com.example.y_trackcomercial.data.network.OcrdOitmClient
+import com.example.y_trackcomercial.data.network.OitmClient
 import com.example.y_trackcomercial.data.network.ParametrosClient
 import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
+import com.example.y_trackcomercial.data.network.UbicacionesPVClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -30,10 +35,18 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideRetrofit(): Retrofit {
+        val timeoutValue = 30L
         return Retrofit.Builder()
-            .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
-            //.baseUrl("http://192.168.6.126:8000/")
+             .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
+            // .baseUrl("http://192.168.6.134:5000/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(
+                OkHttpClient.Builder()
+                    .connectTimeout(timeoutValue, TimeUnit.SECONDS)
+                    .readTimeout(timeoutValue, TimeUnit.SECONDS)
+                    .writeTimeout(timeoutValue, TimeUnit.SECONDS)
+                    .build()
+            )
             .build()
     }
 
@@ -88,6 +101,21 @@ class NetworkModule {
         return retrofit.create(ParametrosClient::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideOitm(retrofit: Retrofit): OitmClient {
+        return retrofit.create(OitmClient::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideOcrdOitm(retrofit: Retrofit): OcrdOitmClient {
+        return retrofit.create(OcrdOitmClient::class.java)
+    }
 
+    @Provides
+    @Singleton
+    fun provideUbicacionesPv(retrofit: Retrofit): UbicacionesPVClient {
+        return retrofit.create(UbicacionesPVClient::class.java)
+    }
 }
 

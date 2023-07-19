@@ -1,18 +1,13 @@
 package com.example.y_trackcomercial.ui.login2
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.y_trackcomercial.repository.RutasAccesosRepository
-import com.example.y_trackcomercial.ui.login2.domain.AuthUseCase
+import com.example.y_trackcomercial.usecases.login.AuthUseCase
 import com.example.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

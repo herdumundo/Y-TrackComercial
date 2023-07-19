@@ -53,9 +53,10 @@ fun GpsLocationScreen(
 
     LaunchedEffect(Unit) {
         marcacionPromotoraViewModel.consultaVisitaActiva()
+        marcacionPromotoraViewModel.getAddresses()
     }
     Column {
-        Text(text = "Metros de distancia: ${metros ?: "-"}")
+       // Text(text = "Metros de distancia: ${metros ?: "-"}")
 
         MyApp(marcacionPromotoraViewModel, latitudUsuario ?: 0.0, longitudUsuario ?: 0.0)
     }

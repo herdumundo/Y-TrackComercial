@@ -38,7 +38,9 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val logRepository: LogRepository,
     private val context: Context
 ) : ViewModel() {
-
+    /*init {
+        getAddresses()
+    }*/
     private val _addressesList: MutableList<OcrdItem> = mutableListOf()
 
     val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
@@ -94,9 +96,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
         }
     }
 
-    init {
-        getAddresses()
-    }
+
 
     fun getStoredAddresses(): List<OcrdItem> {
         return _addressesList
@@ -150,7 +150,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
                 else //SI INTENTO MARCAR CON LLEGADA TARDIA
                 {
                     // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
-                    val permisoVisitaToken = permisosVisitasRepository.verificarPermisoVisita()
+                    val permisoVisitaToken = permisosVisitasRepository.verificarPermisoVisita("INICIOVISITA")
 
                     if(!permisoVisitaToken){
                        mostrarMensajeDialogo(_validacionVisita.value!!.mensaje)
@@ -177,7 +177,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
         if (visitaEstadoF != null) {
             val latitudPvVal = visitaEstadoF.latitudPV
             val longitudPvVal = visitaEstadoF.longitudPV
-            var permisoCierreForzado=permisosVisitasRepository.verificarPermisoVisita()
+            var permisoCierreForzado=permisosVisitasRepository.verificarPermisoVisita("SALIDA_FUERA_PUNTO")
             val tipoCierreVar = if (permisoCierreForzado) "FORZADO" else "NORMAL"
 
             val metros = calculoMetrosPuntosGps(

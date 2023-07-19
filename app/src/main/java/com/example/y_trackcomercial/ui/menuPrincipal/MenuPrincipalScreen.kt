@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +20,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -51,6 +49,8 @@ import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.InfoDialogOk
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.model.entities.OCRDEntity
+import com.example.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
+import com.example.y_trackcomercial.ui.inventario.screen.ScreenInventario
 import com.example.y_trackcomercial.ui.login2.LoginViewModel
 import com.example.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
@@ -68,7 +68,8 @@ fun MenuPrincipal(
     menuPrincipalViewModel: MenuPrincipalViewModel,
     tablasRegistradasViewModel: TablasRegistradasViewModel,
     locationViewModel: LocationLocalViewModel,
-    marcacionPromotoraViewModel: MarcacionPromotoraViewModel
+    marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
+    inventarioViewModel: InventarioViewModel
 ) {
 
     if (loginViewModel.loggedIn.value == true) {
@@ -83,15 +84,14 @@ fun MenuPrincipal(
         val showDialogOK by menuPrincipalViewModel.showLoadingOk.observeAsState(initial = false)
         val mensajeDialog by menuPrincipalViewModel.mensajeDialog.observeAsState("")
 
-       // cargar()
+        // cargar()
         Scaffold(
             topBar = {
-                MyTopAppBar(
-                    onNavIconClick = {
-                        coroutineScope.launch {
-                            scaffoldState.drawerState.open()
-                        }
-                    },
+                MyTopAppBar(onNavIconClick = {
+                    coroutineScope.launch {
+                        scaffoldState.drawerState.open()
+                    }
+                },
                     expanded = expanded,
                     onMoreOptionsClick = { expanded = !expanded },
                     menuPrincipalViewModel,
@@ -109,8 +109,7 @@ fun MenuPrincipal(
                 )
             },
 
-            )
-        {
+            ) {
 
             DialogLoading(mensajeDialog, showDialog)
 
@@ -135,7 +134,6 @@ fun MenuPrincipal(
                     {
                         openDialogSincro.value = false
                     })
-
             }
 
             if (showDialogOK) {
@@ -147,25 +145,28 @@ fun MenuPrincipal(
                         menuPrincipalViewModel.cerrarAviso()
                     })
             }
-                   NavHost(navController, startDestination = "home") {
-                    composable("home") {
-                        HomeScreen()
-                    }
-                       composable("registroNuevo") {
-                           ScreenTablasRegistradas(tablasRegistradasViewModel)
-                       }
-                       composable("marcacionPromotora") {
-                           DisposableEffect(Unit) {
-                               onDispose {
-                                   marcacionPromotoraViewModel.limpiarValores()
-                               }
-                           }
-                           GpsLocationScreen(
-                               locationViewModel = locationViewModel,
-                               marcacionPromotoraViewModel = marcacionPromotoraViewModel
-                           )
-                       }
+            NavHost(navController, startDestination = "home") {
+                composable("home") {
+                    HomeScreen()
                 }
+                composable("registroNuevo") {
+                    ScreenTablasRegistradas(tablasRegistradasViewModel,menuPrincipalViewModel)
+                }
+                composable("inventario") {
+                    ScreenInventario(inventarioViewModel)
+                }
+                composable("marcacionPromotora") {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            marcacionPromotoraViewModel.limpiarValores()
+                        }
+                    }
+                    GpsLocationScreen(
+                        locationViewModel = locationViewModel,
+                        marcacionPromotoraViewModel = marcacionPromotoraViewModel
+                    )
+                }
+            }
         }
     } else {
         navControllerPrincipal.navigate("login")
@@ -208,7 +209,9 @@ fun MyTopAppBar(
 
     ) {
     var showSnackbar by remember { mutableStateOf(false) }
-    val registrosConPendiente: Int by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(0)
+    val registrosConPendiente: Int by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(
+        0
+    )
     val ocrdNameLivedata: String by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
 
 
@@ -248,27 +251,24 @@ fun MyTopAppBar(
                 )
             }
 
-             if(registrosConPendiente>0){
+            if (registrosConPendiente > 0) {
 
-            IconButton(onClick = {
-                 "Tienes un punto de venta pendiente"
-                showSnackbar = true
-                // Lógica para manejar el clic en el icono de notificaciones
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "Notifications",
-                    tint = Color.White
-                )
-              //  if (notificacionesPendientes > 0) {
-                    Badge(
-                        modifier = Modifier.offset(x = 8.dp, y = (-8).dp),
-                        content = {
-                            Text(text = "1", color = Color.White)
-                        }
+                IconButton(onClick = {
+                    "Tienes un punto de venta pendiente"
+                    showSnackbar = true
+                    // Lógica para manejar el clic en el icono de notificaciones
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Notifications,
+                        contentDescription = "Notifications",
+                        tint = Color.White
                     )
-                //}
-            }
+                    //  if (notificacionesPendientes > 0) {
+                    Badge(modifier = Modifier.offset(x = 8.dp, y = (-8).dp), content = {
+                        Text(text = "1", color = Color.White)
+                    })
+                    //}
+                }
 
             }
             IconButton(
@@ -301,16 +301,14 @@ fun MyTopAppBar(
             }
         })
     if (showSnackbar) {
-        Snackbar(
-            modifier = Modifier.padding(bottom = 16.dp),
-            action = {
-                Button(onClick = { showSnackbar = false },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFf910000)) // Color de fondo personalizado
-                ) {
-                    Text(text = "Cerrar")
-                }
+        Snackbar(modifier = Modifier.padding(bottom = 16.dp), action = {
+            Button(
+                onClick = { showSnackbar = false },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFf910000)) // Color de fondo personalizado
+            ) {
+                Text(text = "Cerrar")
             }
-        ) {
+        }) {
             Text(text = "Visita iniciada en: $ocrdNameLivedata")
         }
     }
@@ -371,12 +369,12 @@ fun MyDrawer(
                 .fillMaxWidth()
         )
         acessoState.forEach { rutaAcceso ->
-                val icono = rutaAcceso.icono  // Obtener el icono correspondiente
-                val nombre = rutaAcceso.name
-                val ruta = rutaAcceso.ruta
+            val icono = rutaAcceso.icono  // Obtener el icono correspondiente
+            val nombre = rutaAcceso.name
+            val ruta = rutaAcceso.ruta
 
-                DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
-         }
+            DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
+        }
     }
 }
 
@@ -430,7 +428,9 @@ fun HomeScreen() {
     Image(
         painter = painterResource(R.drawable.ytrack2), // Ruta de la imagen
         contentDescription = "My Image",
-        modifier = Modifier.fillMaxWidth().fillMaxHeight() // Tamaño de la imagen
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight() // Tamaño de la imagen
     )
 }
 

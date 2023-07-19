@@ -22,6 +22,13 @@ class VisitasRepository @Inject constructor
         return visitasDao.getVisitaActiva(estado)
     }
 
+
+    suspend    fun getIdVisitaActiva(): Int {
+        return visitasDao.getIdVisitaActiva()
+    }
+
+
+
     suspend fun updateVisita(visita: VisitasEntity) {
         visitasDao.updateVisita(
             visita.id,

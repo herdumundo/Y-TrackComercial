@@ -1,27 +1,28 @@
 package com.example.y_trackcomercial.repository
 
-import android.util.Log
 import com.example.y_trackcomercial.data.network.LotesListasApiClient
 import com.example.y_trackcomercial.model.dao.LotesListasDao
+import com.example.y_trackcomercial.model.models.LotesItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
 
 class LotesListasRepository @Inject constructor(
     private val customerService: LotesListasApiClient,
     private val lotesListasDao: LotesListasDao
-    ) {
-     suspend fun fetchLotesListas(progressCallback: (Float) -> Unit) {
-        try {
+) {
+
+    suspend fun fetchLotesListas(): Int {
+        return withContext(Dispatchers.IO) {
             val customers = customerService.getListasLotes()
             lotesListasDao.insertAllLotesListas(customers)
-            progressCallback(100f)
-        } catch (e: Exception) {
-            println("Error al obtener los lotes listas: ${e.message}")
-            Log.i("Mensaje",e.message.toString())
+            return@withContext getListasLotesCount()
         }
     }
 
-    fun getListasLotesCount():  Int  {
-        return lotesListasDao.getLotesListasCount()
-    }
-}
+    fun getListasLotesCount(): Int = lotesListasDao.getLotesListasCount()
+
+    fun getLotesListasByItemCode(itemCode: String): List<LotesItem> =
+        lotesListasDao.getLotesListasByItemCode(itemCode)
+
+ }
