@@ -10,6 +10,9 @@ import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEnti
 @Dao
 interface VisitasDao {
 
+
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVisitas(visita: VisitasEntity): Long
 
@@ -22,7 +25,10 @@ interface VisitasDao {
     @Query("SELECT IDa FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
     suspend fun getIdVisitaActiva(): Int
 
-    @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud,tipoCierre=:tipoCierre, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro = :pendienteSincro, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
+    @Query("SELECT count(*)+1 FROM VISITAS WHERE estadoVisita='A' and strftime('%d/%m/%Y', createdAt)=strftime('%d/%m/%Y',  datetime('now') )") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
+    suspend fun getSecuenciaVisita(): Int
+
+    @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud,tipoCierre=:tipoCierre, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro=:pendienteSincro, exportado= :exportado, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
     suspend fun updateVisita(
         visitaId: Int?,
         createdAt: String,
@@ -31,19 +37,33 @@ interface VisitasDao {
         longitud: Double,
         porcentajeBateria: Int,
         distanciaMetros: Int?,
-        pendienteSincro: String?,
+        pendienteSincro : String?,
+        exportado : Boolean,
         tipoRegistro: String,
         tipoCierre: String,
     )
-    @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro = 'N'")
+    @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro='N'")
     fun getCantidadRegistrosPendientes(): LiveData<Int>
 
-    @Query("SELECT ocrdName FROM visitas WHERE pendienteSincro = 'N'")
+    @Query("SELECT ocrdName FROM visitas WHERE pendienteSincro='N'")
     fun getOcrdPendiente(): LiveData<String>
 
 
 
-    @Query("SELECT count(*) FROM visitas WHERE strftime('%d/%m/%Y', createdAt) = :fecha AND idTurno = :idTurno")
+    @Query("SELECT count(*) FROM visitas WHERE strftime('%d/%m/%Y', createdAt) = :fecha AND idTurno = :idTurno and estadoVisita='A'")
     suspend fun getEsPrimeraVisita(fecha: String, idTurno: Int): Int
+
+/** SECTOR DE EXPORTACIONES. */
+    @Query("SELECT * FROM visitas where pendienteSincro='P'  ")
+    suspend fun getVisitasExportaciones(): List<VisitasEntity>
+
+
+    @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro='P'")
+    fun getCantidadPendientesExportar():  Int
+
+
+    @Query("UPDATE visitas SET pendienteSincro='C' where pendienteSincro='P'")
+    suspend fun updateExportadoCerrado(  )
+
 
 }

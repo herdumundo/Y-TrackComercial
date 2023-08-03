@@ -30,4 +30,7 @@ data class AuditTrailEntity(
     val velocidad: Double?,
    // @NonNull
     val nombreUsuario: String?,
+
+    @ColumnInfo(name = "estado")
+    val estado: String,
 )

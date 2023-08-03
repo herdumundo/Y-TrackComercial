@@ -2,8 +2,19 @@ package com.example.y_trackcomercial.core.di
 
 import com.example.y_trackcomercial.repository.PermisosVisitasRepository
 import com.example.y_trackcomercial.repository.UbicacionesPvRepository
+import com.example.y_trackcomercial.repository.registroRepositories.MovimientosRepository
 import com.example.y_trackcomercial.repository.registroRepositories.VisitasRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.example.y_trackcomercial.usecases.exportacionAuditTrail.CountAuditTrailUseCase
+import com.example.y_trackcomercial.usecases.exportacionAuditTrail.EnviarAuditTrailPendientesUseCase
+import com.example.y_trackcomercial.usecases.exportacionAuditTrail.GetAuditTrailPendienteUseCase
+import com.example.y_trackcomercial.usecases.exportacionVisitas.CountCantidadPendientes
+import com.example.y_trackcomercial.usecases.exportacionVisitas.EnviarVisitasPendientesUseCase
+import com.example.y_trackcomercial.usecases.exportacionVisitas.GetVisitasPendientesUseCase
+import com.example.y_trackcomercial.usecases.informeInventario.GetInformeUseCase
 import com.example.y_trackcomercial.usecases.marcacionPromotora.GetIdVisitaActivaUseCase
+import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarCierrePendienteUseCase
+import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarInventarioCierreVisitaUseCase
 import com.example.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
 import com.example.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisitaUseCase
 import com.example.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvCountUseCase
@@ -55,7 +66,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetUbicacionesPvUseCase(
         permisosVisitasRepository: UbicacionesPvRepository
-    ): GetUbicacionesPvUseCase  {
+    ): GetUbicacionesPvUseCase {
         return GetUbicacionesPvUseCase(permisosVisitasRepository)
     }
 
@@ -63,10 +74,85 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetIdVisitaActivaUseCase(
         visitasRepository: VisitasRepository
-    ): GetIdVisitaActivaUseCase  {
+    ): GetIdVisitaActivaUseCase {
         return GetIdVisitaActivaUseCase(visitasRepository)
     }
 
 
-}
+    @Provides
+    @ViewModelScoped
+    fun provideVerificarInventarioCierreVisitaUseCase(
+        permisosVisitasRepository: PermisosVisitasRepository
+    ): VerificarInventarioCierreVisitaUseCase {
+        return VerificarInventarioCierreVisitaUseCase(permisosVisitasRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideVerificarCierrePendienteUseCaseUseCase(
+        permisosVisitasRepository: PermisosVisitasRepository
+    ): VerificarCierrePendienteUseCase {
+        return VerificarCierrePendienteUseCase(permisosVisitasRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun providegetInformeUseCase(
+        movimientosRepository: MovimientosRepository
+    ): GetInformeUseCase {
+        return GetInformeUseCase(movimientosRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun providegetgetVisitasPendientesUseCase(
+        visitasRepository: VisitasRepository
+    ): GetVisitasPendientesUseCase {
+        return GetVisitasPendientesUseCase(visitasRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun providegetEnviarVisitasPendientesUseCase(
+        visitasRepository: VisitasRepository
+    ): EnviarVisitasPendientesUseCase {
+        return EnviarVisitasPendientesUseCase(visitasRepository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountCantidadPendientesUseCase(
+        visitasRepository: VisitasRepository
+    ): CountCantidadPendientes {
+        return CountCantidadPendientes(visitasRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetAuditTrailPendienteUseCase(
+        auditTrailRepository: AuditTrailRepository
+    ): GetAuditTrailPendienteUseCase {
+        return GetAuditTrailPendienteUseCase(auditTrailRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountAuditTrailUseCase(
+        auditTrailRepository: AuditTrailRepository
+    ): CountAuditTrailUseCase {
+        return CountAuditTrailUseCase(auditTrailRepository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideEnviarAuditTrailPendientesUseCase(
+        auditTrailRepository: AuditTrailRepository
+    ): EnviarAuditTrailPendientesUseCase {
+        return EnviarAuditTrailPendientesUseCase(auditTrailRepository)
+    }
+
+
+ }
 

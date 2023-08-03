@@ -18,15 +18,17 @@ import com.example.y_trackcomercial.services.developerMode.isDeveloperModeEnable
 import com.example.y_trackcomercial.services.gps.calculoMetrosPuntosGps
 import com.example.y_trackcomercial.services.time_zone.isAutomaticDateTime
 import com.example.y_trackcomercial.services.time_zone.isAutomaticTimeZone
+import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarCierrePendienteUseCase
+import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarInventarioCierreVisitaUseCase
 import com.example.y_trackcomercial.util.SharedPreferences
 import com.example.y_trackcomercial.util.ValidacionesVisitas
+import com.example.y_trackcomercial.util.registrosVisitas.crearVisitaEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import javax.inject.Inject
-
 
 @HiltViewModel
 class MarcacionPromotoraViewModel @Inject constructor(
@@ -35,6 +37,10 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val permisosVisitasRepository: PermisosVisitasRepository,
     private val horariosUsuarioRepository: HorariosUsuarioRepository,
+    private val verificarInventarioCierreVisitaUseCase: VerificarInventarioCierreVisitaUseCase,
+    private val verificarCierrePendienteUseCase: VerificarCierrePendienteUseCase,
+
+
     private val logRepository: LogRepository,
     private val context: Context
 ) : ViewModel() {
@@ -46,7 +52,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
     val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
     val OcrdNameLivedata: LiveData<String> = visitasRepository.getOcrdNameRepository()
 
-
     private val _metros: MutableLiveData<Int> = MutableLiveData()
     val metros: MutableLiveData<Int> = _metros
 
@@ -55,7 +60,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
 
     private val _ocrdName: MutableLiveData<String> = MutableLiveData()
     val ocrdName: MutableLiveData<String> = _ocrdName
-
 
     private val _showDialog = MutableLiveData<Boolean>()
     val showDialog: LiveData<Boolean> = _showDialog
@@ -84,7 +88,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val _developerModeEnabled = MutableLiveData<Boolean>()
     val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
 
-    private val _validacionVisita = MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
+    private val _validacionVisita =
+        MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
 
     fun getAddresses() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -95,7 +100,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
             }
         }
     }
-
 
 
     fun getStoredAddresses(): List<OcrdItem> {
@@ -116,14 +120,25 @@ class MarcacionPromotoraViewModel @Inject constructor(
             val isAutomaticTimeZone = isAutomaticTimeZone(context)
             val isAutomaticDateTime = isAutomaticDateTime(context)
             val porceBateria = getBatteryPercentage(context)
-            val idTurno=horariosUsuarioRepository.getIdTurno()
+            val idTurno = horariosUsuarioRepository.getIdTurno()
             //FUNCION SUSPENDIDA
             val esPrimeraVisita = horariosUsuarioRepository.esPrimeraVisitaTurno(idTurno)
-            //OTRA FUNCION SUSPENDIDA
-            _validacionVisita.value=horariosUsuarioRepository.validacionInicioHora( esPrimeraVisita)
-             val rangoDistancia=300
-            _developerModeEnabled.value= isDeveloperModeEnabled(context)
-            var  SalidaFueraPunto=false
+
+            /**HACER QUE SI EXISTE UN CIERRE PENDIENTE, NO ENTRE EN "ES PRIMERA VISITA.
+             * ESTO PORQUE PUEDE EXISTIR UNA VISITA DEL DIA ANTERIOR QUE NO SE FINALIZO, ENTONCES AL SIGUIENTE DIA,
+             * SIEMPRE COMIENZA COMO QUE ES PRIMERA VISITA." */
+
+            val cierrePendiente = verificarCierrePendienteUseCase.verificarCierrePendiente()
+            if (cierrePendiente) {
+                _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
+            } else {
+                _validacionVisita.value =
+                    horariosUsuarioRepository.validacionInicioHora(esPrimeraVisita)
+            }
+
+            val rangoDistancia = 300
+            _developerModeEnabled.value = isDeveloperModeEnabled(context)
+            var SalidaFueraPunto = false
             /*
                         if (_developerModeEnabled.value==true) {
                             mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
@@ -143,24 +158,37 @@ class MarcacionPromotoraViewModel @Inject constructor(
                         }
                         else //COMIENZA EL INTENTO PARA REGISTRO.
                        */
-                if(_validacionVisita.value?.respuestaVisita==1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
-                {
-                    transaccionVisita(latitudUsuarioVal,longitudUsuarioVal,porceBateria,idTurno,rangoDistancia,"NO")
+            if (_validacionVisita.value?.respuestaVisita == 1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
+            {
+                transaccionVisita(
+                    latitudUsuarioVal,
+                    longitudUsuarioVal,
+                    porceBateria,
+                    idTurno,
+                    rangoDistancia,
+                    "NO"
+                )
+            } else //SI INTENTO MARCAR CON LLEGADA TARDIA
+            {
+                // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
+                val permisoVisitaToken =
+                    permisosVisitasRepository.verificarPermisoVisita("INICIOVISITA")
+                if (!permisoVisitaToken) {
+                    mostrarMensajeDialogo(_validacionVisita.value!!.mensaje)
+                } else {
+                    transaccionVisita(
+                        latitudUsuarioVal,
+                        longitudUsuarioVal,
+                        porceBateria,
+                        idTurno,
+                        rangoDistancia,
+                        "SI"
+                    )
                 }
-                else //SI INTENTO MARCAR CON LLEGADA TARDIA
-                {
-                    // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
-                    val permisoVisitaToken = permisosVisitasRepository.verificarPermisoVisita("INICIOVISITA")
-
-                    if(!permisoVisitaToken){
-                       mostrarMensajeDialogo(_validacionVisita.value!!.mensaje)
-                    }
-                    else{
-                        transaccionVisita(latitudUsuarioVal,longitudUsuarioVal,porceBateria,idTurno,rangoDistancia,"SI")
-                    }
-                }
+            }
         }
     }
+
     fun transaccionVisita(
         latitudUsuarioVal: Double,
         longitudUsuarioVal: Double,
@@ -168,128 +196,151 @@ class MarcacionPromotoraViewModel @Inject constructor(
         idTurno: Int,
         rangoDistancia: Int,
         llegadaTardia: String,
-    )
-    {
+    ) {
         viewModelScope.launch {
-        val visitaEstadoF = visitasRepository.getVisitaActiva("F")
+            val visitaEstadoF = visitasRepository.getVisitaActiva("F")
+            val secuenciaVisita = visitasRepository.getSecuenciaVisita()
 
-        //CASO PARA FINALIZAR LA VISITA INICIADA. ACTUALIZA EL REGISTRO DE FINALIZACION EN MODO MANUAL.
-        if (visitaEstadoF != null) {
-            val latitudPvVal = visitaEstadoF.latitudPV
-            val longitudPvVal = visitaEstadoF.longitudPV
-            var permisoCierreForzado=permisosVisitasRepository.verificarPermisoVisita("SALIDA_FUERA_PUNTO")
-            val tipoCierreVar = if (permisoCierreForzado) "FORZADO" else "NORMAL"
+            /** CASO PARA FINALIZAR LA VISITA INICIADA. ACTUALIZA EL REGISTRO DE FINALIZACION EN MODO MANUAL.*/
+            if (visitaEstadoF != null) {
+                val latitudPvVal = visitaEstadoF.latitudPV
+                val longitudPvVal = visitaEstadoF.longitudPV
+                //VERIFICA SI EL CIERRE ES NORMAL O FORZADO, SI TIENE TOKEN ENTONCES ES FORZADO.
+                var permisoCierreForzado =
+                    permisosVisitasRepository.verificarPermisoVisita("SALIDA_FUERA_PUNTO")
+                val tipoCierreVar = if (permisoCierreForzado) "FORZADO" else "NORMAL"
+                var inventarioExistente =
+                    verificarInventarioCierreVisitaUseCase.verificarInventarioExistente()
 
-            val metros = calculoMetrosPuntosGps(
-                latitudUsuarioVal,
-                longitudUsuarioVal,
-                latitudPvVal,
-                longitudPvVal
-            )
-            visitaEstadoF.apply {
-                createdAt = LocalDateTime.now().toString()
-                createdAtLong = System.currentTimeMillis()
-                latitudUsuario = latitudUsuarioVal
-                longitudUsuario = longitudUsuarioVal
-                porcentajeBateria = porceBateria
-                distanciaMetros = metros
-                pendienteSincro = "P"
-                tipoRegistro = "M"
-                tipoCierre = tipoCierreVar
-            }
-
-            if (metros > rangoDistancia ) {
-                if(!permisoCierreForzado){
-                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                val metros = calculoMetrosPuntosGps(
+                    latitudUsuarioVal,
+                    longitudUsuarioVal,
+                    latitudPvVal,
+                    longitudPvVal
+                )
+                visitaEstadoF.apply {
+                    createdAt = LocalDateTime.now().toString()
+                    createdAtLong = System.currentTimeMillis()
+                    latitudUsuario = latitudUsuarioVal
+                    longitudUsuario = longitudUsuarioVal
+                    porcentajeBateria = porceBateria
+                    distanciaMetros = metros
+                    pendienteSincro = "P"
+                    tipoRegistro = "M"
+                    tipoCierre = tipoCierreVar
+                    pendienteSincro="P"
+                    exportado=false
                 }
-                else{
 
+                if (metros > rangoDistancia) {
+                    if (!permisoCierreForzado) {
+                        mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                    } else {
+                        visitasRepository.updateVisita(visitaEstadoF)
+                        _showDialog.value = true
+                        _showButtonSelectPv.value = true
+                        _mensajeDialog.value = "Visita finalizada con éxito"
+                        _buttonTextRegistro.value = "Iniciar visita"
+                    }
+                }
+                //SI NO SE REALIZO EL INVENTARIO NO DEBE FINALIZAR VISITA, A NO SER DE QUE EXISTA UN PERMISO
+                else if (!inventarioExistente) {
+                    if (!permisoCierreForzado) {
+                        mostrarMensajeDialogo("No se puede finalizar la visita, primero debes registrar el inventario.")
+                    } else {
+                        visitasRepository.updateVisita(visitaEstadoF)
+                        _showDialog.value = true
+                        _showButtonSelectPv.value = true
+                        _mensajeDialog.value = "Visita finalizada con éxito"
+                        _buttonTextRegistro.value = "Iniciar visita"
+                    }
+                } else {
                     visitasRepository.updateVisita(visitaEstadoF)
                     _showDialog.value = true
                     _showButtonSelectPv.value = true
                     _mensajeDialog.value = "Visita finalizada con éxito"
                     _buttonTextRegistro.value = "Iniciar visita"
-
                 }
-            } else {
-
-                visitasRepository.updateVisita(visitaEstadoF)
-                _showDialog.value = true
-                _showButtonSelectPv.value = true
-                _mensajeDialog.value = "Visita finalizada con éxito"
-                _buttonTextRegistro.value = "Iniciar visita"
-
             }
-        }
-        //CASO PARA INICIAR UNA VISITA, TAMBIEN SE REGISTRA LA FINALIZACION PERO COMO AUTOMATICO
-        else {
-            val latitudPv = latitudPv.value!!
-            val longitudPv = longitudPv.value!!
-
-            val metros = calculoMetrosPuntosGps(
-                latitudUsuarioVal,
-                longitudUsuarioVal,
-                latitudPv,
-                longitudPv
-            )
-
-            if (idOcrd.value == null) {
-                mostrarMensajeDialogo("No se ha seleccionado el punto de venta")
-            } else if (metros > rangoDistancia) {
-                mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
-            } else {
-                val visitaApertura = crearVisitaEntity(
+            /**  CASO PARA INICIAR UNA VISITA, TAMBIEN SE REGISTRA LA FINALIZACION PERO COMO AUTOMATICO */
+            else {
+                val latitudPv = latitudPv.value!!
+                val longitudPv = longitudPv.value!!
+                val metros = calculoMetrosPuntosGps(
                     latitudUsuarioVal,
                     longitudUsuarioVal,
-                    porceBateria,
-                    metros,
-                    "A",
-                    "M",
                     latitudPv,
-                    longitudPv,
-                    ocrdName = ocrdName.value!!,
-                    tardia = llegadaTardia,
-                    idTurno = idTurno,
-                    tipoCierre = "NORMAL"
+                    longitudPv
                 )
-                val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
-
-                if (idPrimeraVisita != -1L) {
-                    val visitaCierre = crearVisitaEntity(
+                if (idOcrd.value == null) {
+                    mostrarMensajeDialogo("No se ha seleccionado el punto de venta")
+                } else if (metros > rangoDistancia) {
+                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                } else {
+                    val visitaApertura = crearVisitaEntity(
                         latitudUsuarioVal,
                         longitudUsuarioVal,
                         porceBateria,
                         metros,
-                        estadoVisita = "F",
-                        tipoRegistro = "A",
+                        "A",
+                        "M",
                         latitudPv,
                         longitudPv,
-                        idA = idPrimeraVisita.toInt(),
-                        pendienteSincro = "N",
                         ocrdName = ocrdName.value!!,
                         tardia = llegadaTardia,
                         idTurno = idTurno,
-                        tipoCierre = "NORMAL"
-
+                        tipoCierre = "NORMAL",
+                        exportado = false,
+                        idUsuario = sharedPreferences.getUserId(),
+                        idRol = 1,
+                        idOcrd = idOcrd.value.toString(),
+                        rol = "PROMOTOR",
+                        pendienteSincro = "P",
+                        secuencia=secuenciaVisita
 
 
                     )
-                    val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
+                    val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
 
-                    if (idSegundaVisita != -1L) {
-                        _showDialog.value = true
-                        _showButtonSelectPv.value = false
-                        _mensajeDialog.value = "Visita realizada con éxito"
-                        _buttonTextRegistro.value = "Finalizar visita"
-                        limpiarValores()
+                    if (idPrimeraVisita != -1L) {
+                        val visitaCierre = crearVisitaEntity(
+                            latitudUsuarioVal,
+                            longitudUsuarioVal,
+                            porceBateria,
+                            metros,
+                            estadoVisita = "F",
+                            tipoRegistro = "A",
+                            latitudPv,
+                            longitudPv,
+                            idA = idPrimeraVisita.toInt(),
+                            ocrdName = ocrdName.value!!,
+                            tardia = llegadaTardia,
+                            idTurno = idTurno,
+                            tipoCierre = "NORMAL",
+                            exportado = false,
+                            idUsuario = sharedPreferences.getUserId(),
+                            idRol = 1,
+                            idOcrd = idOcrd.value.toString(),
+                            rol = "PROMOTOR",
+                            pendienteSincro = "N",
+                            secuencia=secuenciaVisita
+
+                        )
+                        val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
+                        if (idSegundaVisita != -1L) {
+                            _showDialog.value = true
+                            _showButtonSelectPv.value = false
+                            _mensajeDialog.value = "Visita realizada con éxito"
+                            _buttonTextRegistro.value = "Finalizar visita"
+                            limpiarValores()
+                        } else {
+                            mostrarMensajeDialogo("Error al insertar la visita")
+                        }
                     } else {
                         mostrarMensajeDialogo("Error al insertar la visita")
                     }
-                } else {
-                    mostrarMensajeDialogo("Error al insertar la visita")
                 }
             }
-        }
         }
     }
 
@@ -297,48 +348,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private fun mostrarMensajeDialogo(mensaje: String) {
         _showDialog.value = true
         _mensajeDialog.value = mensaje
-    }
-
-    private fun crearVisitaEntity(
-        latitudUsuario: Double,
-        longitudUsuario: Double,
-        porcentajeBateriaVal: Int,
-        distanciaMetros: Int,
-        estadoVisita: String,
-        tipoRegistro: String,
-        latitudPV: Double,
-        longitudPV: Double,
-        idA: Int = 0,
-        pendienteSincro: String = "P",
-        ocrdName: String,
-        tardia:String,
-        idTurno:Int,
-        tipoCierre:String,//FORZADO O NORMAL
-
-        ): VisitasEntity {
-        return VisitasEntity(
-            id = null,
-            idUsuario = sharedPreferences.getUserId(),
-            idOcrd = idOcrd.value.toString(),
-            createdAt = LocalDateTime.now().toString(),
-            createdAtLong = System.currentTimeMillis(),
-            latitudUsuario = latitudUsuario,
-            longitudUsuario = longitudUsuario,
-            porcentajeBateria = porcentajeBateriaVal,
-            distanciaMetros = distanciaMetros,
-            pendienteSincro = pendienteSincro,
-            estadoVisita = estadoVisita,
-            idRol = 1,
-            idA = idA,
-            tipoRegistro = tipoRegistro,
-            latitudPV = latitudPV,
-            longitudPV = longitudPV,
-            ocrdName = ocrdName,
-            tarde = tardia,
-            idTurno = idTurno,
-            tipoCierre =tipoCierre
-
-        )
     }
 
 
@@ -355,10 +364,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
                 _buttonTextRegistro.value = "Iniciar visita"
             }
         }
-
-
     }
-
 
 
     fun cerrarDialogMensaje() {
@@ -372,12 +378,11 @@ class MarcacionPromotoraViewModel @Inject constructor(
 
 
     fun limpiarValores() {
-        // Restablecer los valores a su estado inicial
+// Restablecer los valores a su estado inicial
         idOcrd.value = null
         metros.value = null
         _showButtonPv.value = false
-        // _showDialog.value = false
-        //_mensajeDialog.value = ""
+// _showDialog.value = false
+//_mensajeDialog.value = ""
     }
-
-    }
+}

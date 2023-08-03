@@ -40,7 +40,7 @@ class TablasRegistradasViewModel @Inject constructor(
     private val importarUbicacionesPvUseCase: ImportarUbicacionesPvUseCase,
     private val getUbicacionesPvCountUseCase: GetUbicacionesPvCountUseCase,
     private val importarPermisoVisitaUseCase: ImportarPermisoVisitaUseCase,
-    private val countRegistrosPermisosVisitaUseCase:CountRegistrosPermisosVisitaUseCase
+    private val countRegistrosPermisosVisitaUseCase: CountRegistrosPermisosVisitaUseCase
 
 
     ) : ViewModel() {

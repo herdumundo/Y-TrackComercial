@@ -1,7 +1,9 @@
 package com.example.y_trackcomercial.model.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import javax.annotation.Nullable
 
 @Entity(tableName = "OCRD")
 data class OCRDEntity(
@@ -9,5 +11,5 @@ data class OCRDEntity(
     val id: String,
     val Address: String,
     val CardCode: String,
-    val CardName: String
+      val CardName: String?
 )

@@ -4,10 +4,6 @@ import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Date
-import java.util.Locale
 
 @Entity(tableName = "VISITAS")
 data class VisitasEntity(
@@ -60,12 +56,21 @@ data class VisitasEntity(
 
     @NonNull
     @ColumnInfo(name = "llegadaTardia")
-    var tarde : String,
+    var tarde: String,
 
     @NonNull
     @ColumnInfo(name = "idTurno")
-    var idTurno : Int,
+    var idTurno: Int,
 
-    var tipoCierre : String // FORZADO O NORMAL
 
+    var tipoCierre: String,// FORZADO O NORMAL
+
+    @ColumnInfo(name = "rol", defaultValue = "") // Nueva columna
+    var rol: String,
+
+    var exportado: Boolean,
+
+    @NonNull
+    @ColumnInfo(name = "secuencia")
+    var secuencia: Int,
 )

@@ -223,7 +223,6 @@ fun LotesSelectionDialog(
     val filteredLotes = lotes.filter {
         (it.id!!).contains(searchText, ignoreCase = true)
     }
-
     AlertDialog(onDismissRequest = onDismissRequest, text = {
         Column {
             OutlinedTextField(
@@ -240,7 +239,7 @@ fun LotesSelectionDialog(
                 items(filteredLotes) { lote ->
                     Text(text = lote.id!!, modifier = Modifier
                         .clickable {
-                            inventarioViewModel.setLote(lote.id)
+                            inventarioViewModel.setLote(lote.id,lote.CodeBars)
 
                             onLoteSelected()
                         }

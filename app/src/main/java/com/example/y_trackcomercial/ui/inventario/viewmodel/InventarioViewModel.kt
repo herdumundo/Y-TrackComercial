@@ -87,17 +87,11 @@ class InventarioViewModel @Inject constructor(
     private val _iConoSnack: MutableLiveData<ImageVector> = MutableLiveData()
     val iConoSnack: LiveData<ImageVector> = _iConoSnack
 
-
-
-
     var _posicionFila=0
 
 
     var idVisita=0
-    /*  init {
-          setOitm()
-      }
-  */
+
     fun addLotes() {
 
         if (_txtCantidad.value.isNullOrBlank() || _txtCantidad.value!!.toInt() == 0) {
@@ -132,11 +126,12 @@ class InventarioViewModel @Inject constructor(
                 tipoMovimiento = 1,
                 createdAt = LocalDateTime.now().toString(),
                 createdAtLong =createdAtLongVar ,
-                codeBars="_codeBar.value!!",
+                codeBars=   _codeBar.value ?: "",
                 idVisitas = idVisita,
                 loteLargo = _idLote.value!!,
                 loteCorto = _idLote.value!!,
-                obs=""
+                obs="",
+                itemCode = _itemCode.value!!
             )
 
             lotesList.add(newLote)
@@ -146,7 +141,6 @@ class InventarioViewModel @Inject constructor(
                 setShowButtonLote(false)
                 setValoresIniciales()
             }
-
         }
     }
 
@@ -208,8 +202,9 @@ class InventarioViewModel @Inject constructor(
 
     }
 
-    fun setLote(Id: String) {
+    fun setLote(Id: String, codeBars: String) {
         _idLote.value = Id
+        _codeBar.value=codeBars
         _textButtonLote.value = Id
     }
 

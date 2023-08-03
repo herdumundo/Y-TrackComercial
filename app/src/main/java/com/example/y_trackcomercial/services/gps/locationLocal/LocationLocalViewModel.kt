@@ -1,8 +1,6 @@
 package com.example.y_trackcomercial.services.gps.locationLocal
 
 import android.location.Location
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,15 +11,13 @@ import com.example.y_trackcomercial.util.logUtils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.util.Timer
-import javax.inject.Inject
+ import javax.inject.Inject
 
 
 @HiltViewModel
 class LocationLocalViewModel @Inject constructor(
     private val auditTrailRepository: AuditTrailRepository,
     private val sharedPreferences: SharedPreferences,
-
     ) : ViewModel() {
 
     // LiveData mutable para la latitud
@@ -49,15 +45,12 @@ class LocationLocalViewModel @Inject constructor(
     // LiveData mutable para el estado del permiso de GPS
     private val _gpsIsPermission: MutableLiveData<Boolean> = MutableLiveData()
     val gpsIsPermission: LiveData<Boolean> = _gpsIsPermission
-    private val timer: Timer = Timer()
-    private val handler: Handler = Handler(Looper.getMainLooper())
 
-    // Función para establecer el estado del GPS habilitado
     fun setGpsEnabled(enabled: Boolean) {
         _gpsEnabled.value = enabled
     }
 
-    private suspend fun captureLocation() {
+    private suspend fun insertRoomLocation() {
         val latitud = _latitud.value ?: return
         val longitud = _longitud.value ?: return
         val speed = _speed.value ?: return
@@ -66,7 +59,6 @@ class LocationLocalViewModel @Inject constructor(
         if (latitud == null || longitud == null || speed == null || sharedPreferences.getUserId() == null || sharedPreferences.getUserName() == null) {
             return
         }
-        // Realizar la inserción en el log
         LogUtils.insertLogAuditTrailUtils(
             auditTrailRepository,
             LocalDateTime.now().toString(),
@@ -79,7 +71,7 @@ class LocationLocalViewModel @Inject constructor(
     }
 
     // Función para actualizar las coordenadas de latitud y longitud
-    fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
+  /*  fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
         _latitud.value = latitud
         _longitud.value = longitud
         if (calcularDistancia(latitud, longitud) >= 50  && (latitud != _latitudInsert.value || longitud != _longitudInsert.value)) {
@@ -88,18 +80,14 @@ class LocationLocalViewModel @Inject constructor(
             _speed.value = speed
 
             viewModelScope.launch {
-                captureLocation()
+                insertRoomLocation()
             }
         }
-
-    }
-
-
+    }*/
     // Función para establecer el estado del permiso de GPS
     fun setGpsIsPermission(permission: Boolean) {
         _gpsIsPermission.value = permission
     }
-
 
     private fun calcularDistancia(latitud: Double, longitud: Double): Float {
         // Calcular la distancia en metros entre la ubicación actual y la ubicación anterior
@@ -114,4 +102,3 @@ class LocationLocalViewModel @Inject constructor(
         return distancia[0]
     }
 }
-

@@ -2,10 +2,11 @@ package com.example.y_trackcomercial.model.models
 
 import androidx.annotation.NonNull
 
-data class LotesItem(val ItemCode: String, val id: String?)
+data class LotesItem(val ItemCode: String, val id: String?,val CodeBars: String)
 
 data class Lotes(
     val ItemName: String,
+    val itemCode: String,
     val Lote: String,
     val Cantidad: Int,
     val ubicacion: String,

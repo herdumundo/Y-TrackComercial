@@ -13,11 +13,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -33,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,8 +44,13 @@ import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.DialogLoading
 import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.InfoDialogOk
+import com.example.y_trackcomercial.components.toIcon
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.model.entities.OCRDEntity
+import com.example.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
+import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
+import com.example.y_trackcomercial.ui.informeInventario.screen.ScreenInformeInventario
+import com.example.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.example.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.example.y_trackcomercial.ui.inventario.screen.ScreenInventario
 import com.example.y_trackcomercial.ui.login2.LoginViewModel
@@ -56,6 +58,8 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
+import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 //import com.example.y_trackcomercial.ui.registroEntradaPromotoras.cargar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -69,7 +73,10 @@ fun MenuPrincipal(
     tablasRegistradasViewModel: TablasRegistradasViewModel,
     locationViewModel: LocationLocalViewModel,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
-    inventarioViewModel: InventarioViewModel
+    inventarioViewModel: InventarioViewModel,
+    informeInventarioViewModel: InformeInventarioViewModel,
+    visitaSupervisorViewModel: VisitaSupervisorViewModel,
+    exportacionViewModel: ExportacionViewModel
 ) {
 
     if (loginViewModel.loggedIn.value == true) {
@@ -155,6 +162,27 @@ fun MenuPrincipal(
                 composable("inventario") {
                     ScreenInventario(inventarioViewModel)
                 }
+                composable("informeInventario") {
+                    ScreenInformeInventario(informeInventarioViewModel)
+                }
+
+                composable("exportaciones") {
+                    ScreenExportaciones(exportacionViewModel)
+                }
+
+
+                composable("marcacionSupervisor") {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            visitaSupervisorViewModel.limpiarValores()
+                        }
+                    }
+                    VisitaSupervisorScreen(
+                        locationViewModel = locationViewModel,
+                        visitaSupervisorViewModel = visitaSupervisorViewModel
+                    )
+                }
+
                 composable("marcacionPromotora") {
                     DisposableEffect(Unit) {
                         onDispose {
@@ -415,12 +443,7 @@ fun DrawerItem(
     }
 }
 
-@Composable
-fun String.toIcon(): ImageVector = when (this) {
-    "Login" -> Icons.Filled.Login
-    "RegistroNuevo" -> Icons.Filled.PersonAdd
-    else -> Icons.Filled.Login
-}
+
 
 @Composable
 fun HomeScreen() {
@@ -438,7 +461,7 @@ fun HomeScreen() {
 fun CustomerItem(customer: OCRDEntity) {
     // Item de la lista para cada cliente
     Text(text = customer.Address)
-    Text(text = customer.CardName)
+    Text(text = customer.CardName!!)
     Divider()
 }
 

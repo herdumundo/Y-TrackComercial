@@ -16,6 +16,7 @@ import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.LogDao
 import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
 import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.AuditTrailDao
 import com.example.y_trackcomercial.model.entities.database.YtrackDatabase
+ import com.example.y_trackcomercial.model.entities.database.migrations.Migration1to2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,9 +31,9 @@ class DataBaseModule() {
     @Provides
     @Singleton
     fun provideTodoDatabase(@ApplicationContext appContext: Context): YtrackDatabase {
-        return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
-          //  .addMigrations(YtrackDatabase.MyMigration(3,4))
-            .fallbackToDestructiveMigration()
+          val migration1To2 = Migration1to2()
+             return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
+            .addMigrations(migration1To2)
             .build()
     }
 
@@ -113,4 +114,6 @@ class DataBaseModule() {
     fun provideMovimientosDao(database: YtrackDatabase): MovimientosDao {
         return database.MovimientosDao()
     }
+
+
 }

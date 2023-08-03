@@ -27,7 +27,7 @@ private const val MIN_DISTANCE: Float = 10f // Distancia mínima en metros
             val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             // Actualizar el ViewModel con la última ubicación conocida
             lastKnownLocation?.let {
-                locationViewModel.actualizarUbicacion(it.latitude, it.longitude ,it.speed )
+          //      locationViewModel.actualizarUbicacion(it.latitude, it.longitude ,it.speed )
             }
         } catch (e: SecurityException) {
             e.printStackTrace()

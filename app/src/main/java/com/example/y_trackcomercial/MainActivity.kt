@@ -2,9 +2,12 @@ package com.example.y_trackcomercial
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -25,6 +28,9 @@ import com.example.y_trackcomercial.components.InfoDialogUnBoton
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPS
+import com.example.y_trackcomercial.services.system.ServicioUnderground
+import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
+import com.example.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.example.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.example.y_trackcomercial.ui.login2.LoginScreen
 import com.example.y_trackcomercial.ui.login2.LoginViewModel
@@ -32,6 +38,7 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraView
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -44,10 +51,32 @@ class MainActivity : ComponentActivity() {
     private val menuPrincipalViewModel: MenuPrincipalViewModel by viewModels()
     private val marcacionPromotoraViewModel: MarcacionPromotoraViewModel by viewModels()
     private val inventarioViewModel: InventarioViewModel by viewModels()
+    private val informeInventarioViewModel: InformeInventarioViewModel by viewModels()
+    private val visitaSupervisorViewModel: VisitaSupervisorViewModel by viewModels()
+    private val exportacionViewModel: ExportacionViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS),0)
+
+        }
+
+       if (!isServiceRunning(ServicioUnderground::class.java)) {
+           val servicioUndergroundIntent = Intent(this@MainActivity, ServicioUnderground::class.java)
+           // El servicio no está en ejecución, iniciarlo
+            servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
+            ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
+       }
+
+     /*   val startIntent = Intent(this@MainActivity, ServicioUnderground::class.java).apply {
+            action = ServicioUnderground.Actions.START.toString()
+        }
+        ContextCompat.startForegroundService(this@MainActivity, startIntent)
+*/
+
+
         locationViewModel = ViewModelProvider(this).get(LocationLocalViewModel::class.java)
         locationListener = LocationLocalListener(locationViewModel)
         // Verificar y solicitar permisos de ubicación si es necesario
@@ -64,12 +93,24 @@ class MainActivity : ComponentActivity() {
                     tablasRegistradasViewModel,
                     locationViewModel,
                     marcacionPromotoraViewModel,
-                    inventarioViewModel
+                    inventarioViewModel,
+                    informeInventarioViewModel,
+                    visitaSupervisorViewModel,
+                    exportacionViewModel
                 )
             }
         }
     }
 
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
     private fun verificarPermisosUbicacion() {
         val permission = Manifest.permission.ACCESS_FINE_LOCATION
         val permissionGranted = PackageManager.PERMISSION_GRANTED
@@ -141,8 +182,12 @@ fun Router(
     tablasRegistradasViewModel: TablasRegistradasViewModel,
     locationViewModel: LocationLocalViewModel,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
-    inventarioViewModel: InventarioViewModel
-) {
+    inventarioViewModel: InventarioViewModel,
+    informeInventarioViewModel: InformeInventarioViewModel,
+    visitaSupervisorViewModel: VisitaSupervisorViewModel,
+    exportacionViewModel: ExportacionViewModel,
+
+    ) {
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -157,7 +202,10 @@ fun Router(
                 tablasRegistradasViewModel,
                 locationViewModel,
                 marcacionPromotoraViewModel,
-                inventarioViewModel
+                inventarioViewModel,
+                informeInventarioViewModel,
+                visitaSupervisorViewModel,
+                exportacionViewModel
             )
         }
     }

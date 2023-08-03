@@ -4,10 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-    tableName = "OCRD_UBICACION",
-    foreignKeys = [ForeignKey(entity = OCRDEntity::class, parentColumns = ["id"], childColumns = ["idCab"])]
-)
+@Entity(tableName = "OCRD_UBICACION"/*, foreignKeys = [ForeignKey(entity = OCRDEntity::class, parentColumns = ["id"], childColumns = ["idCab"])]*/)
+
 data class OcrdUbicacionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,

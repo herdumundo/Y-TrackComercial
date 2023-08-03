@@ -2,6 +2,7 @@ package com.example.y_trackcomercial.ui.login2
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.RoundedButton
@@ -86,6 +88,7 @@ fun LoginButton(
             displayProgressBar = loading,
             onClick = {
                 loginViewModel.autenticacionLogin {
+
                     navController.navigate("menu")
                 }
             },

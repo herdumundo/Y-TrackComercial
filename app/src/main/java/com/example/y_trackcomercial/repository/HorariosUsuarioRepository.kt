@@ -89,7 +89,12 @@ class HorariosUsuarioRepository @Inject constructor(
 
             if (horarioActualList.isEmpty()&&esPrimeraVisita) {
                 // La lista está vacía, no hay datos disponibles
-                // Maneja el caso de que no haya datos según tu lógica
+                respuestaVisita = 4
+                mensaje = "NO EXISTEN TURNOS PARA ESE HORARIO."
+            }
+
+            else if(horarioActualList.isEmpty())
+            {
                 respuestaVisita = 4
                 mensaje = "NO EXISTEN TURNOS PARA ESE HORARIO."
             }

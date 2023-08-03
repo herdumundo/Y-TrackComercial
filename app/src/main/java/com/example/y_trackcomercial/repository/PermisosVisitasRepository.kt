@@ -13,7 +13,7 @@ import java.util.Date
 
 class PermisosVisitasRepository @Inject constructor(
     private val permisosVisitasApiClient: PermisosVisitasApiClient,
-    private val permisosVisitasDao: PermisosVisitasDao
+    private val permisosVisitasDao: PermisosVisitasDao,
 
 ) {
 
@@ -45,6 +45,8 @@ class PermisosVisitasRepository @Inject constructor(
         }
     }
 
+    suspend fun getPermisoCierreVisitaInventarioOk(): Boolean = permisosVisitasDao.getPermisoCierreVisitaInventarioOk() != 0
 
+    suspend fun getCierrePendiente(): Boolean = permisosVisitasDao.getCierrePendiente() != 0
 
 }

@@ -1,6 +1,8 @@
 package com.example.y_trackcomercial.model.entities.database
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.y_trackcomercial.model.dao.CustomerDao
 import com.example.y_trackcomercial.model.dao.HorariosUsuarioDao
@@ -47,12 +49,14 @@ import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEnti
         OcrdOitmEntity::class,
         MovimientosEntity::class,
         UbicacionesPvEntity::class,
-        PermisosVisitasEntity::class
-    ],
-    version =1,
+        PermisosVisitasEntity::class,
+     ],
+
+    version =2,
     exportSchema = false
 )
 abstract class YtrackDatabase : RoomDatabase() {
+
 
     abstract fun customerDao(): CustomerDao
 
@@ -79,6 +83,7 @@ abstract class YtrackDatabase : RoomDatabase() {
 
     abstract fun MovimientosDao(): MovimientosDao
     abstract fun UbicacionesPvDao(): UbicacionesPvDao
+
 
 
 }

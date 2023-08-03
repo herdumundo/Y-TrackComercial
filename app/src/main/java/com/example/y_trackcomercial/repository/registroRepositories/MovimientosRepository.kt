@@ -2,8 +2,9 @@ package com.example.y_trackcomercial.repository.registroRepositories
 
 import com.example.y_trackcomercial.model.dao.registroDaos.MovimientosDao
 import com.example.y_trackcomercial.model.entities.registro_entities.MovimientosEntity
+import com.example.y_trackcomercial.model.models.InformeInventario
 import com.example.y_trackcomercial.model.models.Lotes
-import javax.inject.Inject
+ import javax.inject.Inject
 
 class MovimientosRepository @Inject constructor
     (private val movimientosDao: MovimientosDao) {
@@ -12,7 +13,7 @@ class MovimientosRepository @Inject constructor
         val createdAtLongVar=System.currentTimeMillis()
         val movimientosList = lotesList.map { lote ->
             MovimientosEntity(
-                itemCode = lote.ItemName,
+                itemCode = lote.itemCode,
                 codebar = lote.codeBars,
                 ubicacion = lote.ubicacion,
                 itemName = lote.ItemName,
@@ -32,4 +33,8 @@ class MovimientosRepository @Inject constructor
 
         movimientosDao.insertAllMovimiento(movimientosList)
     }
+
+   suspend fun getInformeInventario(fecha: String): MutableList<InformeInventario> =
+        movimientosDao.getInformeMovimiento(fecha)
+
 }

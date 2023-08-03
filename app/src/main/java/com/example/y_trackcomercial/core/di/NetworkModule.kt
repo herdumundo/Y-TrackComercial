@@ -13,6 +13,8 @@ import com.example.y_trackcomercial.data.network.OitmClient
 import com.example.y_trackcomercial.data.network.ParametrosClient
 import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
 import com.example.y_trackcomercial.data.network.UbicacionesPVClient
+import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditTrailApiClient
+import com.example.y_trackcomercial.data.network.exportaciones.ExportacionVisitasApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,7 +40,7 @@ class NetworkModule {
         val timeoutValue = 30L
         return Retrofit.Builder()
              .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
-            // .baseUrl("http://192.168.6.134:5000/")
+            //.baseUrl("http://192.168.6.134:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -117,5 +119,19 @@ class NetworkModule {
     fun provideUbicacionesPv(retrofit: Retrofit): UbicacionesPVClient {
         return retrofit.create(UbicacionesPVClient::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideExportacionVisitas(retrofit: Retrofit): ExportacionVisitasApiService {
+        return retrofit.create(ExportacionVisitasApiService::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideExportacionAuditTrail(retrofit: Retrofit): ExportacionAuditTrailApiClient {
+        return retrofit.create(ExportacionAuditTrailApiClient::class.java)
+    }
+
 }
 
