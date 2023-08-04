@@ -2,10 +2,12 @@ package com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.annotation.NonNull
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.ColumnInfo
 import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
 import com.example.y_trackcomercial.model.models.OcrdItem
 import com.example.y_trackcomercial.repository.CustomerRepository
@@ -275,7 +277,9 @@ class VisitaSupervisorViewModel @Inject constructor(
                         idOcrd = idOcrd.value.toString(),
                         rol = "SUPERVISOR",
                         pendienteSincro = "P",
-                        secuencia=secuenciaVisita
+                        secuencia=secuenciaVisita,
+                        id=System.currentTimeMillis()
+
 
                     )
                     val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
@@ -290,7 +294,7 @@ class VisitaSupervisorViewModel @Inject constructor(
                             tipoRegistro = "A",
                             latitudPv,
                             longitudPv,
-                            idA = idPrimeraVisita.toInt(),
+                            idA = idPrimeraVisita,
                             ocrdName = ocrdName.value!!,
                             tardia = llegadaTardia,
                             idTurno = idTurno,
@@ -301,7 +305,8 @@ class VisitaSupervisorViewModel @Inject constructor(
                             idOcrd = idOcrd.value.toString(),
                             rol = "SUPERVISOR",
                             pendienteSincro = "N",
-                            secuencia=secuenciaVisita
+                            secuencia=secuenciaVisita,
+                            id=System.currentTimeMillis()
 
                         )
                         val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
@@ -370,3 +375,5 @@ class VisitaSupervisorViewModel @Inject constructor(
     }
 
 }
+
+

@@ -32,5 +32,9 @@ data class LogEntity(
 
     @NonNull
     val componente: String,// El componente o clase de tu aplicación que generó el evento.
-
+    @NonNull
+    val bateria: Int,
+    @ColumnInfo(name = "estado")
+    @NonNull
+    val estado: String
 )

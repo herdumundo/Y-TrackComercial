@@ -1,12 +1,13 @@
 package com.example.y_trackcomercial.services.gps.locationLocal
 
+import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.os.Bundle
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.services.battery.getBatteryPercentage
 import com.example.y_trackcomercial.util.SharedPreferences
 import com.example.y_trackcomercial.util.logUtils.LogUtils
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,8 @@ import java.time.LocalDateTime
 class LocationLocalListenerService(
     private val auditTrailRepository: AuditTrailRepository,
     private val sharedPreferences: SharedPreferences,
-
+    private val logRepository: LogRepository,
+    private val context: Context
     ) :
     LocationListener {
     private val _latitudInsert: MutableLiveData<Double> = MutableLiveData()
@@ -42,21 +44,42 @@ class LocationLocalListenerService(
                 insertRoomLocation(latitude, longitude, velocidad)
             } */
     }
-
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
     }
-
     override fun onProviderEnabled(provider: String) {
-        // locationViewModel.setGpsEnabled(true) // Actualizar gpsEnabled cuando el proveedor de ubicación se habilita
-    }
+        val porceBateria = getBatteryPercentage(context)
 
+        CoroutineScope(Dispatchers.Main).launch {
+            LogUtils.insertLog(
+                logRepository,
+                LocalDateTime.now().toString(),
+                "GPS activado",
+                "Se ha activado el GPS",
+                sharedPreferences.getUserId(),
+                sharedPreferences.getUserName()!!,
+                "SERVICIO SEGUNDO PLANO",
+                porceBateria
+            )
+        }    }
     override fun onProviderDisabled(provider: String) {
-        //locationViewModel.setGpsEnabled(false) // Actualizar gpsEnabled cuando el proveedor de ubicación se deshabilita
+        val porceBateria = getBatteryPercentage(context)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            LogUtils.insertLog(
+                logRepository,
+                LocalDateTime.now().toString(),
+                "GPS desactivado",
+                "Se ha desactivado el GPS",
+                sharedPreferences.getUserId(),
+                sharedPreferences.getUserName()!!,
+                "SERVICIO SEGUNDO PLANO",
+                porceBateria
+            )
+        }
     }
-
-
     private suspend fun insertRoomLocation(
     ) {
+        val porceBateria = getBatteryPercentage(context)
 
         // Aquí puedes usar el auditTrailRepository para guardar la ubicación en Room
         LogUtils.insertLogAuditTrailUtils(
@@ -65,11 +88,11 @@ class LocationLocalListenerService(
             _longitud.value!!,
             _latitud.value!!,
             sharedPreferences.getUserId(),
-            sharedPreferences.getUserName().toString() + "T",
-            _speed.value!!.toDouble()
+            sharedPreferences.getUserName().toString(),
+            _speed.value!!.toDouble(),
+            porceBateria
         )
     }
-
 
     fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
         _latitud.value = latitud
@@ -84,9 +107,7 @@ class LocationLocalListenerService(
             _speed.value = speed
             CoroutineScope(Dispatchers.Main).launch {
                 insertRoomLocation()
-
             }
-
          }
     }
 

@@ -1,5 +1,6 @@
 package com.example.y_trackcomercial.core.di
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.room.Room
 import com.example.y_trackcomercial.model.dao.CustomerDao
@@ -17,6 +18,9 @@ import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
 import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.AuditTrailDao
 import com.example.y_trackcomercial.model.entities.database.YtrackDatabase
  import com.example.y_trackcomercial.model.entities.database.migrations.Migration1to2
+import com.example.y_trackcomercial.model.entities.database.migrations.Migration2to3
+import com.example.y_trackcomercial.model.entities.database.migrations.Migration3to4
+import com.example.y_trackcomercial.model.entities.database.migrations.Migration4to5
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,12 +32,17 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class DataBaseModule() {
 
+    @SuppressLint("SuspiciousIndentation")
     @Provides
     @Singleton
     fun provideTodoDatabase(@ApplicationContext appContext: Context): YtrackDatabase {
-          val migration1To2 = Migration1to2()
+        val migration1To2 = Migration1to2()
+        val migration2To3 = Migration2to3()
+        val migration3to4 = Migration3to4()
+        val migration4to5 = Migration4to5()
+
              return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
-            .addMigrations(migration1To2)
+            .addMigrations(migration4to5)
             .build()
     }
 

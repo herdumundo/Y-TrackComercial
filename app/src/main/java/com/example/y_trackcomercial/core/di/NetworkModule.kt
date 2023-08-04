@@ -13,7 +13,9 @@ import com.example.y_trackcomercial.data.network.OitmClient
 import com.example.y_trackcomercial.data.network.ParametrosClient
 import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
 import com.example.y_trackcomercial.data.network.UbicacionesPVClient
+import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditLogApiClient
 import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditTrailApiClient
+import com.example.y_trackcomercial.data.network.exportaciones.ExportacionMovimientosApiClient
 import com.example.y_trackcomercial.data.network.exportaciones.ExportacionVisitasApiService
 import dagger.Module
 import dagger.Provides
@@ -39,7 +41,7 @@ class NetworkModule {
     fun provideRetrofit(): Retrofit {
         val timeoutValue = 30L
         return Retrofit.Builder()
-             .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
+            .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
             //.baseUrl("http://192.168.6.134:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
@@ -131,6 +133,19 @@ class NetworkModule {
     @Singleton
     fun provideExportacionAuditTrail(retrofit: Retrofit): ExportacionAuditTrailApiClient {
         return retrofit.create(ExportacionAuditTrailApiClient::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideExportacionAuditLogApi(retrofit: Retrofit): ExportacionAuditLogApiClient {
+        return retrofit.create(ExportacionAuditLogApiClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExportacionMovimientosApi(retrofit: Retrofit): ExportacionMovimientosApiClient {
+        return retrofit.create(ExportacionMovimientosApiClient::class.java)
     }
 
 }

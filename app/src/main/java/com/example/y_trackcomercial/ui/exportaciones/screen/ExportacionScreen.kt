@@ -15,21 +15,32 @@ fun ScreenExportaciones(
     exportacionViewModel: ExportacionViewModel
 ) {
     LaunchedEffect(Unit) {
-        exportacionViewModel.getTablasRegistradas()
+        exportacionViewModel.getTablasRegistradasTotal()
         exportacionViewModel.setFalseLoading()
-
-
     }
+
     val visitasCount by exportacionViewModel.visitasCount.observeAsState()
     val auditTrailCount by exportacionViewModel.auditTrailCount.observeAsState()
+    val logCount by exportacionViewModel.logCount.observeAsState()
+    val movimientosCount by exportacionViewModel.movimientosCount.observeAsState()
+
     val loadingVisitas by exportacionViewModel.loadingVisitas.observeAsState(false)
     val loadingAuditTrail by exportacionViewModel.loadingAuditTrail.observeAsState(false)
+    val loadingLog by exportacionViewModel.loadingLog.observeAsState(false)
+    val loadingMovimientos by exportacionViewModel.loadingMovimientos.observeAsState(false)
 
     val colorCard = if (visitasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCard = if (visitasCount == 0) "Visitas sin pendientes" else "Exportar visitas"
 
     val colorCardAuditTrail = if (auditTrailCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCardAuditTrail = if (auditTrailCount == 0) "Auditoria Trail sin pendientes" else "Exportar Auditoria Trail"
+
+    val colorCardLog = if (logCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeCardLog = if (logCount == 0) "Log de actividades sin pendientes" else "Exportar Log de actividades"
+
+    val colorCardMovimientos = if (movimientosCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeCardMovimientos = if (movimientosCount == 0) "Movimientos sin pendientes" else "Exportar Movimientos"
+
 
 
     LazyColumn {
@@ -52,6 +63,26 @@ fun ScreenExportaciones(
                 image = R.drawable.ic_step,
                 isLoading = loadingAuditTrail
             ) { exportacionViewModel.enviarPendientes(2) }
+        }
+        item {
+            cardViewLoadingTablas(
+                textoLoading = "Enviando Log de actividades...",
+                title = mensajeCardLog,
+                color = colorCardLog,
+                subTitle = logCount.toString(),
+                image = R.drawable.ic_log_activity,
+                isLoading = loadingLog
+            ) { exportacionViewModel.enviarPendientes(3) }
+        }
+        item {
+            cardViewLoadingTablas(
+                textoLoading = "Enviando Movimientos...",
+                title = mensajeCardMovimientos,
+                color = colorCardMovimientos,
+                subTitle = movimientosCount.toString(),
+                image = R.drawable.ic_moving,
+                isLoading = loadingMovimientos
+            ) { exportacionViewModel.enviarPendientes(4) }
         }
     }
 }

@@ -90,7 +90,7 @@ class InventarioViewModel @Inject constructor(
     var _posicionFila=0
 
 
-    var idVisita=0
+    var idVisita:Long =0
 
     fun addLotes() {
 
@@ -114,6 +114,7 @@ class InventarioViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             idVisita=getIdVisitaActivaUseCase.getActiveVisitId()
+
             viewModelScope.launch(Dispatchers.Main){
             val createdAtLongVar=System.currentTimeMillis()
             val newLote = Lotes(

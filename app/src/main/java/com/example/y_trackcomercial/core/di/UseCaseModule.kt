@@ -5,6 +5,10 @@ import com.example.y_trackcomercial.repository.UbicacionesPvRepository
 import com.example.y_trackcomercial.repository.registroRepositories.MovimientosRepository
 import com.example.y_trackcomercial.repository.registroRepositories.VisitasRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
+import com.example.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
+import com.example.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
 import com.example.y_trackcomercial.usecases.exportacionAuditTrail.CountAuditTrailUseCase
 import com.example.y_trackcomercial.usecases.exportacionAuditTrail.EnviarAuditTrailPendientesUseCase
 import com.example.y_trackcomercial.usecases.exportacionAuditTrail.GetAuditTrailPendienteUseCase
@@ -12,6 +16,9 @@ import com.example.y_trackcomercial.usecases.exportacionVisitas.CountCantidadPen
 import com.example.y_trackcomercial.usecases.exportacionVisitas.EnviarVisitasPendientesUseCase
 import com.example.y_trackcomercial.usecases.exportacionVisitas.GetVisitasPendientesUseCase
 import com.example.y_trackcomercial.usecases.informeInventario.GetInformeUseCase
+import com.example.y_trackcomercial.usecases.inventario.CountMovimientoUseCase
+import com.example.y_trackcomercial.usecases.inventario.EnviarMovimientoPendientesUseCase
+import com.example.y_trackcomercial.usecases.inventario.GetMovimientoPendientesUseCase
 import com.example.y_trackcomercial.usecases.marcacionPromotora.GetIdVisitaActivaUseCase
 import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarCierrePendienteUseCase
 import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarInventarioCierreVisitaUseCase
@@ -143,8 +150,6 @@ object UseCaseModule {
     ): CountAuditTrailUseCase {
         return CountAuditTrailUseCase(auditTrailRepository)
     }
-
-
     @Provides
     @ViewModelScoped
     fun provideEnviarAuditTrailPendientesUseCase(
@@ -153,6 +158,54 @@ object UseCaseModule {
         return EnviarAuditTrailPendientesUseCase(auditTrailRepository)
     }
 
+    @Provides
+    @ViewModelScoped
+    fun provideCountLogPendientesUseCase(
+        logRepository: LogRepository
+    ): CountLogPendientesUseCase {
+        return CountLogPendientesUseCase(logRepository)
+    }
 
- }
+    @Provides
+    @ViewModelScoped
+    fun provideGetLogPendienteUseCase(
+        logRepository: LogRepository
+    ): GetLogPendienteUseCase {
+        return GetLogPendienteUseCase(logRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideEnviarLogPendientesUseCase(
+        logRepository: LogRepository
+    ): EnviarLogPendientesUseCase {
+        return EnviarLogPendientesUseCase(logRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountMovimientoUseCase(
+        movimientosRepository: MovimientosRepository
+    ): CountMovimientoUseCase {
+        return CountMovimientoUseCase(movimientosRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideEnviarMovimientoPendientesUseCase(
+        movimientosRepository: MovimientosRepository
+    ): EnviarMovimientoPendientesUseCase {
+        return EnviarMovimientoPendientesUseCase(movimientosRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetMovimientoPendientesUseCase(
+        movimientosRepository: MovimientosRepository
+    ): GetMovimientoPendientesUseCase {
+        return GetMovimientoPendientesUseCase(movimientosRepository)
+    }
+
+
+}
 

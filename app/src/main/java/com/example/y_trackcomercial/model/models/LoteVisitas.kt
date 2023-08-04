@@ -4,6 +4,7 @@ data class EnviarVisitasRequest(
 )
 
 data class lotesDeVisitas(
+    val id:String,
     val idUsuario: Int,
     val idOcrd: String,
     val createdAt: String,
@@ -13,7 +14,7 @@ data class lotesDeVisitas(
     val latitudPV: String,
     val longitudPV: String,
     val porcentajeBateria: Int,
-    val idA: Int?,
+    val idA: Long,
     val idRol: Int,
     val tipoRegistro: String,
     val distanciaMetros: Int?,

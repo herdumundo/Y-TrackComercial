@@ -1,14 +1,18 @@
 package com.example.y_trackcomercial.services.gps.locationLocal
 
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.services.battery.getBatteryPercentage
 import com.example.y_trackcomercial.util.SharedPreferences
 import com.example.y_trackcomercial.util.logUtils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
  import javax.inject.Inject
@@ -18,7 +22,10 @@ import java.time.LocalDateTime
 class LocationLocalViewModel @Inject constructor(
     private val auditTrailRepository: AuditTrailRepository,
     private val sharedPreferences: SharedPreferences,
-    ) : ViewModel() {
+    private val logRepository: LogRepository,
+    private val context: Context
+
+) : ViewModel() {
 
     // LiveData mutable para la latitud
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
@@ -50,7 +57,7 @@ class LocationLocalViewModel @Inject constructor(
         _gpsEnabled.value = enabled
     }
 
-    private suspend fun insertRoomLocation() {
+  /*  private suspend fun insertRoomLocation() {
         val latitud = _latitud.value ?: return
         val longitud = _longitud.value ?: return
         val speed = _speed.value ?: return
@@ -68,10 +75,17 @@ class LocationLocalViewModel @Inject constructor(
             sharedPreferences.getUserName()!!,
             speed.toDouble()
         )
-    }
+    }*/
 
-    // Función para actualizar las coordenadas de latitud y longitud
-  /*  fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
+     /* suspend fun logGps() {
+       val porceBateria = getBatteryPercentage(context)
+        CoroutineScope(Dispatchers.Main).launch {
+            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "GPS desactivado", "Se ha desactivado el GPS", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "SERVICIO SEGUNDO PLANO",porceBateria)
+        }
+    }*/
+
+        // Función para actualizar las coordenadas de latitud y longitud
+    fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
         _latitud.value = latitud
         _longitud.value = longitud
         if (calcularDistancia(latitud, longitud) >= 50  && (latitud != _latitudInsert.value || longitud != _longitudInsert.value)) {
@@ -79,11 +93,11 @@ class LocationLocalViewModel @Inject constructor(
             _longitudInsert.value = longitud
             _speed.value = speed
 
-            viewModelScope.launch {
+       /*     viewModelScope.launch {
                 insertRoomLocation()
-            }
+            }*/
         }
-    }*/
+    }
     // Función para establecer el estado del permiso de GPS
     fun setGpsIsPermission(permission: Boolean) {
         _gpsIsPermission.value = permission
@@ -101,4 +115,7 @@ class LocationLocalViewModel @Inject constructor(
         )
         return distancia[0]
     }
+
+
+
 }

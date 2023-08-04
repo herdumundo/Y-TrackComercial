@@ -31,7 +31,7 @@ class VisitasRepository @Inject constructor
     }
 
 
-    suspend fun getIdVisitaActiva(): Int {
+    suspend fun getIdVisitaActiva(): Long {
         return visitasDao.getIdVisitaActiva()
     }
 
@@ -91,7 +91,8 @@ class VisitasRepository @Inject constructor
                 ocrdName = entity.ocrdName ?: "",
                 tipoCierre = entity.tipoCierre,
                 rol = entity.rol,
-                secuencia = entity.secuencia
+                secuencia = entity.secuencia,
+                id=entity.id.toString()
             )
         }
     }

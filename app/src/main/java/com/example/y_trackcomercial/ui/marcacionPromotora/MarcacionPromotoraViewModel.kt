@@ -296,8 +296,8 @@ class MarcacionPromotoraViewModel @Inject constructor(
                         idOcrd = idOcrd.value.toString(),
                         rol = "PROMOTOR",
                         pendienteSincro = "P",
-                        secuencia=secuenciaVisita
-
+                        secuencia=secuenciaVisita,
+                        id=System.currentTimeMillis()
 
                     )
                     val idPrimeraVisita = visitasRepository.insertVisita(visitaApertura)
@@ -312,7 +312,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
                             tipoRegistro = "A",
                             latitudPv,
                             longitudPv,
-                            idA = idPrimeraVisita.toInt(),
+                            idA = idPrimeraVisita,
                             ocrdName = ocrdName.value!!,
                             tardia = llegadaTardia,
                             idTurno = idTurno,
@@ -323,7 +323,9 @@ class MarcacionPromotoraViewModel @Inject constructor(
                             idOcrd = idOcrd.value.toString(),
                             rol = "PROMOTOR",
                             pendienteSincro = "N",
-                            secuencia=secuenciaVisita
+                            secuencia=secuenciaVisita,
+                            id=System.currentTimeMillis()
+
 
                         )
                         val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)

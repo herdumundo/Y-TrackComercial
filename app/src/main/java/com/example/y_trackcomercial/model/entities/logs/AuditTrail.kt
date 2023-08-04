@@ -33,4 +33,6 @@ data class AuditTrailEntity(
 
     @ColumnInfo(name = "estado")
     val estado: String,
+    @NonNull
+    val bateria: Int
 )

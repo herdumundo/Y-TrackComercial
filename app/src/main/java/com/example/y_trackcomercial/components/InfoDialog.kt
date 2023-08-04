@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.y_trackcomercial.ui.theme.ColorGradientRojoNegro
 
 @Composable
 fun InfoDialog(
@@ -174,7 +173,7 @@ fun InfoDialogOk(
 
                     //.........................Text: title
                     Text(
-                        text = title!!,
+                        text = title,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(top = 130.dp)
@@ -186,7 +185,7 @@ fun InfoDialogOk(
 
                     //.........................Text : description
                     Text(
-                        text = desc!!,
+                        text = desc,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(top = 10.dp, start = 25.dp, end = 25.dp)
@@ -271,7 +270,7 @@ fun InfoDialogUnBoton(
 
                     //.........................Text: title
                     Text(
-                        text = title!!,
+                        text = title,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(top = 130.dp)
@@ -283,7 +282,7 @@ fun InfoDialogUnBoton(
 
                     //.........................Text : description
                     Text(
-                        text = desc!!,
+                        text = desc,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(top = 10.dp, start = 25.dp, end = 25.dp)

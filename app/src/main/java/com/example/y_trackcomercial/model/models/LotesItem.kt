@@ -16,7 +16,7 @@ data class Lotes(
     val createdAt: String,
     val createdAtLong: Long,
     val codeBars: String,
-    val idVisitas: Int,
+    val idVisitas: Long,
     var loteLargo: String,
     val loteCorto: String,
     val obs: String,

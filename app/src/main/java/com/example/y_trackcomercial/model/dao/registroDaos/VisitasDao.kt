@@ -23,14 +23,14 @@ interface VisitasDao {
     suspend fun getVisitaActiva(estado: String): VisitasEntity?
 
     @Query("SELECT IDa FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
-    suspend fun getIdVisitaActiva(): Int
+    suspend fun getIdVisitaActiva(): Long
 
     @Query("SELECT count(*)+1 FROM VISITAS WHERE estadoVisita='A' and strftime('%d/%m/%Y', createdAt)=strftime('%d/%m/%Y',  datetime('now') )") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
     suspend fun getSecuenciaVisita(): Int
 
     @Query("UPDATE visitas SET createdAt = :createdAt, createdAtLong = :createdAtLong, latitudUsuario = :latitud,tipoCierre=:tipoCierre, longitudUsuario = :longitud, porcentajeBateria = :porcentajeBateria, distanciaMetros = :distanciaMetros, pendienteSincro=:pendienteSincro, exportado= :exportado, tipoRegistro = :tipoRegistro WHERE id = :visitaId")
     suspend fun updateVisita(
-        visitaId: Int?,
+        visitaId: Long?,
         createdAt: String,
         createdAtLong: Long,
         latitud: Double,
@@ -54,7 +54,9 @@ interface VisitasDao {
     suspend fun getEsPrimeraVisita(fecha: String, idTurno: Int): Int
 
 /** SECTOR DE EXPORTACIONES. */
-    @Query("SELECT * FROM visitas where pendienteSincro='P'  ")
+
+
+    @Query("SELECT id , idUsuario,idOcrd,strftime('%Y-%m-%d %H:%M:%S', createdAt)  as createdAt,createdAtLong,latitudUsuario,longitudUsuario,latitudPV,longitudPV,porcentajeBateria, idA,idRol,tipoRegistro,  distanciaMetros,ocrdName,pendienteSincro,estadoVisita,llegadaTardia,idTurno,tipoCierre,rol,  exportado, secuencia  FROM visitas where pendienteSincro='P'  ")
     suspend fun getVisitasExportaciones(): List<VisitasEntity>
 
 

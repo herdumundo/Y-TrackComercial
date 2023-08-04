@@ -51,14 +51,15 @@ data class MovimientosEntity(
     var lote: String,//OK
 
     @NonNull
-    val idVisitas: Int,
-
+    val idVisitas: Long,
 
     var loteLargo: String,
 
     val loteCorto: String,
 
     val obs: String,
+    @ColumnInfo(name = "estado")
+    val estado: String,
 
 
     )

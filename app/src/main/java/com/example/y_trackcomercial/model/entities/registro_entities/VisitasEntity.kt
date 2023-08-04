@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "VISITAS")
 data class VisitasEntity(
 
-    @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    @PrimaryKey()
+    val id: Long,
 
     @NonNull
     val idUsuario: Int,
@@ -38,7 +38,7 @@ data class VisitasEntity(
 
     var porcentajeBateria: Int,
 
-    val idA: Int?,
+    val idA: Long,
 
     val idRol: Int,
 

@@ -15,6 +15,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.app.ActivityCompat
@@ -25,9 +26,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.y_trackcomercial.components.InfoDialogUnBoton
+import com.example.y_trackcomercial.notificationssquare.NotificationsSquare
+import com.example.y_trackcomercial.services.exportacion.scheduleExportWork
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPS
+import com.example.y_trackcomercial.services.networkMonitorService.NetworkMonitorService
 import com.example.y_trackcomercial.services.system.ServicioUnderground
 import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
 import com.example.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
@@ -58,6 +62,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ejecutar scheduleExportWork aquí
+        scheduleExportWork(this)
         if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU){
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS),0)
 
@@ -84,7 +90,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                GpsAvisoPermisos(locationViewModel)
+
+                 GpsAvisoPermisos(locationViewModel)
                 val navController = rememberNavController()
                 Router(
                     navController,
@@ -138,6 +145,7 @@ class MainActivity : ComponentActivity() {
         val gpsIsPermission by locationViewModel.gpsIsPermission.observeAsState()
 
         if (gpsIsPermission == false) {
+
             // El permiso de GPS está deshabilitado, mostrar el diálogo de información
             InfoDialogUnBoton(
                 title = "Atención!",
@@ -145,7 +153,6 @@ class MainActivity : ComponentActivity() {
                 desc = "Debes habilitar los permisos.",
                 R.drawable.icono_exit
             ) {
-
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri = Uri.fromParts("package", packageName, null)
                 intent.data = uri
@@ -154,7 +161,9 @@ class MainActivity : ComponentActivity() {
         }
 
         if (gpsEnabled == false) {
-
+          /*  LaunchedEffect(Unit) {
+                locationViewModel.logGps()
+            }*/
             // El GPS está deshabilitado, mostrar diálogo o realizar alguna acción
             InfoDialogUnBoton(
                 title = "Atención!",

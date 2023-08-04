@@ -38,7 +38,8 @@ class AuditTrailRepository @Inject constructor
                 velocidad = entity.velocidad,
                 nombreUsuario = entity.nombreUsuario,
                 createdAt = entity.createdAt,
-                updatedAt = entity.updatedAt
+                updatedAt = entity.updatedAt,
+                bateria = entity.bateria
             )
         }
     }

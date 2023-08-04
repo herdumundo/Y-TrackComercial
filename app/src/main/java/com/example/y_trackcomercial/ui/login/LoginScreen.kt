@@ -2,7 +2,6 @@ package com.example.y_trackcomercial.ui.login2
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -47,6 +47,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.RoundedButton
+import com.example.y_trackcomercial.group1213.Group1213
+import com.example.y_trackcomercial.notificationssquare.NotificationsSquare
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -60,8 +62,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .background(brush = Brush.verticalGradient(colors = gradientColors)),
          ) {
-
-            Header(Modifier.align(Alignment.TopEnd))
+             Header(Modifier.align(Alignment.TopEnd))
             Body(Modifier.align(Alignment.Center), loginViewModel, botonCargar, navController)
             Spacer(modifier = Modifier.size(60.dp))
             Footer(Modifier.align(Alignment.BottomCenter))

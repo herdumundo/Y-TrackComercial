@@ -7,7 +7,7 @@ class GetIdVisitaActivaUseCase @Inject constructor(
     private val visitasRepository: VisitasRepository
 ) {
     // suspend
-    suspend  fun getActiveVisitId(): Int {
+    suspend  fun getActiveVisitId(): Long {
         return visitasRepository.getIdVisitaActiva()
     }
 }

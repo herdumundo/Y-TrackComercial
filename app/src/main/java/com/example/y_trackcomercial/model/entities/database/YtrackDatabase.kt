@@ -52,7 +52,7 @@ import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEnti
         PermisosVisitasEntity::class,
      ],
 
-    version =2,
+    version =5,
     exportSchema = false
 )
 abstract class YtrackDatabase : RoomDatabase() {

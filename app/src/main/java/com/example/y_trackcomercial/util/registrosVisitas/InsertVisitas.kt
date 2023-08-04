@@ -12,7 +12,7 @@ import java.time.LocalDateTime
     tipoRegistro: String,
     latitudPV: Double,
     longitudPV: Double,
-    idA: Int = 0,
+    idA: Long = 0,
     exportado: Boolean ,
     ocrdName: String,
     tardia: String,
@@ -23,12 +23,13 @@ import java.time.LocalDateTime
     idOcrd: String,
     idRol: Int,
     pendienteSincro: String,
-    secuencia:Int
+    secuencia:Int,
+    id:Long
 
 
 ): VisitasEntity {
     return VisitasEntity(
-        id = null,
+        id = id,
         idUsuario = idUsuario,
         idOcrd = idOcrd,
         createdAt = LocalDateTime.now().toString(),

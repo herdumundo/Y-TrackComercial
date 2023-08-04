@@ -11,7 +11,7 @@ class LocationLocalListener(private val locationViewModel: LocationLocalViewMode
         val velocidad: Float = location.speed
         val latitude = location.latitude
         val longitude = location.longitude
-     // locationViewModel.actualizarUbicacion(latitude, longitude, velocidad)
+        locationViewModel.actualizarUbicacion(latitude, longitude, velocidad)
     }
 
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
