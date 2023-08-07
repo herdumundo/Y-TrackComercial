@@ -1,7 +1,6 @@
 package com.example.y_trackcomercial.repository
 
-import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
-import com.example.y_trackcomercial.model.dao.PermisosVisitasDao
+import com.example.y_trackcomercial.data.api.PermisosVisitasApiClient
 import javax.inject.Inject
 
 import com.auth0.jwt.JWT
@@ -13,9 +12,9 @@ import java.util.Date
 
 class PermisosVisitasRepository @Inject constructor(
     private val permisosVisitasApiClient: PermisosVisitasApiClient,
-    private val permisosVisitasDao: PermisosVisitasDao,
+    private val permisosVisitasDao: com.example.y_trackcomercial.data.model.dao.PermisosVisitasDao,
 
-) {
+    ) {
 
     suspend fun fetchPermisosVisitas(idUsuario: Int): Int {
         return withContext(Dispatchers.IO) {

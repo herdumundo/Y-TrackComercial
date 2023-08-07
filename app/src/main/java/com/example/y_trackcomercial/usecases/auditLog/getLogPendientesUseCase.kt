@@ -1,6 +1,6 @@
 package com.example.y_trackcomercial.usecases.auditLog
 
-import com.example.y_trackcomercial.model.models.lotesDeActividades
+import com.example.y_trackcomercial.data.api.request.lotesDeActividades
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import javax.inject.Inject
 

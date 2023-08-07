@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.y_trackcomercial.model.models.EnviarAuditoriaTrailRequest
-import com.example.y_trackcomercial.model.models.EnviarLotesDeActividadesRequest
-import com.example.y_trackcomercial.model.models.EnviarLotesDeMovimientosRequest
-import com.example.y_trackcomercial.model.models.EnviarVisitasRequest
+import com.example.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
+import com.example.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
+import com.example.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
+import com.example.y_trackcomercial.data.api.request.EnviarVisitasRequest
 import com.example.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.example.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.example.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase

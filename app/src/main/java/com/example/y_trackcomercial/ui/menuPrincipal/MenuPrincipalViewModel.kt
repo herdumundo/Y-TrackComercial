@@ -7,12 +7,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.y_trackcomercial.model.entities.OCRDEntity
 import com.example.y_trackcomercial.repository.LotesListasRepository
 import com.example.y_trackcomercial.repository.UsuarioRepository
 import com.example.y_trackcomercial.repository.CustomerRepository
-import com.example.y_trackcomercial.data.network.response.OCRD
-import com.example.y_trackcomercial.model.entities.RutasAccesosEntity
+import com.example.y_trackcomercial.data.api.response.OCRD
 import com.example.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.example.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +52,7 @@ class MenuPrincipalViewModel @Inject constructor(
 
 
     private val _customers = MutableLiveData<List<OCRD>>()
-    val customers: LiveData<List<OCRDEntity>> = customerRepository.customers
+    val customers: LiveData<List<com.example.y_trackcomercial.data.model.entities.OCRDEntity>> = customerRepository.customers
 
     private val _progress: MutableLiveData<Float> = MutableLiveData()
     val progress: LiveData<Float> = _progress
@@ -68,8 +66,8 @@ class MenuPrincipalViewModel @Inject constructor(
     private val _mensajeDialog: MutableLiveData<String> = MutableLiveData()
     val mensajeDialog: LiveData<String> = _mensajeDialog
 
-    private val _permisosUsuarios: MutableLiveData<List<RutasAccesosEntity>> = MutableLiveData()
-    val permisosUsuarios: LiveData<List<RutasAccesosEntity>> = _permisosUsuarios
+    private val _permisosUsuarios: MutableLiveData<List<com.example.y_trackcomercial.data.model.entities.RutasAccesosEntity>> = MutableLiveData()
+    val permisosUsuarios: LiveData<List<com.example.y_trackcomercial.data.model.entities.RutasAccesosEntity>> = _permisosUsuarios
 
     fun getUserName(): String = sharedPreferences.getUserName().toString()
     fun getRol(): String = sharedPreferences.getRol().toString()

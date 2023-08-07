@@ -56,10 +56,10 @@ import androidx.compose.ui.unit.sp
 import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.SnackAlerta
-import com.example.y_trackcomercial.model.models.Lotes
-import com.example.y_trackcomercial.model.models.LotesItem
-import com.example.y_trackcomercial.model.models.OitmItem
-import com.example.y_trackcomercial.model.models.UbicacionPv
+import com.example.y_trackcomercial.data.model.models.Lotes
+import com.example.y_trackcomercial.data.model.models.LotesItem
+import com.example.y_trackcomercial.data.model.models.OitmItem
+import com.example.y_trackcomercial.data.model.models.UbicacionPv
 import com.example.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 
 
@@ -91,7 +91,7 @@ fun InventarioBody(
     inventarioViewModel: InventarioViewModel,
     idLote: String,
     txtCantidad: String,
-    lotesList: SnapshotStateList<Lotes>
+    lotesList: SnapshotStateList<com.example.y_trackcomercial.data.model.models.Lotes>
 ) {
 
     val oitmList = inventarioViewModel.getOitm()
@@ -213,7 +213,7 @@ fun InventarioBody(
 }
 @Composable
 fun LotesSelectionDialog(
-    lotes: List<LotesItem>,
+    lotes: List<com.example.y_trackcomercial.data.model.models.LotesItem>,
     onLoteSelected: () -> Unit,
     onDismissRequest: () -> Unit,
     inventarioViewModel: InventarioViewModel,
@@ -261,7 +261,7 @@ fun LotesSelectionDialog(
 
 @Composable
 fun OitmSelectionDialog(
-    oitms: List<OitmItem>,
+    oitms: List<com.example.y_trackcomercial.data.model.models.OitmItem>,
     onDismiss: () -> Unit,
     inventarioViewModel: InventarioViewModel,
 ) {
@@ -314,7 +314,7 @@ fun OitmSelectionDialog(
 
 @Composable
 fun UbicacionSelectionDialog(
-    ubicaciones: List<UbicacionPv>,
+    ubicaciones: List<com.example.y_trackcomercial.data.model.models.UbicacionPv>,
     onDismiss: () -> Unit,
     inventarioViewModel: InventarioViewModel,
 ) {

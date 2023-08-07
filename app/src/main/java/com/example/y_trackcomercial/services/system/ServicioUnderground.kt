@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.services.exportacion.scheduleExportWorker
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListenerService
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPSService
 import com.example.y_trackcomercial.util.SharedPreferences
@@ -42,7 +43,10 @@ class ServicioUnderground : Service() {
     }
 
     private fun start() {
-     //   connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        scheduleExportWorker(this)
+
+        //   connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     //    networkCallback = createNetworkCallback()
         // Crear el canal de notificación para Android 8.0 (Oreo) y versiones posteriores
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -72,16 +76,5 @@ class ServicioUnderground : Service() {
     enum class Actions {
         START, STOP
     }
-    private fun createNetworkCallback() = object : ConnectivityManager.NetworkCallback() {
-        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-            val isMobileDataEnabled = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-            if (isMobileDataEnabled) {
-                // El paquete de datos está activo
-                Log.i("Mensaje", "El paquete de datos está activo")
-            } else {
-                // El paquete de datos está desactivado
-                Log.i("Mensaje", "El paquete de datos está desactivado")
-            }
-        }
-    }
+
 }

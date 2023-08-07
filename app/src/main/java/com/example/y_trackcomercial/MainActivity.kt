@@ -15,7 +15,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.app.ActivityCompat
@@ -26,12 +25,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.y_trackcomercial.components.InfoDialogUnBoton
-import com.example.y_trackcomercial.notificationssquare.NotificationsSquare
-import com.example.y_trackcomercial.services.exportacion.scheduleExportWork
+import com.example.y_trackcomercial.services.exportacion.scheduleExportWorker
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPS
-import com.example.y_trackcomercial.services.networkMonitorService.NetworkMonitorService
 import com.example.y_trackcomercial.services.system.ServicioUnderground
 import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
 import com.example.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
@@ -42,6 +39,7 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraView
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
 import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,12 +56,12 @@ class MainActivity : ComponentActivity() {
     private val informeInventarioViewModel: InformeInventarioViewModel by viewModels()
     private val visitaSupervisorViewModel: VisitaSupervisorViewModel by viewModels()
     private val exportacionViewModel: ExportacionViewModel by viewModels()
+    private val visitaAuditorViewModel: VisitaAuditorViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Ejecutar scheduleExportWork aquí
-        scheduleExportWork(this)
         if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU){
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS),0)
 
@@ -103,7 +101,8 @@ class MainActivity : ComponentActivity() {
                     inventarioViewModel,
                     informeInventarioViewModel,
                     visitaSupervisorViewModel,
-                    exportacionViewModel
+                    exportacionViewModel,
+                    visitaAuditorViewModel
                 )
             }
         }
@@ -195,6 +194,7 @@ fun Router(
     informeInventarioViewModel: InformeInventarioViewModel,
     visitaSupervisorViewModel: VisitaSupervisorViewModel,
     exportacionViewModel: ExportacionViewModel,
+    visitaAuditorViewModel: VisitaAuditorViewModel,
 
     ) {
     NavHost(
@@ -214,7 +214,8 @@ fun Router(
                 inventarioViewModel,
                 informeInventarioViewModel,
                 visitaSupervisorViewModel,
-                exportacionViewModel
+                exportacionViewModel,
+                visitaAuditorViewModel
             )
         }
     }

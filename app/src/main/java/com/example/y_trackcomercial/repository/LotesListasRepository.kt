@@ -1,15 +1,13 @@
 package com.example.y_trackcomercial.repository
 
-import com.example.y_trackcomercial.data.network.LotesListasApiClient
-import com.example.y_trackcomercial.model.dao.LotesListasDao
-import com.example.y_trackcomercial.model.models.LotesItem
+import com.example.y_trackcomercial.data.api.LotesListasApiClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LotesListasRepository @Inject constructor(
     private val customerService: LotesListasApiClient,
-    private val lotesListasDao: LotesListasDao
+    private val lotesListasDao: com.example.y_trackcomercial.data.model.dao.LotesListasDao
 ) {
 
     suspend fun fetchLotesListas(): Int {
@@ -22,7 +20,7 @@ class LotesListasRepository @Inject constructor(
 
     fun getListasLotesCount(): Int = lotesListasDao.getLotesListasCount()
 
-    fun getLotesListasByItemCode(itemCode: String): List<LotesItem> =
+    fun getLotesListasByItemCode(itemCode: String): List<com.example.y_trackcomercial.data.model.models.LotesItem> =
         lotesListasDao.getLotesListasByItemCode(itemCode)
 
  }

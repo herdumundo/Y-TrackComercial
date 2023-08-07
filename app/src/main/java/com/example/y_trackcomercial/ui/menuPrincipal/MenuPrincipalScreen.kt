@@ -46,7 +46,6 @@ import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.InfoDialogOk
 import com.example.y_trackcomercial.components.toIcon
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
-import com.example.y_trackcomercial.model.entities.OCRDEntity
 import com.example.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
 import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
 import com.example.y_trackcomercial.ui.informeInventario.screen.ScreenInformeInventario
@@ -58,6 +57,8 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
+import com.example.y_trackcomercial.ui.visitaAuditor.screen.VisitaAuditorScreen
 import com.example.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
 import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 //import com.example.y_trackcomercial.ui.registroEntradaPromotoras.cargar
@@ -76,7 +77,8 @@ fun MenuPrincipal(
     inventarioViewModel: InventarioViewModel,
     informeInventarioViewModel: InformeInventarioViewModel,
     visitaSupervisorViewModel: VisitaSupervisorViewModel,
-    exportacionViewModel: ExportacionViewModel
+    exportacionViewModel: ExportacionViewModel,
+    visitaAuditorViewModel: VisitaAuditorViewModel
 ) {
 
     if (loginViewModel.loggedIn.value == true) {
@@ -180,6 +182,17 @@ fun MenuPrincipal(
                     VisitaSupervisorScreen(
                         locationViewModel = locationViewModel,
                         visitaSupervisorViewModel = visitaSupervisorViewModel
+                    )
+                }
+                composable("marcacionAuditor") {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            visitaAuditorViewModel.limpiarValores()
+                        }
+                    }
+                    VisitaAuditorScreen(
+                        locationViewModel = locationViewModel,
+                        visitaAuditorViewModel = visitaAuditorViewModel
                     )
                 }
 
@@ -458,7 +471,7 @@ fun HomeScreen() {
 }
 
 @Composable
-fun CustomerItem(customer: OCRDEntity) {
+fun CustomerItem(customer: com.example.y_trackcomercial.data.model.entities.OCRDEntity) {
     // Item de la lista para cada cliente
     Text(text = customer.Address)
     Text(text = customer.CardName!!)

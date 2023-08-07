@@ -1,6 +1,6 @@
 package com.example.y_trackcomercial.util.registrosVisitas
 
-import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
+import com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 import java.time.LocalDateTime
 
   fun crearVisitaEntity(
@@ -27,8 +27,8 @@ import java.time.LocalDateTime
     id:Long
 
 
-): VisitasEntity {
-    return VisitasEntity(
+): com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity {
+    return com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity(
         id = id,
         idUsuario = idUsuario,
         idOcrd = idOcrd,
@@ -50,7 +50,7 @@ import java.time.LocalDateTime
         tipoCierre = tipoCierre,
         rol = rol,
         exportado = exportado,
-        pendienteSincro=pendienteSincro,
+        pendienteSincro = pendienteSincro,
         secuencia = secuencia
     )
 }

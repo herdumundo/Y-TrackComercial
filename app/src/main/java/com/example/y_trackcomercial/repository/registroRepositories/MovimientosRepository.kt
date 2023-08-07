@@ -1,27 +1,21 @@
 package com.example.y_trackcomercial.repository.registroRepositories
 
 import android.util.Log
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionMovimientosApiClient
-import com.example.y_trackcomercial.model.dao.registroDaos.MovimientosDao
-import com.example.y_trackcomercial.model.entities.registro_entities.MovimientosEntity
-import com.example.y_trackcomercial.model.models.EnviarLotesDeActividadesRequest
-import com.example.y_trackcomercial.model.models.EnviarLotesDeMovimientosRequest
-import com.example.y_trackcomercial.model.models.InformeInventario
-import com.example.y_trackcomercial.model.models.Lotes
-import com.example.y_trackcomercial.model.models.lotesDeActividades
-import com.example.y_trackcomercial.model.models.lotesDemovimientos
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionMovimientosApiClient
+import com.example.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
+import com.example.y_trackcomercial.data.api.request.lotesDemovimientos
 import javax.inject.Inject
 
 class MovimientosRepository @Inject constructor
     (
-    private val movimientosDao: MovimientosDao,
+    private val movimientosDao: com.example.y_trackcomercial.data.model.dao.registroDaos.MovimientosDao,
     private val exportacionMovimientosApiClient: ExportacionMovimientosApiClient
 ) {
 
-    suspend fun insertLotesInBulk(lotesList: List<Lotes>) {
+    suspend fun insertLotesInBulk(lotesList: List<com.example.y_trackcomercial.data.model.models.Lotes>) {
         //  val createdAtLongVar=System.currentTimeMillis()
         val movimientosList = lotesList.map { lote ->
-            MovimientosEntity(
+            com.example.y_trackcomercial.data.model.entities.registro_entities.MovimientosEntity(
                 itemCode = lote.itemCode,
                 codebar = lote.codeBars,
                 ubicacion = lote.ubicacion,
@@ -44,7 +38,7 @@ class MovimientosRepository @Inject constructor
         movimientosDao.insertAllMovimiento(movimientosList)
     }
 
-    suspend fun getInformeInventario(fecha: String): MutableList<InformeInventario> =
+    suspend fun getInformeInventario(fecha: String): MutableList<com.example.y_trackcomercial.data.model.models.InformeInventario> =
         movimientosDao.getInformeMovimiento(fecha)
 
     suspend fun getCount(): Int {

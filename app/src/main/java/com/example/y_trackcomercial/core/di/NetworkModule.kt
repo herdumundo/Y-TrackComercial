@@ -2,21 +2,21 @@ package com.example.y_trackcomercial.core.di
 
 import android.app.Application
 import android.content.Context
-import com.example.y_trackcomercial.data.network.ApiService
-import com.example.y_trackcomercial.data.network.HorariosUsuarioApiClient
-import com.example.y_trackcomercial.data.network.LotesListasApiClient
-import com.example.y_trackcomercial.data.network.OcrdUbicacionesApiClient
+import com.example.y_trackcomercial.data.api.ApiService
+import com.example.y_trackcomercial.data.api.HorariosUsuarioApiClient
+import com.example.y_trackcomercial.data.api.LotesListasApiClient
+import com.example.y_trackcomercial.data.api.OcrdUbicacionesApiClient
 import com.example.y_trackcomercial.ui.login2.data.network.AuthClient
-import com.example.y_trackcomercial.data.network.OcrdClient
-import com.example.y_trackcomercial.data.network.OcrdOitmClient
-import com.example.y_trackcomercial.data.network.OitmClient
-import com.example.y_trackcomercial.data.network.ParametrosClient
-import com.example.y_trackcomercial.data.network.PermisosVisitasApiClient
-import com.example.y_trackcomercial.data.network.UbicacionesPVClient
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditLogApiClient
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditTrailApiClient
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionMovimientosApiClient
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionVisitasApiService
+import com.example.y_trackcomercial.data.api.OcrdClient
+import com.example.y_trackcomercial.data.api.OcrdOitmClient
+import com.example.y_trackcomercial.data.api.OitmClient
+import com.example.y_trackcomercial.data.api.ParametrosClient
+import com.example.y_trackcomercial.data.api.PermisosVisitasApiClient
+import com.example.y_trackcomercial.data.api.UbicacionesPVClient
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionAuditLogApiClient
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrailApiClient
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionMovimientosApiClient
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +29,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class NetworkModule {
+object NetworkModule {
     @Singleton
     @Provides
     fun provideContext(application: Application): Context {

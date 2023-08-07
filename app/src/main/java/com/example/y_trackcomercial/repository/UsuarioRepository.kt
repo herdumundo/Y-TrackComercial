@@ -1,11 +1,7 @@
 package com.example.y_trackcomercial.repository
 
 
-import com.example.y_trackcomercial.data.network.ApiService
- import com.example.y_trackcomercial.model.entities.ChildrenEntity
-import com.example.y_trackcomercial.model.entities.UsuarioEntity
-import com.example.y_trackcomercial.model.entities.YemsysPermisosModulosEntity
-import com.example.y_trackcomercial.model.entities.YemsysRoleEntity
+import com.example.y_trackcomercial.data.api.ApiService
 import javax.inject.Inject
 class UsuarioRepository @Inject constructor(
     private val apiService: ApiService,

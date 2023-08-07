@@ -1,13 +1,7 @@
 package com.example.y_trackcomercial.repository
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import javax.inject.Inject
-import com.example.y_trackcomercial.data.network.HorariosUsuarioApiClient
-import com.example.y_trackcomercial.model.dao.HorariosUsuarioDao
-import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
-import com.example.y_trackcomercial.model.entities.HorariosUsuarioEntity
-import com.example.y_trackcomercial.model.models.HorariosUsuarioResponse
+import com.example.y_trackcomercial.data.api.HorariosUsuarioApiClient
 import com.example.y_trackcomercial.util.HoraActualUtils
 import com.example.y_trackcomercial.util.HoraActualUtils.convertirStringToLocalTime
 import com.example.y_trackcomercial.util.ValidacionesVisitas.ValidacionInicioHoraResult
@@ -16,17 +10,14 @@ import kotlinx.coroutines.withContext
 
 
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
 import java.util.Locale
 
 class HorariosUsuarioRepository @Inject constructor(
     private val horariosUsuarioApiClient: HorariosUsuarioApiClient,
-    private val visitasDao: VisitasDao,
-    private val horariosUsuarioDao: HorariosUsuarioDao
+    private val visitasDao: com.example.y_trackcomercial.data.model.dao.registroDaos.VisitasDao,
+    private val horariosUsuarioDao: com.example.y_trackcomercial.data.model.dao.HorariosUsuarioDao
 ) {
 
     suspend fun fetchHorariosUsuario(idUsuario: Int): Int {
@@ -42,24 +33,25 @@ class HorariosUsuarioRepository @Inject constructor(
         return horariosUsuarioDao.getTurnosHorariosCount()
     }
 
-    private fun convertToEntityList(horariosResponseList: List<HorariosUsuarioResponse>): List<HorariosUsuarioEntity> {
-        val entityList = mutableListOf<HorariosUsuarioEntity>()
+    private fun convertToEntityList(horariosResponseList: List<com.example.y_trackcomercial.data.model.models.HorariosUsuarioResponse>): List<com.example.y_trackcomercial.data.model.entities.HorariosUsuarioEntity> {
+        val entityList = mutableListOf<com.example.y_trackcomercial.data.model.entities.HorariosUsuarioEntity>()
         for (horarioResponse in horariosResponseList) {
             for (yemsysHorario in horarioResponse.yemsys_horarios) {
                 for (yemsysTurno in yemsysHorario.yemsys_turnos) {
-                    val entity = HorariosUsuarioEntity(
-                        id = yemsysTurno.id,
-                        idHorario = yemsysHorario.id,
-                        descripcion = yemsysHorario.descripcion,
-                        horaEntrada = yemsysTurno.horaEnt,
-                        horaSalida = yemsysTurno.horaSal,
-                        toleranciaEntrada = yemsysTurno.tolEnt.toString(),
-                        toleranciaSalida = yemsysTurno.tolSal.toString(),
-                        inicioEntrada = yemsysTurno.inicioEnt,
-                        finEntrada = yemsysTurno.finEnt,
-                        inicioSalida = yemsysTurno.inicioSal,
-                        finSalida = yemsysTurno.finSal
-                    )
+                    val entity =
+                        com.example.y_trackcomercial.data.model.entities.HorariosUsuarioEntity(
+                            id = yemsysTurno.id,
+                            idHorario = yemsysHorario.id,
+                            descripcion = yemsysHorario.descripcion,
+                            horaEntrada = yemsysTurno.horaEnt,
+                            horaSalida = yemsysTurno.horaSal,
+                            toleranciaEntrada = yemsysTurno.tolEnt.toString(),
+                            toleranciaSalida = yemsysTurno.tolSal.toString(),
+                            inicioEntrada = yemsysTurno.inicioEnt,
+                            finEntrada = yemsysTurno.finEnt,
+                            inicioSalida = yemsysTurno.inicioSal,
+                            finSalida = yemsysTurno.finSal
+                        )
                     entityList.add(entity)
                 }
             }

@@ -1,14 +1,13 @@
 package com.example.y_trackcomercial.repository
 
-import com.example.y_trackcomercial.data.network.OcrdUbicacionesApiClient
-import com.example.y_trackcomercial.model.dao.OcrdUbicacionesDao
+import com.example.y_trackcomercial.data.api.OcrdUbicacionesApiClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OcrdUbicacionesRepository @Inject constructor(
     private val OcrdUbicacionesService: OcrdUbicacionesApiClient,
-    private val ocrdUbicacionesDao: OcrdUbicacionesDao
+    private val ocrdUbicacionesDao: com.example.y_trackcomercial.data.model.dao.OcrdUbicacionesDao
     ) {
 
 

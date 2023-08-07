@@ -1,10 +1,7 @@
 package com.example.y_trackcomercial.repository
 
 import androidx.lifecycle.LiveData
-import com.example.y_trackcomercial.model.dao.CustomerDao
-import com.example.y_trackcomercial.model.entities.OCRDEntity
- import com.example.y_trackcomercial.data.network.OcrdClient
-import com.example.y_trackcomercial.model.models.OcrdItem
+import com.example.y_trackcomercial.data.api.OcrdClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -12,10 +9,10 @@ import javax.inject.Inject
 
 class CustomerRepository @Inject constructor(
     private val customerService: OcrdClient,
-    private val customerDao: CustomerDao
+    private val customerDao: com.example.y_trackcomercial.data.model.dao.CustomerDao
     ) {
 
-    val customers: LiveData<List<OCRDEntity>> = customerDao.getCustomers()
+    val customers: LiveData<List<com.example.y_trackcomercial.data.model.entities.OCRDEntity>> = customerDao.getCustomers()
     suspend fun fetchCustomers(): Int {
         return withContext(Dispatchers.IO) {
             val customers = customerService.getCustomers()
@@ -28,7 +25,7 @@ class CustomerRepository @Inject constructor(
         return customerDao.getCustomerCount()
     }
 
-    fun getAddresses(): List<OcrdItem> {
+    fun getAddresses(): List<com.example.y_trackcomercial.data.model.models.OcrdItem> {
         return customerDao.getOcrdAddresses()
     }
 

@@ -1,20 +1,16 @@
 package com.example.y_trackcomercial.repository.registroRepositories.logRepositories
 
 import android.util.Log
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditLogApiClient
-import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.LogDao
-import com.example.y_trackcomercial.model.entities.logs.LogEntity
-import com.example.y_trackcomercial.model.models.EnviarAuditoriaTrailRequest
-import com.example.y_trackcomercial.model.models.EnviarLotesDeActividadesRequest
-import com.example.y_trackcomercial.model.models.lotesDeActividades
-import com.example.y_trackcomercial.model.models.lotesDeAuditoriaTrail
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionAuditLogApiClient
+import com.example.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
+import com.example.y_trackcomercial.data.api.request.lotesDeActividades
 import javax.inject.Inject
 
 class LogRepository @Inject constructor
-    (private val logDao: LogDao,
-        private val exportacionAuditLogApiClient: ExportacionAuditLogApiClient
+    (private val logDao: com.example.y_trackcomercial.data.model.dao.registroDaos.logsDaos.LogDao,
+     private val exportacionAuditLogApiClient: ExportacionAuditLogApiClient
     ) {
-    suspend fun insertLog(log: LogEntity): Long {
+    suspend fun insertLog(log: com.example.y_trackcomercial.data.model.entities.logs.LogEntity): Long {
         return logDao.insertLog(log)
     }
 

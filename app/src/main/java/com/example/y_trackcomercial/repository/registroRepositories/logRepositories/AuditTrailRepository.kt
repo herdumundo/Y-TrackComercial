@@ -1,21 +1,16 @@
 package com.example.y_trackcomercial.repository.registroRepositories.logRepositories
 
 import android.util.Log
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionAuditTrailApiClient
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionVisitasApiService
-import com.example.y_trackcomercial.model.dao.registroDaos.logsDaos.AuditTrailDao
-import com.example.y_trackcomercial.model.entities.logs.AuditTrailEntity
-import com.example.y_trackcomercial.model.models.EnviarVisitasRequest
-import com.example.y_trackcomercial.model.models.EnviarAuditoriaTrailRequest
-import com.example.y_trackcomercial.model.models.lotesDeAuditoriaTrail
-import com.example.y_trackcomercial.model.models.lotesDeVisitas
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrailApiClient
+import com.example.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
+import com.example.y_trackcomercial.data.api.request.lotesDeAuditoriaTrail
 import javax.inject.Inject
 
 class AuditTrailRepository @Inject constructor
-    (private val auditTrailDao: AuditTrailDao,
+    (private val auditTrailDao: com.example.y_trackcomercial.data.model.dao.registroDaos.logsDaos.AuditTrailDao,
      private val exportacionAuditTrailApiClient: ExportacionAuditTrailApiClient // Paso 1: Agregar el ApiClient al constructor
 ) {
-    suspend fun insertAuditTrailDao(auditTrailEntity: AuditTrailEntity): Long {
+    suspend fun insertAuditTrailDao(auditTrailEntity: com.example.y_trackcomercial.data.model.entities.logs.AuditTrailEntity): Long {
         return auditTrailDao.insertAuditTrailDao(auditTrailEntity)
     }
 

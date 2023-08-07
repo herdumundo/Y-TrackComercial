@@ -10,10 +10,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.y_trackcomercial.model.models.Lotes
-import com.example.y_trackcomercial.model.models.LotesItem
-import com.example.y_trackcomercial.model.models.OitmItem
-import com.example.y_trackcomercial.model.models.UbicacionPv
+import com.example.y_trackcomercial.data.model.models.Lotes
+import com.example.y_trackcomercial.data.model.models.LotesItem
+import com.example.y_trackcomercial.data.model.models.OitmItem
+import com.example.y_trackcomercial.data.model.models.UbicacionPv
 import com.example.y_trackcomercial.repository.LotesListasRepository
 import com.example.y_trackcomercial.repository.OitmRepository
 import com.example.y_trackcomercial.repository.registroRepositories.MovimientosRepository
@@ -39,9 +39,9 @@ class InventarioViewModel @Inject constructor(
 
 
     ) : ViewModel() {
-    private val _oitmItemList: MutableList<OitmItem> = mutableListOf()
-    private val _ubicacionesList: MutableList<UbicacionPv> = mutableListOf()
-    private val _LoteItemList: MutableList<LotesItem> = mutableListOf()
+    private val _oitmItemList: MutableList<com.example.y_trackcomercial.data.model.models.OitmItem> = mutableListOf()
+    private val _ubicacionesList: MutableList<com.example.y_trackcomercial.data.model.models.UbicacionPv> = mutableListOf()
+    private val _LoteItemList: MutableList<com.example.y_trackcomercial.data.model.models.LotesItem> = mutableListOf()
 
 
     private val _textButtonProducto: MutableLiveData<String> = MutableLiveData()
@@ -69,7 +69,7 @@ class InventarioViewModel @Inject constructor(
     private val _showButtonLote: MutableLiveData<Boolean> = MutableLiveData(false)
     val showButtonLote: LiveData<Boolean> = _showButtonLote
 
-    val lotesList = mutableStateListOf<Lotes>()
+    val lotesList = mutableStateListOf<com.example.y_trackcomercial.data.model.models.Lotes>()
     private val snackbarDuration = 3000L
 
     private val _snackbarMessage = MutableLiveData<String>()
@@ -117,21 +117,21 @@ class InventarioViewModel @Inject constructor(
 
             viewModelScope.launch(Dispatchers.Main){
             val createdAtLongVar=System.currentTimeMillis()
-            val newLote = Lotes(
+            val newLote = com.example.y_trackcomercial.data.model.models.Lotes(
                 ItemName = _itemName.value!!,
-                Lote=       _idLote.value!!,
-                Cantidad=   _txtCantidad.value!!.toInt(),
-                ubicacion=  _descUbicacion.value!!,
-                idUsuario=  sharedPreferences.getUserId(),
-                userName =  sharedPreferences.getUserName()!!,
+                Lote = _idLote.value!!,
+                Cantidad = _txtCantidad.value!!.toInt(),
+                ubicacion = _descUbicacion.value!!,
+                idUsuario = sharedPreferences.getUserId(),
+                userName = sharedPreferences.getUserName()!!,
                 tipoMovimiento = 1,
                 createdAt = LocalDateTime.now().toString(),
-                createdAtLong =createdAtLongVar ,
-                codeBars=   _codeBar.value ?: "",
+                createdAtLong = createdAtLongVar,
+                codeBars = _codeBar.value ?: "",
                 idVisitas = idVisita,
                 loteLargo = _idLote.value!!,
                 loteCorto = _idLote.value!!,
-                obs="",
+                obs = "",
                 itemCode = _itemCode.value!!
             )
 
@@ -252,15 +252,15 @@ class InventarioViewModel @Inject constructor(
 
     }
 
-    fun getUbicaciones(): List<UbicacionPv> {
+    fun getUbicaciones(): List<com.example.y_trackcomercial.data.model.models.UbicacionPv> {
         return _ubicacionesList
     }
 
-    fun getOitm(): List<OitmItem> {
+    fun getOitm(): List<com.example.y_trackcomercial.data.model.models.OitmItem> {
         return _oitmItemList
     }
 
-    fun getLotes(): List<LotesItem> {
+    fun getLotes(): List<com.example.y_trackcomercial.data.model.models.LotesItem> {
         return _LoteItemList
     }
 

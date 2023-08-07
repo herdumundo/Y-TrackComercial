@@ -1,16 +1,13 @@
 package com.example.y_trackcomercial.repository
 
-import com.example.y_trackcomercial.data.network.UbicacionesPVClient
-import com.example.y_trackcomercial.model.dao.UbicacionesPvDao
-import com.example.y_trackcomercial.model.models.OcrdItem
-import com.example.y_trackcomercial.model.models.UbicacionPv
+import com.example.y_trackcomercial.data.api.UbicacionesPVClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UbicacionesPvRepository @Inject constructor(
     private val ubicacionesPVClient: UbicacionesPVClient,
-    private val ubicacionesPvDao:  UbicacionesPvDao
+    private val ubicacionesPvDao: com.example.y_trackcomercial.data.model.dao.UbicacionesPvDao
     ) {
     suspend fun fetchUbicacionesPv(): Int {
         return withContext(Dispatchers.IO) {
@@ -23,7 +20,7 @@ class UbicacionesPvRepository @Inject constructor(
         return ubicacionesPvDao.getUbicacionesPvCount()
     }
 
-    fun getUbicaciones(): List<UbicacionPv> {
+    fun getUbicaciones(): List<com.example.y_trackcomercial.data.model.models.UbicacionPv> {
         return ubicacionesPvDao.getUbicaciones()
     }
 }

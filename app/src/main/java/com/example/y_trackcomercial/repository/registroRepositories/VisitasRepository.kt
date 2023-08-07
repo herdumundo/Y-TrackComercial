@@ -2,31 +2,29 @@ package com.example.y_trackcomercial.repository.registroRepositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.example.y_trackcomercial.data.network.exportaciones.ExportacionVisitasApiService
-import com.example.y_trackcomercial.model.dao.registroDaos.VisitasDao
-import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
-import com.example.y_trackcomercial.model.models.EnviarVisitasRequest
-import com.example.y_trackcomercial.model.models.lotesDeVisitas
+import com.example.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiService
+import com.example.y_trackcomercial.data.api.request.EnviarVisitasRequest
+import com.example.y_trackcomercial.data.api.request.lotesDeVisitas
 import javax.inject.Inject
 
 class VisitasRepository @Inject constructor
     (
-    private val visitasDao: VisitasDao,
+    private val visitasDao: com.example.y_trackcomercial.data.model.dao.registroDaos.VisitasDao,
     private val exportacionVisitasApiService: ExportacionVisitasApiService // Paso 1: Agregar el ApiClient al constructor
 
 ) {
 
 
-    suspend fun insertVisita(visita: VisitasEntity): Long {
+    suspend fun insertVisita(visita: com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity): Long {
         return visitasDao.insertVisitas(visita)
     }
 
 
-    suspend fun getVisitaByEstado(estado: String): VisitasEntity? {
+    suspend fun getVisitaByEstado(estado: String): com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity? {
         return visitasDao.getVisitaByEstado(estado)
     }
 
-    suspend fun getVisitaActiva(estado: String): VisitasEntity? {
+    suspend fun getVisitaActiva(estado: String): com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity? {
         return visitasDao.getVisitaActiva(estado)
     }
 
@@ -38,7 +36,7 @@ class VisitasRepository @Inject constructor
     suspend fun getSecuenciaVisita(): Int {
         return visitasDao.getSecuenciaVisita()
     }
-    suspend fun updateVisita(visita: VisitasEntity) {
+    suspend fun updateVisita(visita: com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity) {
         visitasDao.updateVisita(
             visita.id,
             visita.createdAt,

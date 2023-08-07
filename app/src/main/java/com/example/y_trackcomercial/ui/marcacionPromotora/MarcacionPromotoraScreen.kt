@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.example.y_trackcomercial.R
 import com.example.y_trackcomercial.components.InfoDialogOk
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
-import com.example.y_trackcomercial.model.models.OcrdItem
+import com.example.y_trackcomercial.data.model.models.OcrdItem
 
 
 @Composable
@@ -75,10 +75,10 @@ fun GpsLocationScreen(
 
 @Composable
 fun OcrdSelectionDialog(
-    ocrds: List<OcrdItem>,
+    ocrds: List<com.example.y_trackcomercial.data.model.models.OcrdItem>,
     /* latitudUsuario: Double,
      longitudUsuario: Double,*/
-    onAddressSelected: (OcrdItem) -> Unit,
+    onAddressSelected: (com.example.y_trackcomercial.data.model.models.OcrdItem) -> Unit,
     onDismissRequest: () -> Unit,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
 ) {

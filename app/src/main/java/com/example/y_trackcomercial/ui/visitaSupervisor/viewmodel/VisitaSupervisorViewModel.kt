@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.ColumnInfo
-import com.example.y_trackcomercial.model.entities.registro_entities.VisitasEntity
-import com.example.y_trackcomercial.model.models.OcrdItem
+import com.example.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
+import com.example.y_trackcomercial.data.model.models.OcrdItem
 import com.example.y_trackcomercial.repository.CustomerRepository
 import com.example.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.example.y_trackcomercial.repository.PermisosVisitasRepository
@@ -50,7 +50,7 @@ class VisitaSupervisorViewModel @Inject constructor(
     /*init {
         getAddresses()
     }*/
-    private val _addressesList: MutableList<OcrdItem> = mutableListOf()
+    private val _addressesList: MutableList<com.example.y_trackcomercial.data.model.models.OcrdItem> = mutableListOf()
 
     val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
     val OcrdNameLivedata: LiveData<String> = visitasRepository.getOcrdNameRepository()
@@ -107,7 +107,7 @@ class VisitaSupervisorViewModel @Inject constructor(
     }
 
 
-    fun getStoredAddresses(): List<OcrdItem> {
+    fun getStoredAddresses(): List<com.example.y_trackcomercial.data.model.models.OcrdItem> {
         return _addressesList
     }
 

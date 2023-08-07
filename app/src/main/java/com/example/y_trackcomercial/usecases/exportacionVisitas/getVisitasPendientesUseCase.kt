@@ -1,6 +1,6 @@
 package com.example.y_trackcomercial.usecases.exportacionVisitas
 
-import com.example.y_trackcomercial.model.models.lotesDeVisitas
+import com.example.y_trackcomercial.data.api.request.lotesDeVisitas
 import com.example.y_trackcomercial.repository.registroRepositories.VisitasRepository
 import javax.inject.Inject
 
