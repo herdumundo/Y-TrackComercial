@@ -6,7 +6,7 @@ package com.example.y_trackcomercial.data.api
 @Singleton
 interface OcrdUbicacionesApiClient {
     @GET("/OCRD_UBICACIONES")
-    suspend fun getOcrdUbicaciones(): List<com.example.y_trackcomercial.data.model.entities.OcrdUbicacionEntity>
+    suspend fun getOcrdUbicaciones(): List<OcrdUbicacionEntity>
 }
 
 

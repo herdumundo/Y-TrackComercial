@@ -26,4 +26,8 @@ interface OcrdUbicacionesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
     suspend fun insertAllOcrdUbicaciones(ubicaciones: List<com.example.y_trackcomercial.data.model.entities.OcrdUbicacionEntity>)
+
+    @Query("DELETE FROM OCRD_UBICACION")
+    suspend fun deleteAllOCRD_UBICACION()
+
 }

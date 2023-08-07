@@ -1,6 +1,5 @@
 package com.example.y_trackcomercial.ui.visitaAuditor.viewmodel
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -36,17 +35,13 @@ class VisitaAuditorViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val permisosVisitasRepository: PermisosVisitasRepository,
     private val horariosUsuarioRepository: HorariosUsuarioRepository,
-
-
     private val logRepository: LogRepository,
     private val context: Context
+
 ) : ViewModel() {
 
-    private val _addressesList: MutableList<com.example.y_trackcomercial.data.model.models.OcrdItem> = mutableListOf()
 
-    val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
-    val OcrdNameLivedata: LiveData<String> = visitasRepository.getOcrdNameRepository()
-
+    private val _addressesList: MutableList<OcrdItem> = mutableListOf()
 
     private val _metros: MutableLiveData<Int> = MutableLiveData()
     val metros: MutableLiveData<Int> = _metros
@@ -74,16 +69,16 @@ class VisitaAuditorViewModel @Inject constructor(
     val showButtonSelectPv: LiveData<Boolean> = _showButtonSelectPv
 
     private val _latitudPv: MutableLiveData<Double> = MutableLiveData()
-    var latitudPv: MutableLiveData<Double> = _latitudPv
+    private var latitudPv: MutableLiveData<Double> = _latitudPv
 
     private val _longitudPv: MutableLiveData<Double> = MutableLiveData()
-    val longitudPv: MutableLiveData<Double> = _longitudPv
+    private val longitudPv: MutableLiveData<Double> = _longitudPv
 
     private val _buttonTextRegistro: MutableLiveData<String> = MutableLiveData()
     val buttonTextRegistro: MutableLiveData<String> = _buttonTextRegistro
 
     private val _developerModeEnabled = MutableLiveData<Boolean>()
-    val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
+    //val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
 
     private val _validacionVisita =
         MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
@@ -110,7 +105,6 @@ class VisitaAuditorViewModel @Inject constructor(
         _buttonPvText.value = ocrd
     }
 
-    @SuppressLint("SuspiciousIndentation")
     fun insertarVisita(latitudUsuarioVal: Double, longitudUsuarioVal: Double) {
         //VALIDAR QUE NO SE PUEDA FINALIZAR VISITA SI ESTA A MAS DE 100 METROS.
         viewModelScope.launch {
@@ -190,7 +184,7 @@ class VisitaAuditorViewModel @Inject constructor(
                 val latitudPvVal = visitaEstadoF.latitudPV
                 val longitudPvVal = visitaEstadoF.longitudPV
                 //VERIFICA SI EL CIERRE ES NORMAL O FORZADO, SI TIENE TOKEN ENTONCES ES FORZADO.
-                var permisoCierreForzado =
+                val permisoCierreForzado =
                     permisosVisitasRepository.verificarPermisoVisita("SALIDA_FUERA_PUNTO")
                 val tipoCierreVar = if (permisoCierreForzado) "FORZADO" else "NORMAL"
 

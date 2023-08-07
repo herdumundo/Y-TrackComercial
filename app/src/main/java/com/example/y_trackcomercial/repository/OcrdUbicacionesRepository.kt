@@ -15,6 +15,7 @@ class OcrdUbicacionesRepository @Inject constructor(
     suspend fun fetchOcrdUbicaciones(): Int {
         return withContext(Dispatchers.IO) {
             val ocrdUbicaciones =  OcrdUbicacionesService.getOcrdUbicaciones()
+            ocrdUbicacionesDao.deleteAllOCRD_UBICACION()
             ocrdUbicacionesDao.insertAllOcrdUbicaciones(ocrdUbicaciones)
             return@withContext getOcrdUbicacionesCount()
         }
