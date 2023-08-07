@@ -1,5 +1,5 @@
 package com.example.y_trackcomercial.services.gps.locationGMS
-
+/*
 import android.Manifest
 import android.app.Service
 import android.content.Intent
@@ -107,3 +107,4 @@ class LocationService @Inject constructor() : Service() {
         locationChangeListener = null
     }
 }
+*/

@@ -1,5 +1,6 @@
 package com.example.y_trackcomercial.ui.exportaciones.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -146,7 +147,6 @@ class ExportacionViewModel @Inject constructor(
                     3 -> {
                         if (!loadingLog.value!!) {
                             if (countLogPendientesUseCase.CountPendientes() > 0) {
-
                                 _loadingLog.value = true
                                 val auditLogPendientes =
                                     getLogPendienteUseCase.getAuditLogPendientes()
@@ -177,7 +177,7 @@ class ExportacionViewModel @Inject constructor(
                 }
                 getTablasRegistradas(tipoRegistro)
             } catch (e: Exception) {
-                // Manejar la excepción si es necesario
+              Log.i("Mensaje",e.toString())
             }
         }
     }

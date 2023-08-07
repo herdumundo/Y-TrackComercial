@@ -132,13 +132,12 @@ fun Body(
            }
 
         Spacer(modifier = Modifier.size(8.dp))
-        NoHazSincronizado(Modifier.align(Alignment.End))
+  //      NoHazSincronizado(Modifier.align(Alignment.End))
         Spacer(modifier = Modifier.size(16.dp))
         LoginButton(loginViewModel, botonCargar, navController)
         Spacer(modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.size(32.dp))
-        //  SocialLogin()
-    }
+     }
 
 
 }
@@ -252,7 +251,7 @@ fun Password(password: String, onTextChanged: (String) -> Unit) {
         )
     )
 }
-
+/*
 @Composable
 fun NoHazSincronizado(modifier: Modifier) {
     Text(
@@ -262,4 +261,4 @@ fun NoHazSincronizado(modifier: Modifier) {
         color = Color(0xFF4EA8E9),
         modifier = modifier
     )
-}
+}*/

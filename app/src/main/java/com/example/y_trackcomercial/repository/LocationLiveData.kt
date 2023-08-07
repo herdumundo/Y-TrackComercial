@@ -1,5 +1,5 @@
 package com.example.y_trackcomercial.repository
-
+/*
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -95,4 +95,4 @@ class LocationLiveData (var context: Context): LiveData<LocationDetails>(){
 
         }
     }
-}
+}*/

@@ -61,7 +61,7 @@ interface VisitasDao {
 
 
     @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro='P'")
-    fun getCantidadPendientesExportar():  Int
+   suspend fun getCantidadPendientesExportar():  Int
 
 
     @Query("UPDATE visitas SET pendienteSincro='C' where pendienteSincro='P'")

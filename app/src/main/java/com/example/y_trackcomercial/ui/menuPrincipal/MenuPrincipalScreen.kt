@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -214,7 +215,7 @@ fun MenuPrincipal(
     }
 }
 
-
+/*
 private fun openWhatsApp(
     context: Context, menuPrincipalViewModel: MenuPrincipalViewModel
 ) {
@@ -234,7 +235,7 @@ private fun openWhatsApp(
             )
         )
     )
-}
+}*/
 
 
 @Composable
@@ -278,7 +279,7 @@ fun MyTopAppBar(
             )
         }, actions = {
             IconButton(onClick = {
-                openWhatsApp(activity, menuPrincipalViewModel)
+               // openWhatsApp(activity, menuPrincipalViewModel)
             }) {
                 //painter = painterResource(id = androidx.compose.foundation.layout.R.drawable.img_what),
                 Image(
@@ -358,7 +359,6 @@ fun MyTopAppBar(
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-
 fun MyDrawer(
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
@@ -428,6 +428,8 @@ fun DrawerItem(
     scaffoldState: ScaffoldState,
     navController: NavController
 ) {
+    Column {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -454,6 +456,8 @@ fun DrawerItem(
         }
         Text(text = name, style = MaterialTheme.typography.body1, color = Color.White)
     }
+
+    }
 }
 
 
@@ -469,14 +473,14 @@ fun HomeScreen() {
             .fillMaxHeight() // Tamaño de la imagen
     )
 }
-
+/*
 @Composable
 fun CustomerItem(customer: com.example.y_trackcomercial.data.model.entities.OCRDEntity) {
     // Item de la lista para cada cliente
     Text(text = customer.Address)
     Text(text = customer.CardName!!)
     Divider()
-}
+}*/
 
 
 

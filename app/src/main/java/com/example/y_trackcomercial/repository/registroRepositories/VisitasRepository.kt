@@ -57,7 +57,7 @@ class VisitasRepository @Inject constructor
         return visitasDao.getCantidadRegistrosPendientes()
     }
 
-    fun getCantidadPendientesExportar(): Int {
+    suspend fun getCantidadPendientesExportar(): Int {
         return visitasDao.getCantidadPendientesExportar()
     }
 

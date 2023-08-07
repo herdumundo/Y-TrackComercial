@@ -22,11 +22,11 @@ import javax.inject.Inject
 @HiltViewModel
 class LocationViewModel @Inject constructor(
     application: Application,
-    private var locationService: LocationService
+   // private var locationService: LocationService
 ) : AndroidViewModel(application) {
 
     private val context: Context = application
-    private val locationServiceIntent = Intent(application, LocationService::class.java)
+   // private val locationServiceIntent = Intent(application, LocationService::class.java)
 
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
     val latitud: LiveData<Double> = _latitud
@@ -55,7 +55,7 @@ class LocationViewModel @Inject constructor(
             _isPermissionGPS.value = false
         }
     }
-
+/*
     private val locationServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as LocationService.LocationBinder
@@ -66,22 +66,22 @@ class LocationViewModel @Inject constructor(
         override fun onServiceDisconnected(name: ComponentName?) {
             // Manejar la desconexión del servicio si es necesario
         }
-    }
+    }*/
 
     init {
-        context.bindService(
-            locationServiceIntent,
-            locationServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
+     //   context.bindService(
+           // locationServiceIntent,
+           // locationServiceConnection,
+        //    Context.BIND_AUTO_CREATE
+       // )
     }
 
     override fun onCleared() {
         super.onCleared()
-        getApplication<Application>().unbindService(locationServiceConnection)
+     //   getApplication<Application>().unbindService(locationServiceConnection)
     }
 
-    fun startLocationService() {
+   /* fun startLocationService() {
         context.startService(locationServiceIntent)
         context.bindService(
             locationServiceIntent,
@@ -89,12 +89,12 @@ class LocationViewModel @Inject constructor(
             Context.BIND_AUTO_CREATE
         )
         getLocationService()?.registerLocationChangeListener(locationChangeListener)
-    }
+    }*/
 
-    fun stopLocationService() {
+  /*  fun stopLocationService() {
         context.stopService(locationServiceIntent)
         getLocationService()?.unregisterLocationChangeListener()
-    }
+    }*/
 
     fun checkPermissions() {
         if (ActivityCompat.checkSelfPermission(
@@ -113,12 +113,12 @@ class LocationViewModel @Inject constructor(
     }
 
     private fun restartLocationService() {
-        stopLocationService()
-        startLocationService()
+       // stopLocationService()
+       // startLocationService()
         checkGpsEnabled()
     }
 
-    @SuppressLint("ServiceCast")
+  /*  @SuppressLint("ServiceCast")
     private fun getLocationService(): LocationService {
         if (locationService == null) {
             // Obtener la instancia del servicio a través del contexto
@@ -126,7 +126,7 @@ class LocationViewModel @Inject constructor(
                 (context.getSystemService(Context.LOCATION_SERVICE) as? LocationService)!!
         }
         return locationService
-    }
+    }*/
 
     fun checkGpsEnabled() {
         // Verificar el estado del GPS y actualizar _isGpsEnabled

@@ -25,7 +25,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.y_trackcomercial.components.InfoDialogUnBoton
-import com.example.y_trackcomercial.services.exportacion.scheduleExportWorker
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.services.gps.locationLocal.obtenerUbicacionGPS

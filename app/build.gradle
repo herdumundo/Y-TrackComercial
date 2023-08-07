@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.y_trackcomercial"
-        minSdk 30
+        minSdk 27
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -99,7 +99,6 @@ dependencies {
 
     implementation 'androidx.datastore:datastore-preferences:1.1.0-alpha04'
 
-    // implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     implementation('io.arrow-kt:arrow-core:1.2.0')

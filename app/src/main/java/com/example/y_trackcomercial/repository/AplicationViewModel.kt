@@ -1,5 +1,5 @@
 package com.example.y_trackcomercial.repository
-
+/*
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 
@@ -10,4 +10,4 @@ class ApplicationViewModel (application:Application) : AndroidViewModel(applicat
     fun startLocationUpdates(){
         locationLiveData.startLocationUpdates()
     }
-}
+}*/

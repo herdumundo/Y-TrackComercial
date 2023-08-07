@@ -240,7 +240,6 @@ fun LotesSelectionDialog(
                     Text(text = lote.id!!, modifier = Modifier
                         .clickable {
                             inventarioViewModel.setLote(lote.id,lote.CodeBars)
-
                             onLoteSelected()
                         }
                         .fillMaxWidth()
