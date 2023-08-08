@@ -40,9 +40,7 @@ class LocationLocalListenerService(
         val longitude = location.longitude
         // Launch a coroutine and call insertRoomLocation from within the coroutine
         actualizarUbicacion(latitude, longitude, velocidad)
-        /*CoroutineScope(Dispatchers.Main).launch {
-                insertRoomLocation(latitude, longitude, velocidad)
-            } */
+
     }
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
     }

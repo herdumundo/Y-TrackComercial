@@ -1,7 +1,7 @@
 package com.example.y_trackcomercial.util.logUtils
 
+
 import com.example.y_trackcomercial.data.model.entities.logs.AuditTrailEntity
-import com.example.y_trackcomercial.data.model.entities.logs.LogEntity
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 
@@ -33,7 +33,7 @@ object LogUtils {
     }
     suspend fun insertLogAuditTrailUtils(auditTrailRepository: AuditTrailRepository,
                                          fecha: String, longitud: Double, latitud: Double, idUsuario: Int, nombreUsuario: String, velocidad: Double,bateria:Int): Long {
-        val log = com.example.y_trackcomercial.data.model.entities.logs.AuditTrailEntity(
+        val log = AuditTrailEntity(
             id = null,
             fecha = fecha,
             fechaLong = System.currentTimeMillis(),
