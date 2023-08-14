@@ -17,7 +17,7 @@ The name of the file should match the name of your UI package.
   By default this is the package of the function created by generated code.
 
 ```
-"package" : "com.example.podcastapp.ui.components"
+"package" : "ytrack.podcastapp.ui.components"
 ```
 
 - **generateImplementation** : (Optional) true or false. If true, an

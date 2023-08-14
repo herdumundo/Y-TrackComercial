@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.y_trackcomercial'
+    namespace 'com.ytrack.y_trackcomercial'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.y_trackcomercial"
+        applicationId "com.ytrack.y_trackcomercial"
         minSdk 26
         targetSdk 34
         versionCode 1
