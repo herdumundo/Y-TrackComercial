@@ -18,10 +18,10 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddBusiness
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -112,7 +112,6 @@ fun OcrdSelectionDialog(
                                         ocrd.latitud.toDouble(),
                                         ocrd.longitud.toDouble()
                                     )
-
                                     //marcacionPromotoraViewModel.setMetros(metros)
                                     onAddressSelected(ocrd)
                                 }
@@ -190,7 +189,7 @@ fun ScreenVisitaAuditor(
                         modifier = Modifier.weight(1f) // Ajusta el ancho del Text para llenar el espacio disponible
                     )
                     Icon(
-                        imageVector = Icons.Default.Store,
+                        imageVector = Icons.Default.Home,
                         contentDescription = "Seleccionar punto de venta",
                         modifier = Modifier.padding(start = 18.dp) // Ajusta el espaciado aquí
                     )
@@ -226,7 +225,8 @@ fun ScreenVisitaAuditor(
         Button(
             modifier = Modifier.width(300.dp),
             onClick = {
-                visitaAuditorViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+             //   visitaAuditorViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+                visitaAuditorViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFFCE0303),
@@ -243,7 +243,7 @@ fun ScreenVisitaAuditor(
                     modifier = Modifier.weight(1f) // Ajusta el ancho del Text para llenar el espacio disponible
                 )
                 Icon(
-                    imageVector = Icons.Default.AddBusiness,
+                    imageVector = Icons.Default.Add,
                     contentDescription = "Imagen Visita",
                     modifier = Modifier.padding(start = 18.dp) // Ajusta el espaciado aquí
                 )

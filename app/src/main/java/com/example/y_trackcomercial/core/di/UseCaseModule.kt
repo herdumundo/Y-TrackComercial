@@ -1,11 +1,13 @@
 package com.example.y_trackcomercial.core.di
 
-import com.example.y_trackcomercial.repository.PermisosVisitasRepository
+import android.content.Context
+ import com.example.y_trackcomercial.repository.PermisosVisitasRepository
 import com.example.y_trackcomercial.repository.UbicacionesPvRepository
 import com.example.y_trackcomercial.repository.registroRepositories.MovimientosRepository
 import com.example.y_trackcomercial.repository.registroRepositories.VisitasRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.services.gps.locatioGoogleMaps.LocationManager
 import com.example.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.example.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.example.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
@@ -27,11 +29,13 @@ import com.example.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisita
 import com.example.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvCountUseCase
 import com.example.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvUseCase
 import com.example.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.example.y_trackcomercial.util.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Singleton
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -205,7 +209,17 @@ object UseCaseModule {
     ): GetMovimientoPendientesUseCase {
         return GetMovimientoPendientesUseCase(movimientosRepository)
     }
-
-
+/*
+    @Provides
+    @Singleton
+    fun provideLocationManager(
+        auditTrailRepository: AuditTrailRepository,
+        sharedPreferences: SharedPreferences,
+        logRepository: LogRepository,
+        context: Context
+    ): LocationManager {
+        return LocationManager(auditTrailRepository, sharedPreferences, logRepository, context)
+    }
+ */
 }
 

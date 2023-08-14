@@ -1,5 +1,6 @@
 package com.example.y_trackcomercial.repository
 
+import android.util.Log
 import javax.inject.Inject
 import com.example.y_trackcomercial.data.api.HorariosUsuarioApiClient
 import com.example.y_trackcomercial.util.HoraActualUtils
@@ -22,12 +23,30 @@ class HorariosUsuarioRepository @Inject constructor(
 
     suspend fun fetchHorariosUsuario(idUsuario: Int): Int {
         return withContext(Dispatchers.IO) {
+            try {
+                val horariosResponse = horariosUsuarioApiClient.getHorarioUsuario(idUsuario)
+                val horariosEntityList = convertToEntityList(horariosResponse)
+                horariosUsuarioDao.insertAllTurnosHorarios(horariosEntityList)
+                return@withContext getTurnosHorariosCountRepository()
+            } catch (e: Exception) {
+                // Aquí puedes manejar la excepción de acuerdo a tus necesidades
+                // Por ejemplo, imprimir un mensaje de error o lanzar una excepción personalizada
+                var msg =e.toString()
+                Log.i("msg",msg)
+                // O retornar un valor específico en caso de error
+                return@withContext -1
+            }
+        }
+    }
+    /*suspend fun fetchHorariosUsuario(idUsuario: Int): Int {
+        return withContext(Dispatchers.IO) {
+
             val horariosResponse = horariosUsuarioApiClient.getHorarioUsuario(idUsuario)
             val horariosEntityList = convertToEntityList(horariosResponse)
             horariosUsuarioDao.insertAllTurnosHorarios(horariosEntityList)
             return@withContext getTurnosHorariosCountRepository()
         }
-    }
+    }*/
 
     fun getTurnosHorariosCountRepository(): Int {
         return horariosUsuarioDao.getTurnosHorariosCount()

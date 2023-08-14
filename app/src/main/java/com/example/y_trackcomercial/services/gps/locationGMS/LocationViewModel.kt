@@ -118,16 +118,6 @@ class LocationViewModel @Inject constructor(
         checkGpsEnabled()
     }
 
-  /*  @SuppressLint("ServiceCast")
-    private fun getLocationService(): LocationService {
-        if (locationService == null) {
-            // Obtener la instancia del servicio a través del contexto
-            locationService =
-                (context.getSystemService(Context.LOCATION_SERVICE) as? LocationService)!!
-        }
-        return locationService
-    }*/
-
     fun checkGpsEnabled() {
         // Verificar el estado del GPS y actualizar _isGpsEnabled
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

@@ -7,7 +7,7 @@ data class HorariosUsuarioResponse(
     val idUsuario: Int,
     val updatedAt: String?,
     val createdAt: String?,
-    val yemsys_horarios: List<com.example.y_trackcomercial.data.model.models.YemsysHorario>
+    val yemsys_horarios: List<YemsysHorario>
 )
 
 data class YemsysHorario(
@@ -16,7 +16,7 @@ data class YemsysHorario(
     val idEstado: Int,
     val updatedAt: String,
     val createdAt: String,
-    val yemsys_turnos: List<com.example.y_trackcomercial.data.model.models.YemsysTurno>
+    val yemsys_turnos: List<YemsysTurno>
 )
 
 data class YemsysTurno(

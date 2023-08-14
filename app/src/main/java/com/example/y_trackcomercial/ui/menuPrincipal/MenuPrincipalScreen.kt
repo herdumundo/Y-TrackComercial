@@ -2,14 +2,12 @@ package com.example.y_trackcomercial.ui.menuPrincipal
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -46,6 +44,7 @@ import com.example.y_trackcomercial.components.DialogLoading
 import com.example.y_trackcomercial.components.InfoDialog
 import com.example.y_trackcomercial.components.InfoDialogOk
 import com.example.y_trackcomercial.components.toIcon
+//import com.example.y_trackcomercial.components.toIcon
 import com.example.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.example.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
 import com.example.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
@@ -58,6 +57,8 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.updateApp.UpdateAppScreen
+import com.example.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.example.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
 import com.example.y_trackcomercial.ui.visitaAuditor.screen.VisitaAuditorScreen
 import com.example.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
@@ -66,6 +67,7 @@ import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MenuPrincipal(
@@ -79,7 +81,8 @@ fun MenuPrincipal(
     informeInventarioViewModel: InformeInventarioViewModel,
     visitaSupervisorViewModel: VisitaSupervisorViewModel,
     exportacionViewModel: ExportacionViewModel,
-    visitaAuditorViewModel: VisitaAuditorViewModel
+    visitaAuditorViewModel: VisitaAuditorViewModel,
+    updateAppViewModel: UpdateAppViewModel
 ) {
 
     if (loginViewModel.loggedIn.value == true) {
@@ -174,6 +177,10 @@ fun MenuPrincipal(
                 }
 
 
+                composable("updateApp") {
+
+                    UpdateAppScreen(updateAppViewModel)
+                }
                 composable("marcacionSupervisor") {
                     DisposableEffect(Unit) {
                         onDispose {

@@ -88,7 +88,7 @@ fun ScreenTablasRegistradas(
             cardViewLoadingTablas(
                 textoLoading = "Actualizando horarios cargados...",color =  colorCard, title = "Horarios cargados",
                 subTitle = horariosUsuarioCount.toString(),
-                image = R.drawable.ic_horario, isLoading = LoadingHorariosUsuarioCount
+                image = R.drawable.ic_step, isLoading = LoadingHorariosUsuarioCount
             ) {  tablasRegistradasViewModel.actualizarDatos(5)}
         }
         item {

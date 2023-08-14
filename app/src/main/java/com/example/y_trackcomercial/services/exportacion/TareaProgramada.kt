@@ -1,5 +1,6 @@
 package com.example.y_trackcomercial.services.exportacion
 
+import android.nfc.Tag
 import android.util.Log
 import com.example.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.example.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
@@ -24,6 +25,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 fun ExportarDatos(
     countAuditTrailUseCase: CountAuditTrailUseCase,
@@ -39,87 +42,85 @@ fun ExportarDatos(
     enviarLogPendientesUseCase: EnviarLogPendientesUseCase,
     enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase
 ) {
-    // Lanza una corrutina para la exportación de datos
-    CoroutineScope(Dispatchers.IO).launch {
-        do {
-            val currentTime = Calendar.getInstance().time
-            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val currentTimeString = dateFormat.format(currentTime)
+// Lanza una corrutina para la exportación de datos
+   CoroutineScope(Dispatchers.IO).launch {
+   do {
+       val currentTime = Calendar.getInstance().time
+       val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+       val currentTimeString = dateFormat.format(currentTime)
+       // Verificar si la hora actual está entre las 07:00 y las 18:00
+       if (currentTimeString >= "07:00" && currentTimeString <= "19:00") {
+           // Realiza la lógica de exportación aquí
+           exportarDatos(
+               countAuditTrailUseCase,
+               countCantidadPendientes,
+               countLogPendientesUseCase,
+               countMovimientoUseCase,
+               getVisitasPendientesUseCase,
+               getAuditTrailPendienteUseCase,
+               getLogPendienteUseCase,
+               getMovimientoPendientesUseCase,
+               enviarVisitasPendientesUseCase,
+               enviarAuditTrailPendientesUseCase,
+               enviarLogPendientesUseCase,
+               enviarMovimientoPendientesUseCase
+           )
+       }
 
-            // Verificar si la hora actual está entre las 07:00 y las 18:00
-            if (currentTimeString >= "07:00" && currentTimeString <= "19:00") {
-                // Realiza la lógica de exportación aquí
-                exportarDatos(
-                    countAuditTrailUseCase,
-                    countCantidadPendientes,
-                    countLogPendientesUseCase,
-                    countMovimientoUseCase,
-                    getVisitasPendientesUseCase,
-                    getAuditTrailPendienteUseCase,
-                    getLogPendienteUseCase,
-                    getMovimientoPendientesUseCase,
-                    enviarVisitasPendientesUseCase,
-                    enviarAuditTrailPendientesUseCase,
-                    enviarLogPendientesUseCase,
-                    enviarMovimientoPendientesUseCase
-                )             }
+       delay(10 * 60 * 1000) // 10 minutos en milisegundos
 
-            // Espera 2 segundos antes de la próxima exportación
-            //   delay(2000) // 2 segundos en milisegundos
-            delay(10 * 60 * 1000) // 10 minutos en milisegundos
-
-        } while (true)
-    }
+   } while (true)
+}
 }
 
 suspend fun exportarDatos(
-    countAuditTrailUseCase: CountAuditTrailUseCase,
-    countCantidadPendientes: CountCantidadPendientes,
-    countLogPendientesUseCase: CountLogPendientesUseCase,
-    countMovimientoUseCase: CountMovimientoUseCase,
-    getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
-    getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
-    getLogPendienteUseCase: GetLogPendienteUseCase,
-    getMovimientoPendientesUseCase: GetMovimientoPendientesUseCase,
-    enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
-    enviarAuditTrailPendientesUseCase: EnviarAuditTrailPendientesUseCase,
-    enviarLogPendientesUseCase: EnviarLogPendientesUseCase,
-    enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase
+countAuditTrailUseCase: CountAuditTrailUseCase,
+countCantidadPendientes: CountCantidadPendientes,
+countLogPendientesUseCase: CountLogPendientesUseCase,
+countMovimientoUseCase: CountMovimientoUseCase,
+getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
+getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
+getLogPendienteUseCase: GetLogPendienteUseCase,
+getMovimientoPendientesUseCase: GetMovimientoPendientesUseCase,
+enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
+enviarAuditTrailPendientesUseCase: EnviarAuditTrailPendientesUseCase,
+enviarLogPendientesUseCase: EnviarLogPendientesUseCase,
+enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase
 ) {
-    if (countCantidadPendientes.ContarCantidadPendientes() > 0) {
-         val visitasPendientes =
-            getVisitasPendientesUseCase.getVisitasPendientes()
-        val enviarVisitasRequest = EnviarVisitasRequest(visitasPendientes)
-        enviarVisitasPendientesUseCase.enviarVisitasPendientes(
-            enviarVisitasRequest
-        )
-     }
+if (countCantidadPendientes.ContarCantidadPendientes() > 0) {
+    val visitasPendientes =
+       getVisitasPendientesUseCase.getVisitasPendientes()
+   val enviarVisitasRequest = EnviarVisitasRequest(visitasPendientes)
+   enviarVisitasPendientesUseCase.enviarVisitasPendientes(
+       enviarVisitasRequest
+   )
+}
 
-    if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
-         val auditTrailPendientes =
-            getAuditTrailPendienteUseCase.getAuditTrailPendientes()
-        val enviarAuditTrailRequest =
-            EnviarAuditoriaTrailRequest(auditTrailPendientes)
-        enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(
-            enviarAuditTrailRequest
-        )
-     }
-    if (countLogPendientesUseCase.CountPendientes() > 0) {
-         val auditLogPendientes =
-            getLogPendienteUseCase.getAuditLogPendientes()
-        val enviarAuditLogRequest =
-            EnviarLotesDeActividadesRequest(auditLogPendientes)
-        enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
-     }
-    if (countMovimientoUseCase.CountPendientes() > 0) {
-         val movimientosPendientes =
-            getMovimientoPendientesUseCase.GetPendientes()
-        val enviarmovimientosRequest =
-            EnviarLotesDeMovimientosRequest(movimientosPendientes)
-        enviarMovimientoPendientesUseCase.enviarPendientes(
-            enviarmovimientosRequest
-        )
-     }
+if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
+    val auditTrailPendientes =
+       getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+   val enviarAuditTrailRequest =
+       EnviarAuditoriaTrailRequest(auditTrailPendientes)
+   enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(
+       enviarAuditTrailRequest
+   )
+}
+if (countLogPendientesUseCase.CountPendientes() > 0) {
+    val auditLogPendientes =
+       getLogPendienteUseCase.getAuditLogPendientes()
+   val enviarAuditLogRequest =
+       EnviarLotesDeActividadesRequest(auditLogPendientes)
+   enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
+}
+if (countMovimientoUseCase.CountPendientes() > 0) {
+    val movimientosPendientes =
+       getMovimientoPendientesUseCase.GetPendientes()
+   val enviarmovimientosRequest =
+       EnviarLotesDeMovimientosRequest(movimientosPendientes)
+   enviarMovimientoPendientesUseCase.enviarPendientes(
+       enviarmovimientosRequest
+   )
+}
 
-    Log.i("Mensaje", "DATOS EXPORTADOS")
+Log.i("Mensaje", "DATOS EXPORTADOS")
 }

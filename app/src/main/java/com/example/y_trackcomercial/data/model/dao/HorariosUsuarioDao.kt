@@ -23,7 +23,7 @@ interface HorariosUsuarioDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
-    suspend fun insertAllTurnosHorarios(turnos: List<com.example.y_trackcomercial.data.model.entities.HorariosUsuarioEntity>)
+    suspend fun insertAllTurnosHorarios(turnos: List<HorariosUsuarioEntity>)
 
     @Query("SELECT * FROM turnosHorarios WHERE strftime('%H:%M', inicioEnt) <= strftime('%H:%M', :horaActual) AND strftime('%H:%M', finSal) >= strftime('%H:%M', :horaActual)")
     fun getHorarioActual(horaActual: String): List<com.example.y_trackcomercial.data.model.entities.HorariosUsuarioEntity>

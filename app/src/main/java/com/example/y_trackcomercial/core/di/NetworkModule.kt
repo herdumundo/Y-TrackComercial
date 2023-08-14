@@ -3,6 +3,7 @@ package com.example.y_trackcomercial.core.di
 import android.app.Application
 import android.content.Context
 import com.example.y_trackcomercial.data.api.ApiService
+import com.example.y_trackcomercial.data.api.DownloadUpdateApiClient
 import com.example.y_trackcomercial.data.api.HorariosUsuarioApiClient
 import com.example.y_trackcomercial.data.api.LotesListasApiClient
 import com.example.y_trackcomercial.data.api.OcrdUbicacionesApiClient
@@ -41,8 +42,8 @@ object NetworkModule {
     fun provideRetrofit(): Retrofit {
         val timeoutValue = 30L
         return Retrofit.Builder()
-            .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
-            //.baseUrl("http://192.168.6.134:8000/")
+            //  .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
+              .baseUrl("http://192.168.6.134:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -147,6 +148,13 @@ object NetworkModule {
     fun provideExportacionMovimientosApi(retrofit: Retrofit): ExportacionMovimientosApiClient {
         return retrofit.create(ExportacionMovimientosApiClient::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideDownloadUpdeteApiClientApi(retrofit: Retrofit): DownloadUpdateApiClient {
+        return retrofit.create(DownloadUpdateApiClient::class.java)
+    }
+
 
 }
 

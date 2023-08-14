@@ -1,6 +1,8 @@
 package com.example.y_trackcomercial.ui.visitaAuditor.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +16,7 @@ import com.example.y_trackcomercial.repository.registroRepositories.logRepositor
 import com.example.y_trackcomercial.services.battery.getBatteryPercentage
 import com.example.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 import com.example.y_trackcomercial.services.gps.calculoMetrosPuntosGps
+import com.example.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
 import com.example.y_trackcomercial.services.time_zone.isAutomaticDateTime
 import com.example.y_trackcomercial.services.time_zone.isAutomaticTimeZone
 import com.example.y_trackcomercial.util.SharedPreferences
@@ -40,7 +43,7 @@ class VisitaAuditorViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-
+    private val  locationService:LocationService= LocationService()
     private val _addressesList: MutableList<OcrdItem> = mutableListOf()
 
     private val _metros: MutableLiveData<Int> = MutableLiveData()
@@ -105,9 +108,15 @@ class VisitaAuditorViewModel @Inject constructor(
         _buttonPvText.value = ocrd
     }
 
-    fun insertarVisita(latitudUsuarioVal: Double, longitudUsuarioVal: Double) {
-        //VALIDAR QUE NO SE PUEDA FINALIZAR VISITA SI ESTA A MAS DE 100 METROS.
-        viewModelScope.launch {
+    @SuppressLint("SuspiciousIndentation")
+    fun insertarVisita() {
+
+         viewModelScope.launch {
+            //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
+            val resultLocation= locationService.getUserLocation(context)
+            var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
+            var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
+
             val isAutomaticTimeZone = isAutomaticTimeZone(context)
             val isAutomaticDateTime = isAutomaticDateTime(context)
             val porceBateria = getBatteryPercentage(context)
@@ -118,25 +127,47 @@ class VisitaAuditorViewModel @Inject constructor(
             _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
             _developerModeEnabled.value = isDeveloperModeEnabled(context)
 
-              if (_developerModeEnabled.value==true) {
-                  mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
-                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
-              }
-               else
-
-              // SI SE COLOCO LA ZONA HORARIA MANUAL
-                  if (isAutomaticTimeZone == 0) {
-                  mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
-                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
-              }
-              // SI SE COLOCO LA HORA MANUAL
-              else if (isAutomaticDateTime == 0) {
-                  mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
-                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Hora y fecha manual ", "Hora y fecha activado manualmente", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
-              }
-              else //COMIENZA EL INTENTO PARA REGISTRO.
-
-            if (_validacionVisita.value?.respuestaVisita == 1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
+            if (_developerModeEnabled.value == true) {
+                mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
+                LogUtils.insertLog(
+                    logRepository,
+                    LocalDateTime.now().toString(),
+                    "Modo desarrollador activado",
+                    "Se ha activado el modo desarrollador",
+                    sharedPreferences.getUserId(),
+                    sharedPreferences.getUserName()!!,
+                    "REGISTRO DE VISITAS",
+                    porceBateria
+                )
+            }
+            else if (isAutomaticTimeZone == 0) {
+                mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
+                LogUtils.insertLog(
+                    logRepository,
+                    LocalDateTime.now().toString(),
+                    "Zona horaria manual ",
+                    "Zona horaria manual activada",
+                    sharedPreferences.getUserId(),
+                    sharedPreferences.getUserName()!!,
+                    "REGISTRO DE VISITAS",
+                    porceBateria
+                )
+            }
+            // SI SE COLOCO LA HORA MANUAL
+            else if (isAutomaticDateTime == 0) {
+                mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
+                LogUtils.insertLog(
+                    logRepository,
+                    LocalDateTime.now().toString(),
+                    "Hora y fecha manual ",
+                    "Hora y fecha activado manualmente",
+                    sharedPreferences.getUserId(),
+                    sharedPreferences.getUserName()!!,
+                    "REGISTRO DE VISITAS",
+                    porceBateria
+                )
+            }
+            else if (_validacionVisita.value?.respuestaVisita == 1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
             {
                 transaccionVisita(
                     latitudUsuarioVal,
@@ -146,7 +177,8 @@ class VisitaAuditorViewModel @Inject constructor(
                     rangoDistancia,
                     "NO"
                 )
-            } else //SI INTENTO MARCAR CON LLEGADA TARDIA
+            }
+            else //SI INTENTO MARCAR CON LLEGADA TARDIA
             {
                 // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
                 val permisoVisitaToken =
@@ -204,7 +236,7 @@ class VisitaAuditorViewModel @Inject constructor(
                     distanciaMetros = metros
                     tipoRegistro = "M"
                     tipoCierre = tipoCierreVar
-                    pendienteSincro="P"
+                    pendienteSincro = "P"
                 }
 
                 if (metros > rangoDistancia) {
@@ -263,8 +295,8 @@ class VisitaAuditorViewModel @Inject constructor(
                         idOcrd = idOcrd.value.toString(),
                         rol = "AUDITOR",
                         pendienteSincro = "P",
-                        secuencia=secuenciaVisita,
-                        id=System.currentTimeMillis()
+                        secuencia = secuenciaVisita,
+                        id = System.currentTimeMillis()
 
 
                     )
@@ -291,8 +323,8 @@ class VisitaAuditorViewModel @Inject constructor(
                             idOcrd = idOcrd.value.toString(),
                             rol = "AUDITOR",
                             pendienteSincro = "N",
-                            secuencia=secuenciaVisita,
-                            id=System.currentTimeMillis()
+                            secuencia = secuenciaVisita,
+                            id = System.currentTimeMillis()
 
                         )
                         val idSegundaVisita = visitasRepository.insertVisita(visitaCierre)
@@ -319,8 +351,6 @@ class VisitaAuditorViewModel @Inject constructor(
         _showDialog.value = true
         _mensajeDialog.value = mensaje
     }
-
-
 
 
     fun consultaVisitaActiva() {

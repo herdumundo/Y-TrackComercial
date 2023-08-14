@@ -1,7 +1,8 @@
 package com.example.y_trackcomercial.services.gps.locationGMS
-/*
+
 import android.Manifest
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
@@ -9,6 +10,9 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.example.y_trackcomercial.util.SharedPreferences
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -18,7 +22,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LocationService @Inject constructor() : Service() {
+class LocationService @Inject constructor(
+    private val auditTrailRepository: AuditTrailRepository,
+    private val sharedPreferences: SharedPreferences,
+    private val logRepository: LogRepository,
+    private val context: Context
+
+) : Service() {
 
     // Binder para permitir la conexión al servicio desde un componente externo
     private val binder: IBinder = LocationBinder()
@@ -97,7 +107,6 @@ class LocationService @Inject constructor() : Service() {
         return binder
     }
 
-    // Método para registrar el LocationChangeListener
     fun registerLocationChangeListener(listener: LocationChangeListener) {
         locationChangeListener = listener
     }
@@ -107,4 +116,3 @@ class LocationService @Inject constructor() : Service() {
         locationChangeListener = null
     }
 }
-*/

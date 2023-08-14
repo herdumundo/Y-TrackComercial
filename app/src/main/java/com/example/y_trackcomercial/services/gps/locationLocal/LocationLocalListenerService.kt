@@ -20,15 +20,13 @@ class LocationLocalListenerService(
     private val sharedPreferences: SharedPreferences,
     private val logRepository: LogRepository,
     private val context: Context
-    ) :
+) :
     LocationListener {
     private val _latitudInsert: MutableLiveData<Double> = MutableLiveData()
-
     // LiveData mutable para la longitud
     private val _longitudInsert: MutableLiveData<Double> = MutableLiveData()
 
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
-
     // LiveData mutable para la longitud
     private val _longitud: MutableLiveData<Double> = MutableLiveData()
     private val _speed: MutableLiveData<Float> = MutableLiveData()
@@ -40,13 +38,13 @@ class LocationLocalListenerService(
         val longitude = location.longitude
         // Launch a coroutine and call insertRoomLocation from within the coroutine
         actualizarUbicacion(latitude, longitude, velocidad)
-
     }
+
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
     }
+
     override fun onProviderEnabled(provider: String) {
         val porceBateria = getBatteryPercentage(context)
-
         CoroutineScope(Dispatchers.Main).launch {
             LogUtils.insertLog(
                 logRepository,
@@ -58,10 +56,11 @@ class LocationLocalListenerService(
                 "SERVICIO SEGUNDO PLANO",
                 porceBateria
             )
-        }    }
+        }
+    }
+
     override fun onProviderDisabled(provider: String) {
         val porceBateria = getBatteryPercentage(context)
-
         CoroutineScope(Dispatchers.Main).launch {
             LogUtils.insertLog(
                 logRepository,
@@ -75,6 +74,7 @@ class LocationLocalListenerService(
             )
         }
     }
+
     private suspend fun insertRoomLocation(
     ) {
         val porceBateria = getBatteryPercentage(context)
@@ -106,7 +106,7 @@ class LocationLocalListenerService(
             CoroutineScope(Dispatchers.Main).launch {
                 insertRoomLocation()
             }
-         }
+        }
     }
 
     private fun calcularDistancia(latitud: Double, longitud: Double): Float {

@@ -2,6 +2,7 @@ package com.example.y_trackcomercial.util.logUtils
 
 
 import com.example.y_trackcomercial.data.model.entities.logs.AuditTrailEntity
+import com.example.y_trackcomercial.data.model.entities.logs.LogEntity
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.example.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 
@@ -17,7 +18,7 @@ object LogUtils {
          componente: String,
          porceBateria: Int
      ): Long {
-        val log = com.example.y_trackcomercial.data.model.entities.logs.LogEntity(
+        val log =  LogEntity(
             id = null,
             fecha = fecha,
             fechaLong = System.currentTimeMillis(),

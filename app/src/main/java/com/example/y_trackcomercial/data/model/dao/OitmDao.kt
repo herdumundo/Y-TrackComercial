@@ -23,7 +23,7 @@ interface OitmDao {
     fun getOitm(): List<com.example.y_trackcomercial.data.model.models.OitmItem>
 
     @Query("select  DISTINCT t1.ItemCode,t2.CodeBars,t2.ItemName   from ocrd_x_oitm t1 inner join oitm t2 on t1.ItemCode=t2.ItemCode  where ShipToCode   in( select ocrdName from visitas where pendienteSincro='N') ")
-    fun getOitmByPuntoVentaAbierto(): List<com.example.y_trackcomercial.data.model.models.OitmItem>
+    fun getOitmByPuntoVentaAbierto(): List<OitmItem>
 
 
 

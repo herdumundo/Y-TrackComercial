@@ -18,10 +18,9 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddBusiness
+ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -81,7 +80,7 @@ fun OcrdSelectionDialog(
      longitudUsuario: Double,*/
     onAddressSelected: (com.example.y_trackcomercial.data.model.models.OcrdItem) -> Unit,
     onDismissRequest: () -> Unit,
-    marcacionPromotoraViewModel: VisitaSupervisorViewModel,
+    visitaSupervisorViewModel: VisitaSupervisorViewModel,
 ) {
     var searchText by remember { mutableStateOf("") }
 
@@ -110,8 +109,8 @@ fun OcrdSelectionDialog(
                             text = ocrd.Address,
                             modifier = Modifier
                                 .clickable {
-                                    marcacionPromotoraViewModel.setIdOcrd(ocrd.id, ocrd.Address)
-                                    marcacionPromotoraViewModel.setUbicacionPv(
+                                    visitaSupervisorViewModel.setIdOcrd(ocrd.id, ocrd.Address)
+                                    visitaSupervisorViewModel.setUbicacionPv(
                                         ocrd.latitud.toDouble(),
                                         ocrd.longitud.toDouble()
                                     )
@@ -193,7 +192,7 @@ fun MyApp(
                         modifier = Modifier.weight(1f) // Ajusta el ancho del Text para llenar el espacio disponible
                     )
                     Icon(
-                        imageVector = Icons.Default.Store,
+                        imageVector = Icons.Default.Home,
                         contentDescription = "Seleccionar punto de venta",
                         modifier = Modifier.padding(start = 18.dp) // Ajusta el espaciado aquí
                     )
@@ -229,7 +228,8 @@ fun MyApp(
         Button(
             modifier = Modifier.width(300.dp),
             onClick = {
-                marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+                //marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+                marcacionPromotoraViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFFCE0303),
@@ -246,7 +246,7 @@ fun MyApp(
                     modifier = Modifier.weight(1f) // Ajusta el ancho del Text para llenar el espacio disponible
                 )
                 Icon(
-                    imageVector = Icons.Default.AddBusiness,
+                    imageVector = Icons.Default.LocationOn,
                     contentDescription = "Imagen Visita",
                     modifier = Modifier.padding(start = 18.dp) // Ajusta el espaciado aquí
                 )

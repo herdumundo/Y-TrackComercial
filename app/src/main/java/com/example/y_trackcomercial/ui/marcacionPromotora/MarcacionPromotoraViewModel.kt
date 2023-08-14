@@ -16,12 +16,14 @@ import com.example.y_trackcomercial.repository.registroRepositories.logRepositor
 import com.example.y_trackcomercial.services.battery.getBatteryPercentage
 import com.example.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 import com.example.y_trackcomercial.services.gps.calculoMetrosPuntosGps
+import com.example.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
 import com.example.y_trackcomercial.services.time_zone.isAutomaticDateTime
 import com.example.y_trackcomercial.services.time_zone.isAutomaticTimeZone
 import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarCierrePendienteUseCase
 import com.example.y_trackcomercial.usecases.marcacionPromotora.VerificarInventarioCierreVisitaUseCase
 import com.example.y_trackcomercial.util.SharedPreferences
 import com.example.y_trackcomercial.util.ValidacionesVisitas
+import com.example.y_trackcomercial.util.logUtils.LogUtils
 import com.example.y_trackcomercial.util.registrosVisitas.crearVisitaEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +92,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
 
     private val _validacionVisita =
         MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
+    private val  locationService: LocationService = LocationService()
 
     fun getAddresses() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -102,7 +105,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
     }
 
 
-    fun getStoredAddresses(): List<com.example.y_trackcomercial.data.model.models.OcrdItem> {
+    fun getStoredAddresses(): List<OcrdItem> {
         return _addressesList
     }
 
@@ -114,9 +117,13 @@ class MarcacionPromotoraViewModel @Inject constructor(
     }
 
     @SuppressLint("SuspiciousIndentation")
-    fun insertarVisita(latitudUsuarioVal: Double, longitudUsuarioVal: Double) {
+    fun insertarVisita() {
         //VALIDAR QUE NO SE PUEDA FINALIZAR VISITA SI ESTA A MAS DE 100 METROS.
         viewModelScope.launch {
+            //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
+            val resultLocation= locationService.getUserLocation(context)
+            var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
+            var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
             val isAutomaticTimeZone = isAutomaticTimeZone(context)
             val isAutomaticDateTime = isAutomaticDateTime(context)
             val porceBateria = getBatteryPercentage(context)
@@ -138,26 +145,25 @@ class MarcacionPromotoraViewModel @Inject constructor(
 
             val rangoDistancia = 300
             _developerModeEnabled.value = isDeveloperModeEnabled(context)
-            var SalidaFueraPunto = false
-            /*
+
                         if (_developerModeEnabled.value==true) {
                             mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
-                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
+                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
                         }
                          else
 
                         // SI SE COLOCO LA ZONA HORARIA MANUAL
                             if (isAutomaticTimeZone == 0) {
                             mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
-                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
+                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
                         }
                         // SI SE COLOCO LA HORA MANUAL
                         else if (isAutomaticDateTime == 0) {
                             mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
-                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Hora y fecha manual ", "Hora y fecha activado manualmente", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS")
+                            LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Hora y fecha manual ", "Hora y fecha activado manualmente", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
                         }
                         else //COMIENZA EL INTENTO PARA REGISTRO.
-                       */
+
             if (_validacionVisita.value?.respuestaVisita == 1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
             {
                 transaccionVisita(

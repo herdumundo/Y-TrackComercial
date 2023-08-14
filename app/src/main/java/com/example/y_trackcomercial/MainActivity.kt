@@ -38,6 +38,7 @@ import com.example.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraView
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.example.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.example.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+import com.example.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.example.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
 import com.example.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
     private val visitaSupervisorViewModel: VisitaSupervisorViewModel by viewModels()
     private val exportacionViewModel: ExportacionViewModel by viewModels()
     private val visitaAuditorViewModel: VisitaAuditorViewModel by viewModels()
+    private val updateAppViewModel: UpdateAppViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,21 +65,7 @@ class MainActivity : ComponentActivity() {
         // Ejecutar scheduleExportWork aquí
         if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU){
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS),0)
-
         }
-
-       if (!isServiceRunning(ServicioUnderground::class.java)) {
-           val servicioUndergroundIntent = Intent(this@MainActivity, ServicioUnderground::class.java)
-           // El servicio no está en ejecución, iniciarlo
-            servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
-            ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
-       }
-
-     /*   val startIntent = Intent(this@MainActivity, ServicioUnderground::class.java).apply {
-            action = ServicioUnderground.Actions.START.toString()
-        }
-        ContextCompat.startForegroundService(this@MainActivity, startIntent)
-*/
 
 
         locationViewModel = ViewModelProvider(this).get(LocationLocalViewModel::class.java)
@@ -101,13 +89,20 @@ class MainActivity : ComponentActivity() {
                     informeInventarioViewModel,
                     visitaSupervisorViewModel,
                     exportacionViewModel,
-                    visitaAuditorViewModel
+                    visitaAuditorViewModel,
+                    updateAppViewModel
                 )
             }
         }
+     if (!isServiceRunning(ServicioUnderground::class.java)) {
+            val servicioUndergroundIntent = Intent(this@MainActivity, ServicioUnderground::class.java)
+            // El servicio no está en ejecución, iniciarlo
+            servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
+            ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
+        }
     }
 
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+   private fun isServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.name == service.service.className) {
@@ -116,6 +111,8 @@ class MainActivity : ComponentActivity() {
         }
         return false
     }
+
+
     private fun verificarPermisosUbicacion() {
         val permission = Manifest.permission.ACCESS_FINE_LOCATION
         val permissionGranted = PackageManager.PERMISSION_GRANTED
@@ -194,6 +191,7 @@ fun Router(
     visitaSupervisorViewModel: VisitaSupervisorViewModel,
     exportacionViewModel: ExportacionViewModel,
     visitaAuditorViewModel: VisitaAuditorViewModel,
+    updateAppViewModel: UpdateAppViewModel,
 
     ) {
     NavHost(
@@ -214,7 +212,8 @@ fun Router(
                 informeInventarioViewModel,
                 visitaSupervisorViewModel,
                 exportacionViewModel,
-                visitaAuditorViewModel
+                visitaAuditorViewModel,
+                updateAppViewModel
             )
         }
     }
