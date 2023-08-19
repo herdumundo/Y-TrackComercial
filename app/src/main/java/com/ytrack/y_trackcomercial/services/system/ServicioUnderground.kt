@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.ytrack.y_trackcomercial.R
 import com.ytrack.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
@@ -62,6 +63,23 @@ class ServicioUnderground : Service() {
     @Inject
     lateinit var enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase
     lateinit var context: Context
+    private lateinit var locationManager: LocationManager
+
+    override fun onCreate() {
+        super.onCreate()
+        locationManager = LocationManager(
+            auditTrailRepository,
+            sharedPreferences,
+            logRepository,
+            this
+        )
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("RunningServices", "Matamos el servicio")
+        locationManager.unregisterGpsStateChangeListener()
+        locationManager.stopLocationUpdates()
+    }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             Actions.START.toString() -> start()
@@ -101,9 +119,6 @@ class ServicioUnderground : Service() {
             .build()
         startForeground(1, notification)
 
-        val locationManager = LocationManager(  auditTrailRepository,
-            sharedPreferences,
-            logRepository,this)
         locationManager.startLocationUpdates()//activa el gps servicio
 
 

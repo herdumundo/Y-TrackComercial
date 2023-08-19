@@ -42,8 +42,8 @@ object NetworkModule {
     fun provideRetrofit(): Retrofit {
         val timeoutValue = 30L
         return Retrofit.Builder()
-            //  .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
-              .baseUrl("http://192.168.6.134:8000/")
+             .baseUrl("https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/")
+            //  .baseUrl("http://192.168.6.134:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()

@@ -11,6 +11,7 @@ import com.ytrack.y_trackcomercial.repository.LotesListasRepository
 import com.ytrack.y_trackcomercial.repository.UsuarioRepository
 import com.ytrack.y_trackcomercial.repository.CustomerRepository
 import com.ytrack.y_trackcomercial.data.api.response.OCRD
+import com.ytrack.y_trackcomercial.data.model.entities.RutasAccesosEntity
 import com.ytrack.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.ytrack.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,8 +67,8 @@ class MenuPrincipalViewModel @Inject constructor(
     private val _mensajeDialog: MutableLiveData<String> = MutableLiveData()
     val mensajeDialog: LiveData<String> = _mensajeDialog
 
-    private val _permisosUsuarios: MutableLiveData<List<com.ytrack.y_trackcomercial.data.model.entities.RutasAccesosEntity>> = MutableLiveData()
-    val permisosUsuarios: LiveData<List<com.ytrack.y_trackcomercial.data.model.entities.RutasAccesosEntity>> = _permisosUsuarios
+    private val _permisosUsuarios: MutableLiveData<List<RutasAccesosEntity>> = MutableLiveData()
+    val permisosUsuarios: LiveData<List< RutasAccesosEntity>> = _permisosUsuarios
 
     fun getUserName(): String = sharedPreferences.getUserName().toString()
     fun getRol(): String = sharedPreferences.getRol().toString()

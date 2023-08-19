@@ -29,22 +29,16 @@ class LocationManager(
     private val context: Context
 ) {
     private var isGpsEnabled = false // Variable para rastrear el estado del GPS
-
     private val _latitudInsert: MutableLiveData<Double> = MutableLiveData()
-    // LiveData mutable para la longitud
     private val _longitudInsert: MutableLiveData<Double> = MutableLiveData()
-
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
-    // LiveData mutable para la longitud
     private val _longitud: MutableLiveData<Double> = MutableLiveData()
     private val _speed: MutableLiveData<Float> = MutableLiveData()
-
-
-
+    private var gpsStateChangeListener: GpsStateChangeListener? = null
+    private var locationChangeListener: LocationChangeListener? = null
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(context)
     }
-
     private val locationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         interval = 10000
@@ -105,7 +99,6 @@ class LocationManager(
                     context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
                 val gpsEnabled =
                     locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
-
                 // Si el estado del GPS cambió de activado a desactivado
                 if (isGpsEnabled && !gpsEnabled) {
                     gpsStateChangeListener?.onGpsStateChanged(false)
@@ -117,7 +110,6 @@ class LocationManager(
 
                         }
                         else{
-
                         LogUtils.insertLog(
                             logRepository,
                             LocalDateTime.now().toString(),
@@ -128,8 +120,7 @@ class LocationManager(
                             "SERVICIO SEGUNDO PLANO",
                             porceBateria
                         )
-
-                        }
+                       }
                     }
                 }
 
@@ -161,6 +152,7 @@ class LocationManager(
             }
         }
     }
+
     init {
         val filter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
         context.registerReceiver(gpsStateReceiver, filter)
@@ -170,15 +162,8 @@ class LocationManager(
         fun onLocationChanged(latitude: Double, longitude: Double)
         fun onPermissionsDenied()
     }
-
-    private var locationChangeListener: LocationChangeListener? = null
-
-    fun registerLocationChangeListener(listener: LocationChangeListener) {
-        locationChangeListener = listener
-    }
-
-    fun unregisterLocationChangeListener() {
-        locationChangeListener = null
+    fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     fun startLocationUpdates() {
@@ -201,18 +186,6 @@ class LocationManager(
         )
     }
 
-
-    private var gpsStateChangeListener: GpsStateChangeListener? = null
-
-    fun registerGpsStateChangeListener(listener: GpsStateChangeListener) {
-        gpsStateChangeListener = listener
-    }
-
-    fun unregisterGpsStateChangeListener() {
-        gpsStateChangeListener = null
-        context.unregisterReceiver(gpsStateReceiver)
-    }
-
     private suspend fun insertRoomLocation(
     ) {
         val porceBateria = getBatteryPercentage(context)
@@ -232,4 +205,20 @@ class LocationManager(
             porceBateria
         )
     }
+
+    fun unregisterGpsStateChangeListener() {
+        Log.d("RunningServices", "Unregistering GPS state change listener")
+        gpsStateChangeListener = null
+        context.unregisterReceiver(gpsStateReceiver)
+        Log.d("RunningServices", "GPS state change listener unregistered")
+    }
+
+    fun registerLocationChangeListener(listener: LocationChangeListener) {
+        locationChangeListener = listener
+    }
+    fun registerGpsStateChangeListener(listener: GpsStateChangeListener) {
+        gpsStateChangeListener = listener
+    }
+
+
 }

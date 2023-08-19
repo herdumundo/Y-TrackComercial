@@ -14,8 +14,8 @@ android {
         applicationId "com.ytrack.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,9 +25,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+        //    debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+            // Habilita la generación del archivo de desofuscación
+            consumerProguardFiles 'consumer-rules.pro'
         }
     }
     compileOptions {
@@ -109,5 +112,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1' // O la versión más reciente de Gson
 
     implementation "androidx.work:work-runtime-ktx:2.8.1"
+
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.maps.android:android-maps-utils:2.0.3'
 
 }

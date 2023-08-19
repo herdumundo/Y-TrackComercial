@@ -121,7 +121,7 @@ class VisitaAuditorViewModel @Inject constructor(
             val porceBateria = getBatteryPercentage(context)
             val idTurno = horariosUsuarioRepository.getIdTurno()
             //FUNCION SUSPENDIDA
-            val rangoDistancia = 300
+            val rangoDistancia = 200
             /** ES PRIMERA VISITA EN FALSE AUTOMATICAMENTE, PORQUE EL AUDITOR NO DEPENDE DEL HORARIO **/
             _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
             _developerModeEnabled.value = isDeveloperModeEnabled(context)

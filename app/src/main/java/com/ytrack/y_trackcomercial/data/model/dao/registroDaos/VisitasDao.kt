@@ -5,6 +5,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.ytrack.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
+import com.ytrack.y_trackcomercial.data.model.models.HorasTranscurridasPv
 
 @Dao
 interface VisitasDao {
@@ -56,7 +58,7 @@ interface VisitasDao {
 
 
     @Query("SELECT id , idUsuario,idOcrd,strftime('%Y-%m-%d %H:%M:%S', createdAt)  as createdAt,createdAtLong,latitudUsuario,longitudUsuario,latitudPV,longitudPV,porcentajeBateria, idA,idRol,tipoRegistro,  distanciaMetros,ocrdName,pendienteSincro,estadoVisita,llegadaTardia,idTurno,tipoCierre,rol,  exportado, secuencia  FROM visitas where pendienteSincro='P'  ")
-    suspend fun getVisitasExportaciones(): List<com.ytrack.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity>
+    suspend fun getVisitasExportaciones(): List<VisitasEntity>
 
 
     @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro='P'")
@@ -65,6 +67,11 @@ interface VisitasDao {
 
     @Query("UPDATE visitas SET pendienteSincro='C' where pendienteSincro='P'")
     suspend fun updateExportadoCerrado(  )
+
+    @Query(" select Ta.ocrdName as OcrdName,  strftime('%H:%M', SUBSTR(Ta.createdAt, 12, 8))  as inicio, case Tf.pendienteSincro when 'N' then 'Pendiente de finalizacion' else strftime('%H:%M', SUBSTR( Tf.createdAt, 12, 8))  end as fin , case     Tf.pendienteSincro when 'N' then  CAST(( strftime('%s',datetime('now', '-4 hours')) -  strftime('%s', Ta.createdAt)) / 3600 AS INTEGER)  || ' Hs. ' ||  CAST(((strftime('%s', datetime('now', '-4 hours'))  -  strftime('%s', Ta.createdAt)) % 3600) / 60 AS INTEGER) || ' Min.'  \n" +
+            "  else  CAST(( strftime('%s',Tf.createdAt) -  strftime('%s', Ta.createdAt)) / 3600 AS INTEGER)  || ' Hs. ' ||  CAST(((strftime('%s', Tf.createdAt)  -  strftime('%s', Ta.createdAt)) % 3600) / 60 AS INTEGER) || ' Min.'   end as  minutos_transcurridos \n" +
+            " from visitas Tf   inner join  visitas Ta on Tf.idA=Ta.id  WHERE strftime('%d/%m/%Y', Tf.createdAt)=strftime('%d/%m/%Y',datetime('now', '-4 hours'))")
+    suspend fun getHorasTranscurridasPunto():  List<HorasTranscurridasPv>
 
 
 }

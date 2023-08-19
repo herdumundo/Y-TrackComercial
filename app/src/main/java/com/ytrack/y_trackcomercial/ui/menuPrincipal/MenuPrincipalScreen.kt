@@ -2,12 +2,11 @@ package com.ytrack.y_trackcomercial.ui.menuPrincipal
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -43,7 +42,9 @@ import com.ytrack.y_trackcomercial.R
 import com.ytrack.y_trackcomercial.components.DialogLoading
 import com.ytrack.y_trackcomercial.components.InfoDialog
 import com.ytrack.y_trackcomercial.components.InfoDialogOk
+import com.ytrack.y_trackcomercial.components.cardViewToolBar
 import com.ytrack.y_trackcomercial.components.toIcon
+import com.ytrack.y_trackcomercial.data.model.entities.RutasAccesosEntity
 //import com.ytrack.y_trackcomercial.components.toIcon
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.ytrack.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
@@ -61,6 +62,8 @@ import com.ytrack.y_trackcomercial.ui.updateApp.UpdateAppScreen
 import com.ytrack.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.ytrack.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
 import com.ytrack.y_trackcomercial.ui.visitaAuditor.screen.VisitaAuditorScreen
+import com.ytrack.y_trackcomercial.ui.visitaHorasTranscurridas.screen.VisitasHorasTranscurridasScreen
+import com.ytrack.y_trackcomercial.ui.visitaHorasTranscurridas.viewmodel.VisitasHorasTranscurridasViewModel
 import com.ytrack.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
 import com.ytrack.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 //import com.ytrack.y_trackcomercial.ui.registroEntradaPromotoras.cargar
@@ -70,21 +73,23 @@ import kotlinx.coroutines.launch
  @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MenuPrincipal(
-    loginViewModel: LoginViewModel,
-    navControllerPrincipal: NavController,
-    menuPrincipalViewModel: MenuPrincipalViewModel,
-    tablasRegistradasViewModel: TablasRegistradasViewModel,
-    locationViewModel: LocationLocalViewModel,
-    marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
-    inventarioViewModel: InventarioViewModel,
-    informeInventarioViewModel: InformeInventarioViewModel,
-    visitaSupervisorViewModel: VisitaSupervisorViewModel,
-    exportacionViewModel: ExportacionViewModel,
-    visitaAuditorViewModel: VisitaAuditorViewModel,
-    updateAppViewModel: UpdateAppViewModel
-) {
+     loginViewModel: LoginViewModel,
+     navControllerPrincipal: NavController,
+     menuPrincipalViewModel: MenuPrincipalViewModel,
+     tablasRegistradasViewModel: TablasRegistradasViewModel,
+     locationViewModel: LocationLocalViewModel,
+     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
+     inventarioViewModel: InventarioViewModel,
+     informeInventarioViewModel: InformeInventarioViewModel,
+     visitaSupervisorViewModel: VisitaSupervisorViewModel,
+     exportacionViewModel: ExportacionViewModel,
+     visitaAuditorViewModel: VisitaAuditorViewModel,
+     updateAppViewModel: UpdateAppViewModel,
+     visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel
+ ) {
 
-    if (loginViewModel.loggedIn.value == true) {
+
+     if (loginViewModel.loggedIn.value == true) {
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
         var expanded by rememberSaveable { mutableStateOf(false) }
@@ -96,7 +101,6 @@ fun MenuPrincipal(
         val showDialogOK by menuPrincipalViewModel.showLoadingOk.observeAsState(initial = false)
         val mensajeDialog by menuPrincipalViewModel.mensajeDialog.observeAsState("")
 
-        // cargar()
         Scaffold(
             topBar = {
                 MyTopAppBar(onNavIconClick = {
@@ -117,7 +121,7 @@ fun MenuPrincipal(
             drawerContent = {
                 MyDrawer(
                     //menu_items = navigationItems,
-                    coroutineScope, scaffoldState, navController, menuPrincipalViewModel
+                    coroutineScope, scaffoldState, navController, menuPrincipalViewModel,tablasRegistradasViewModel
                 )
             },
 
@@ -162,11 +166,12 @@ fun MenuPrincipal(
                     HomeScreen()
                 }
                 composable("registroNuevo") {
-                    ScreenTablasRegistradas(tablasRegistradasViewModel,menuPrincipalViewModel)
+                    ScreenTablasRegistradas(tablasRegistradasViewModel)
                 }
                 composable("inventario") {
                     ScreenInventario(inventarioViewModel)
                 }
+
                 composable("informeInventario") {
                     ScreenInformeInventario(informeInventarioViewModel)
                 }
@@ -175,6 +180,9 @@ fun MenuPrincipal(
                     ScreenExportaciones(exportacionViewModel)
                 }
 
+                composable("horasTranscurridas") {
+                    VisitasHorasTranscurridasScreen(visitasHorasTranscurridasViewModel)
+                }
 
                 composable("updateApp") {
 
@@ -261,9 +269,6 @@ fun MyTopAppBar(
         0
     )
     val ocrdNameLivedata: String by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
-
-
-
 
     TopAppBar(backgroundColor = Color(0xFFCE0303), contentColor = Color.White,
 
@@ -369,7 +374,8 @@ fun MyDrawer(
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
     navController: NavController,
-    menuPrincipalViewModel: MenuPrincipalViewModel
+    menuPrincipalViewModel: MenuPrincipalViewModel,
+    tablasRegistradasViewModel: TablasRegistradasViewModel
 ) {
     val rol = menuPrincipalViewModel.getRol()
     val userName = menuPrincipalViewModel.getUserName()
@@ -415,56 +421,51 @@ fun MyDrawer(
                 .height(1.dp)
                 .fillMaxWidth()
         )
-        acessoState.forEach { rutaAcceso ->
-            val icono = rutaAcceso.icono  // Obtener el icono correspondiente
-            val nombre = rutaAcceso.name
-            val ruta = rutaAcceso.ruta
+        DrawerItem2(acessoState,coroutineScope, scaffoldState, navController)
 
-            DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
-        }
+        /* acessoState.forEach { rutaAcceso ->
+             val icono = rutaAcceso.icono  // Obtener el icono correspondiente
+             val nombre = rutaAcceso.name
+             val ruta = rutaAcceso.ruta
+
+             DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
+         }*/
     }
 }
 
+
+
 @Composable
-fun DrawerItem(
-    icono: String,
-    name: String,
-    ruta: String,
+fun DrawerItem2(
+    acessoState: List<RutasAccesosEntity>,
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
     navController: NavController
 ) {
-    Column {
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .padding(6.dp)
-            .clip(RoundedCornerShape(12))
-            .padding(8.dp)
-            .clickable {
-                coroutineScope.launch {
-                    scaffoldState.drawerState.close()
+    LazyColumn {
+        acessoState.forEach { rutaAcceso ->
+            val icon = rutaAcceso.icono  // Obtener el icono correspondiente
+            val nombre = rutaAcceso.name
+            val ruta = rutaAcceso.ruta
+             item {
+                 cardViewToolBar(
+                     title = nombre,color = Color(0xFF000000),
+                     icon = icon
+                ) {
+                    coroutineScope.launch {
+                        scaffoldState.drawerState.close()
+                    }
+                    navController.navigate(ruta)
                 }
-                navController.navigate(ruta)
-            },
-    ) {
-        Box {
-            Icon(
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(size = 24.dp),
-                imageVector = icono.toIcon(),
-                contentDescription = null,
-                tint = Color.White,
-            )
-        }
-        Text(text = name, style = MaterialTheme.typography.body1, color = Color.White)
-    }
-
+             }
+         }
     }
 }
+
+
+
+
+
 
 
 

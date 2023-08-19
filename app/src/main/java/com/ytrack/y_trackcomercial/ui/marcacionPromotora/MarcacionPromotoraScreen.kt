@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.ytrack.y_trackcomercial.R
 import com.ytrack.y_trackcomercial.components.InfoDialogOk
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+import java.util.Locale
+import java.util.regex.Pattern
 
 
 @Composable
@@ -84,7 +86,11 @@ fun OcrdSelectionDialog(
     var searchText by remember { mutableStateOf("") }
 
     val filteredOcrds = ocrds.filter {
-        it.Address.contains(searchText, ignoreCase = true)
+    //    it.Address.lowercase(Locale.getDefault()).contains(searchText.lowercase(Locale.getDefault()), ignoreCase = true)
+        val pattern = searchText.split(" ")
+            .joinToString(".*") { Pattern.quote(it) }
+            .toRegex(RegexOption.IGNORE_CASE)
+        pattern.containsMatchIn(it.Address)
     }
 
     AlertDialog(

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ytrack.y_trackcomercial.data.model.models.OcrdItem
 import com.ytrack.y_trackcomercial.repository.CustomerRepository
 import com.ytrack.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.ytrack.y_trackcomercial.repository.PermisosVisitasRepository
@@ -45,10 +46,8 @@ class VisitaSupervisorViewModel @Inject constructor(
     private val logRepository: LogRepository,
     private val context: Context
 ) : ViewModel() {
-    /*init {
-        getAddresses()
-    }*/
-    private val _addressesList: MutableList<com.ytrack.y_trackcomercial.data.model.models.OcrdItem> = mutableListOf()
+
+    private val _addressesList: MutableList<OcrdItem> = mutableListOf()
 
     val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
     val OcrdNameLivedata: LiveData<String> = visitasRepository.getOcrdNameRepository()
@@ -107,7 +106,7 @@ class VisitaSupervisorViewModel @Inject constructor(
     }
 
 
-    fun getStoredAddresses(): List<com.ytrack.y_trackcomercial.data.model.models.OcrdItem> {
+    fun getStoredAddresses(): List<OcrdItem> {
         return _addressesList
     }
 

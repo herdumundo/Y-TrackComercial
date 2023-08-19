@@ -13,7 +13,6 @@ import com.ytrack.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 @Composable
 fun ScreenTablasRegistradas(
     tablasRegistradasViewModel: TablasRegistradasViewModel,
-    menuPrincipalViewModel: MenuPrincipalViewModel
 ) {
     val ocrdCount by tablasRegistradasViewModel.ocrdCount.observeAsState()
     val ubicacionesCount by tablasRegistradasViewModel.ocrdUbicacionesCount.observeAsState()

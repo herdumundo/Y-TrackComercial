@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -90,10 +91,110 @@ fun cardViewLoadingTablas(
                     tint = Color(0xFFFFFFFF),
                     contentDescription = null
                 )
+
             }
+        }
+    )
+}
 
-            // Agregar el mensaje de "Cargando" y ProgressBar dentro de un Box
 
+@Composable
+fun cardViewToolBar(
+    title: String,
+    icon: String,
+    color: Color,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+             .padding(5.dp)
+            .clickable { onClick() },
+        backgroundColor = color,
+        contentColor = Color(0xFFFFF8F8),
+        content = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(end =1.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                        Text(
+                            title,
+                            style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
+                        )
+                 }
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(size = 24.dp),
+                    imageVector = icon.toIcon(),
+                    contentDescription = null,
+                    tint = Color.White,
+                )
+            }
+        }
+    )
+}
+
+
+@Composable
+fun cardView2Title(
+    title1: String,
+    title2: String,
+    title3: String,
+    title4: String,
+    icon: String,
+    color: Color
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+            .clickable {   },
+        backgroundColor = color,
+        contentColor = Color(0xFFFFF8F8),
+        content = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(end =1.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        title1,
+                        style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        title2,
+                        style = MaterialTheme.typography.subtitle2.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        title3,
+                        style = MaterialTheme.typography.subtitle2.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        title4,
+                        style = MaterialTheme.typography.subtitle2.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(size = 24.dp),
+                    imageVector = icon.toIcon(),
+                    contentDescription = null,
+                    tint = Color.White,
+                )
+            }
         }
     )
 }

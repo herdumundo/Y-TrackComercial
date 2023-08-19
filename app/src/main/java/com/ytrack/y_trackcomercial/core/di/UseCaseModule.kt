@@ -27,6 +27,7 @@ import com.ytrack.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisitaU
 import com.ytrack.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvCountUseCase
 import com.ytrack.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvUseCase
 import com.ytrack.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.ytrack.y_trackcomercial.usecases.visitas.GetHorasTranscurridasVisitasUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -205,17 +206,15 @@ object UseCaseModule {
     ): GetMovimientoPendientesUseCase {
         return GetMovimientoPendientesUseCase(movimientosRepository)
     }
-/*
+
     @Provides
-    @Singleton
-    fun provideLocationManager(
-        auditTrailRepository: AuditTrailRepository,
-        sharedPreferences: SharedPreferences,
-        logRepository: LogRepository,
-        context: Context
-    ): LocationManager {
-        return LocationManager(auditTrailRepository, sharedPreferences, logRepository, context)
+    @ViewModelScoped
+    fun provideGetHorasTranscurridasVisitasUseCase(
+        visitasRepository: VisitasRepository
+    ):  GetHorasTranscurridasVisitasUseCase {
+        return GetHorasTranscurridasVisitasUseCase(visitasRepository)
     }
- */
+
+
 }
 

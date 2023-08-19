@@ -33,8 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.ytrack.y_trackcomercial.R
 import com.ytrack.y_trackcomercial.components.InfoDialogOk
+import com.ytrack.y_trackcomercial.data.model.models.OcrdItem
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.ytrack.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
+import java.util.regex.Pattern
 
 
 @Composable
@@ -74,17 +76,19 @@ fun VisitaSupervisorScreen(
 
 @Composable
 fun OcrdSelectionDialog(
-    ocrds: List<com.ytrack.y_trackcomercial.data.model.models.OcrdItem>,
-    /* latitudUsuario: Double,
-     longitudUsuario: Double,*/
-    onAddressSelected: (com.ytrack.y_trackcomercial.data.model.models.OcrdItem) -> Unit,
+    ocrds: List<OcrdItem>,
+    onAddressSelected: (OcrdItem) -> Unit,
     onDismissRequest: () -> Unit,
     visitaSupervisorViewModel: VisitaSupervisorViewModel,
 ) {
     var searchText by remember { mutableStateOf("") }
 
     val filteredOcrds = ocrds.filter {
-        it.Address.contains(searchText, ignoreCase = true)
+       // it.Address.contains(searchText, ignoreCase = true)
+        val pattern = searchText.split(" ")
+            .joinToString(".*") { Pattern.quote(it) }
+            .toRegex(RegexOption.IGNORE_CASE)
+        pattern.containsMatchIn(it.Address)
     }
 
     AlertDialog(

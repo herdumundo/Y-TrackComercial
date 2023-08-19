@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
         "Send" -> Icons.Filled.Send
         "Save" -> Icons.Filled.Save
         "ContentPasteSearch" -> Icons.Filled.ContentPasteSearch
+        "WatchLater" -> Icons.Filled.WatchLater
         "SaveAlt" -> Icons.Filled.SaveAlt
         "AddHomeWork" -> Icons.Filled.AddHomeWork
         "Dashboard" -> Icons.Filled.Dashboard

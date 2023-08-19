@@ -1,23 +1,13 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Mantén el nombre original de la clase MainActivity
+-keep class com.ytrack.y_trackcomercial.MainActivity
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
-# Preserve classes related to Jetpack Compose and Material Icons
+# Aplica ofuscación a todas las clases en el paquete com.ytrack.y_trackcomercial excepto MainActivity
+-keep class com.ytrack.y_trackcomercial.** { *; }
+-keep class com.ytrack.y_trackcomercial.components.** { *; }
+-keep class com.ytrack.y_trackcomercial.core.** { *; }
+-keep class com.ytrack.y_trackcomercial.data.** { *; }
+-keep class com.ytrack.y_trackcomercial.repository.** { *; }
+-keep class com.ytrack.y_trackcomercial.services.** { *; }
+-keep class com.ytrack.y_trackcomercial.ui.** { *; }
+-keep class com.ytrack.y_trackcomercial.usecases.** { *; }
+-keep class com.ytrack.y_trackcomercial.util.** { *; }

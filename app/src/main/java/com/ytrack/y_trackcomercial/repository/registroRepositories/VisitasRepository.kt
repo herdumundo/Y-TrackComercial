@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import com.ytrack.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiService
 import com.ytrack.y_trackcomercial.data.api.request.EnviarVisitasRequest
 import com.ytrack.y_trackcomercial.data.api.request.lotesDeVisitas
+import com.ytrack.y_trackcomercial.data.model.models.HorasTranscurridasPv
 import javax.inject.Inject
 
 class VisitasRepository @Inject constructor
@@ -108,4 +109,9 @@ class VisitasRepository @Inject constructor
            Log.i("Mensaje",e.toString())
         }
     }
-}
+
+    suspend fun getHorasTranscurridasPunto(): List<HorasTranscurridasPv> {
+        return visitasDao.getHorasTranscurridasPunto()
+    }
+
+    }

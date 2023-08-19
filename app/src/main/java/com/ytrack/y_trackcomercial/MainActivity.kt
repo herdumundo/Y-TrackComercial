@@ -11,20 +11,34 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.ytrack.y_trackcomercial.components.InfoDialogUnBoton
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
@@ -38,9 +52,10 @@ import com.ytrack.y_trackcomercial.ui.login2.LoginViewModel
 import com.ytrack.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.ytrack.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.ytrack.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
-import com.ytrack.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
+ import com.ytrack.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.ytrack.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.ytrack.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
+import com.ytrack.y_trackcomercial.ui.visitaHorasTranscurridas.viewmodel.VisitasHorasTranscurridasViewModel
 import com.ytrack.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,7 +74,7 @@ class MainActivity : ComponentActivity() {
     private val exportacionViewModel: ExportacionViewModel by viewModels()
     private val visitaAuditorViewModel: VisitaAuditorViewModel by viewModels()
     private val updateAppViewModel: UpdateAppViewModel by viewModels()
-
+    private val visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,8 +91,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-
-                 GpsAvisoPermisos(locationViewModel)
+                MapViewContainer()
+             /*    GpsAvisoPermisos(locationViewModel)
                 val navController = rememberNavController()
                 Router(
                     navController,
@@ -91,19 +106,100 @@ class MainActivity : ComponentActivity() {
                     visitaSupervisorViewModel,
                     exportacionViewModel,
                     visitaAuditorViewModel,
-                    updateAppViewModel
-                )
+                    updateAppViewModel,visitasHorasTranscurridasViewModel
+                )*/
             }
         }
-    // if (!isServiceRunning(ServicioUnderground::class.java)) {
+
+
+
+        val servicioUnderground=isServiceRunning(ServicioUnderground::class.java)
+        val contService=countRunningServices(this@MainActivity)
+        //SI EL SERVICIO NO ESTA ACTIVO
+        if (!servicioUnderground) {
             val servicioUndergroundIntent = Intent(this@MainActivity, ServicioUnderground::class.java)
             // El servicio no está en ejecución, iniciarlo
             servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
             ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
-      //  }
-        val runningServicesCount2 = countRunningServices(this)
+            val seviceActive=isServiceRunning(ServicioUnderground::class.java)
+            Log.d("RunningServices", "SERVICIO NO ESTABA ACTIVO Y ARRANCO: $seviceActive Cantidad: $contService")
+        }
+        //SI EL SERVICIO ESTA ACTIVO
+        else{
+            val serviceIntent = Intent(this, ServicioUnderground::class.java)
+            stopService(serviceIntent)
+            val seviceActive=isServiceRunning(ServicioUnderground::class.java)
+            val contServicse=countRunningServices(this@MainActivity)
+            Log.d("RunningServices", "SERVICIO ESTABA ACTIVO Y MATO: $seviceActive Cantidad: $contServicse")
 
-        Log.d("RunningServices", "Number of running services: $runningServicesCount2")
+            val servicioUndergroundIntent = Intent(this@MainActivity, ServicioUnderground::class.java)
+            // El servicio no está en ejecución, iniciarlo
+            servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
+            ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
+            val seviceActiveinit=isServiceRunning(ServicioUnderground::class.java)
+            Log.d("RunningServices", "SERVICIO VOLVIO A ARRANCAR: $seviceActiveinit Cantidad: $contService")
+        }
+    }
+
+    @Composable
+    fun LifecycleAwareMapViewContainer() {
+        val mapView = rememberMapViewWithLifecycle()
+        AndroidView(factory = { context ->
+            mapView.apply {
+                onCreate(null)
+                getMapAsync { googleMap ->
+                    val location = LatLng(37.7749, -122.4194) // Ubicación de ejemplo
+                    googleMap.addMarker(MarkerOptions().position(location).title("Marker"))
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+
+                    // Aquí puedes configurar más propiedades del mapa según tus necesidades
+                }
+            }
+        }, modifier = Modifier.fillMaxSize())
+    }
+
+
+    @Composable
+    fun MapViewContainer() {
+        AndroidView(factory = { context ->
+            MapView(context).apply {
+                // Configurar el mapa aquí
+                onCreate(null)
+                getMapAsync { googleMap ->
+                    val location = LatLng(37.7749, -122.4194) // Ubicación de ejemplo
+                    googleMap.addMarker(MarkerOptions().position(location).title("Marker"))
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+
+                    // Aquí puedes configurar más propiedades del mapa según tus necesidades
+                }
+            }
+        }, modifier = Modifier.fillMaxSize())
+    }
+    @Composable
+    fun rememberMapViewWithLifecycle(): MapView {
+        val context = LocalContext.current
+        val mapView = remember {
+            MapView(context).apply {
+                onCreate(null)
+                lifecycle.addObserver(object : LifecycleObserver {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                    fun onResume() {
+                        onResume()
+                    }
+
+                    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+                    fun onPause() {
+                        onPause()
+                    }
+
+                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                    fun onDestroy() {
+                        onDestroy()
+                    }
+                })
+            }
+        }
+        return mapView
     }
     fun countRunningServices(context: Context): Int {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -201,6 +297,7 @@ fun Router(
     exportacionViewModel: ExportacionViewModel,
     visitaAuditorViewModel: VisitaAuditorViewModel,
     updateAppViewModel: UpdateAppViewModel,
+    visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel,
 
     ) {
     NavHost(
@@ -222,7 +319,7 @@ fun Router(
                 visitaSupervisorViewModel,
                 exportacionViewModel,
                 visitaAuditorViewModel,
-                updateAppViewModel
+                updateAppViewModel,visitasHorasTranscurridasViewModel
             )
         }
     }
