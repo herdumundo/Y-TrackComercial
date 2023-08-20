@@ -4,11 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -43,7 +41,6 @@ import com.ytrack.y_trackcomercial.components.DialogLoading
 import com.ytrack.y_trackcomercial.components.InfoDialog
 import com.ytrack.y_trackcomercial.components.InfoDialogOk
 import com.ytrack.y_trackcomercial.components.cardViewToolBar
-import com.ytrack.y_trackcomercial.components.toIcon
 import com.ytrack.y_trackcomercial.data.model.entities.RutasAccesosEntity
 //import com.ytrack.y_trackcomercial.components.toIcon
 import com.ytrack.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
@@ -56,6 +53,8 @@ import com.ytrack.y_trackcomercial.ui.inventario.screen.ScreenInventario
 import com.ytrack.y_trackcomercial.ui.login2.LoginViewModel
 import com.ytrack.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.ytrack.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
+import com.ytrack.y_trackcomercial.ui.rastreoUsuarios.screen.RastreoUsuarioMapa
+import com.ytrack.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
 import com.ytrack.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.ytrack.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.ytrack.y_trackcomercial.ui.updateApp.UpdateAppScreen
@@ -85,7 +84,8 @@ fun MenuPrincipal(
      exportacionViewModel: ExportacionViewModel,
      visitaAuditorViewModel: VisitaAuditorViewModel,
      updateAppViewModel: UpdateAppViewModel,
-     visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel
+     visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel,
+     rastreoUsuariosViewModel: RastreoUsuariosViewModel
  ) {
 
 
@@ -178,6 +178,9 @@ fun MenuPrincipal(
 
                 composable("exportaciones") {
                     ScreenExportaciones(exportacionViewModel)
+                }
+                composable("rastreoUsuarios") {
+                    RastreoUsuarioMapa(rastreoUsuariosViewModel)
                 }
 
                 composable("horasTranscurridas") {
