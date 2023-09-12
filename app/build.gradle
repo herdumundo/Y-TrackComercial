@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace 'com.ytrack.y_trackcomercial'
+    namespace 'com.portalgm.y_trackcomercial'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.ytrack.y_trackcomercial"
+        applicationId "com.portalgm.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 6
-        versionName "1.5"
+        versionCode 18
+        versionName "2.7_06092023_16_19"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,16 +23,27 @@ android {
         }
     }
 
-    buildTypes {
-        release {
+    buildTypes
+    {
+
+        debug
+        {
+          buildConfigField "String", "BASE_URL", "\"http://192.168.6.134:8000/\""
+          debuggable true
+        }
+        release
+        {
+            buildConfigField "String", "BASE_URL", "\"https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
             minifyEnabled true
-        //    debuggable true
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
             signingConfig signingConfigs.debug
             // Habilita la generación del archivo de desofuscación
-            consumerProguardFiles 'consumer-rules.pro'
+            //  consumerProguardFiles 'consumer-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -42,6 +53,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.3.2'
@@ -80,10 +92,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
     implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
 
-
-
     implementation 'com.google.android.material:material:1.11.0-alpha01'
-
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
@@ -99,9 +108,6 @@ dependencies {
     //NAVEGACION
     implementation 'androidx.navigation:navigation-compose:2.6.0'
 
-
-    // implementation 'io.coil-kt:coil-compose:+'
-
     implementation 'androidx.datastore:datastore-preferences:1.1.0-alpha04'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation('io.arrow-kt:arrow-core:1.2.0')
@@ -113,8 +119,12 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:2.8.1"
 
-
     implementation 'com.google.maps.android:maps-compose:2.14.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+
+    implementation 'com.google.android.play:app-update-ktx:2.1.0'
+    implementation 'com.google.android.play:app-update:2.1.0'
+
+     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+"
 
 }
