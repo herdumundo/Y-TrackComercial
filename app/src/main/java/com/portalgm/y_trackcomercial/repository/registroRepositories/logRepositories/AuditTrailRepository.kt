@@ -4,11 +4,12 @@ import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrailApiClient
 import com.portalgm.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeAuditoriaTrail
+import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.AuditTrailDao
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import javax.inject.Inject
 
 class AuditTrailRepository @Inject constructor
-    (private val auditTrailDao: com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.AuditTrailDao,
+    (private val auditTrailDao:  AuditTrailDao,
      private val exportacionAuditTrailApiClient: ExportacionAuditTrailApiClient, // Paso 1: Agregar el ApiClient al constructor
      private val sharedPreferences: SharedPreferences,
             ) {

@@ -22,6 +22,9 @@ import com.portalgm.y_trackcomercial.usecases.exportacionVisitas.GetVisitasPendi
 import com.portalgm.y_trackcomercial.usecases.inventario.CountMovimientoUseCase
 import com.portalgm.y_trackcomercial.usecases.inventario.EnviarMovimientoPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.inventario.GetMovimientoPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.CountNewPassPendienteUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.ExportarNewPassPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.GetNewPassPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
@@ -38,12 +41,14 @@ class ExportacionViewModel @Inject constructor(
     private val countLogPendientesUseCase: CountLogPendientesUseCase,
     private val countMovimientoUseCase: CountMovimientoUseCase,
     private val countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase,
+    private val countNewPassPendienteUseCase: CountNewPassPendienteUseCase,
 
     private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
     private val getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
     private val getLogPendienteUseCase: GetLogPendienteUseCase,
     private val getMovimientoPendientesUseCase: GetMovimientoPendientesUseCase,
     private val getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase,
+    private val getNewPassPendientesUseCase: GetNewPassPendientesUseCase,
 
 
     private val enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
@@ -51,6 +56,7 @@ class ExportacionViewModel @Inject constructor(
     private val enviarLogPendientesUseCase: EnviarLogPendientesUseCase,
     private val enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase,
     private val enviarNuevasUbicacionesPendientesUseCase: ExportarNuevasUbicacionesPendientesUseCase,
+    private val enviarNewPassPendientesUseCase: ExportarNewPassPendientesUseCase,
 
 
     ) : ViewModel() {
@@ -70,6 +76,9 @@ class ExportacionViewModel @Inject constructor(
     private val _ubicacionesNuevasCount: MutableLiveData<Int> = MutableLiveData()
     val ubicacionesNuevasCount: LiveData<Int> = _ubicacionesNuevasCount
 
+    private val _newPassCount: MutableLiveData<Int> = MutableLiveData()
+    val newPassCount: LiveData<Int> = _newPassCount
+
 
     private val _loadingVisitas: MutableLiveData<Boolean> = MutableLiveData()
     val loadingVisitas: LiveData<Boolean> = _loadingVisitas
@@ -86,6 +95,9 @@ class ExportacionViewModel @Inject constructor(
     private val _loadingMovimientos: MutableLiveData<Boolean> = MutableLiveData()
     val loadingMovimientos: LiveData<Boolean> = _loadingMovimientos
 
+    private val _loadingNewPass: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingNewPass: LiveData<Boolean> = _loadingNewPass
+
 
     fun getTablasRegistradas(tipoRegistro: Int) {
 
@@ -96,16 +108,19 @@ class ExportacionViewModel @Inject constructor(
                 3 -> countLogPendientesUseCase.CountPendientes()
                 4 -> countMovimientoUseCase.CountPendientes()
                 5 -> countUbicacionesNuevasPendientesUseCase.CountPendientes()
+                6 -> countNewPassPendienteUseCase.CountPendientes()
 
                 else -> 0 // O cualquier valor predeterminado si tipoRegistro no es 1 ni 2
             }
             withContext(Dispatchers.Main) {
                 when (tipoRegistro) {
-                    1 -> _visitasCount.value = cantPendientes
-                    2 -> _auditTrailCount.value = cantPendientes
-                    3 -> _logCount.value = cantPendientes
-                    4 -> _movimientosCount.value = cantPendientes
-                    5 -> _ubicacionesNuevasCount.value = cantPendientes
+                    1 -> _visitasCount.value            = cantPendientes
+                    2 -> _auditTrailCount.value         = cantPendientes
+                    3 -> _logCount.value                = cantPendientes
+                    4 -> _movimientosCount.value        = cantPendientes
+                    5 -> _ubicacionesNuevasCount.value  = cantPendientes
+                    6 -> _newPassCount.value            =cantPendientes
+
                 }
             }
         }
@@ -118,6 +133,7 @@ class ExportacionViewModel @Inject constructor(
             val cantPendientesLog = countLogPendientesUseCase.CountPendientes()
             val cantPendientesMovimientos = countMovimientoUseCase.CountPendientes()
             val cantUbicacionesNuevasPendientesUseCase = countUbicacionesNuevasPendientesUseCase.CountPendientes()
+            val cantNuevoPassPendientesUseCase = countNewPassPendienteUseCase.CountPendientes()
 
             withContext(Dispatchers.Main) {
                 _visitasCount.value = cantPendientesVisitas
@@ -125,6 +141,8 @@ class ExportacionViewModel @Inject constructor(
                 _logCount.value = cantPendientesLog
                 _movimientosCount.value = cantPendientesMovimientos
                 _ubicacionesNuevasCount.value=cantUbicacionesNuevasPendientesUseCase
+                _newPassCount.value=cantNuevoPassPendientesUseCase
+
             }
         }
     }
@@ -194,7 +212,7 @@ class ExportacionViewModel @Inject constructor(
                             }
                         }
                     }
-                   5 -> {
+                    5 -> {
                         if (!loadingNuevasUbicaciones.value!!) {
                             if (countUbicacionesNuevasPendientesUseCase.CountPendientes() > 0) {
                                 _loadingNuevasUbicaciones.value = true
@@ -209,7 +227,20 @@ class ExportacionViewModel @Inject constructor(
                             }
                         }
                     }
+                    6 -> {
+                        if (!loadingNewPass.value!!) {
+                            if (countNewPassPendienteUseCase.CountPendientes() > 0) {
+                                _loadingNewPass.value = true
+                                val lotesPendientes =
+                                    getNewPassPendientesUseCase.getPendientes()
 
+                                enviarNewPassPendientesUseCase.enviarPendientes(
+                                    lotesPendientes
+                                )
+                                _loadingNewPass.value = false
+                            }
+                        }
+                    }
 
 
                 }
@@ -221,10 +252,11 @@ class ExportacionViewModel @Inject constructor(
     }
 
     fun setFalseLoading() {
-        _loadingAuditTrail.value = false
-        _loadingVisitas.value = false
-        _loadingLog.value = false
-        _loadingMovimientos.value = false
+        _loadingAuditTrail.value        = false
+        _loadingVisitas.value           = false
+        _loadingLog.value               = false
+        _loadingMovimientos.value       = false
         _loadingNuevasUbicaciones.value = false
+        _loadingNewPass.value           = false
     }
 }

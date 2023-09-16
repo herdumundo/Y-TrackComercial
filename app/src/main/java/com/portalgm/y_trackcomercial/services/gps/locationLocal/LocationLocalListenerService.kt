@@ -37,7 +37,7 @@ class LocationLocalListenerService(
         val latitude = location.latitude
         val longitude = location.longitude
         // Launch a coroutine and call insertRoomLocation from within the coroutine
-        actualizarUbicacion(latitude, longitude, velocidad)
+       // actualizarUbicacion(latitude, longitude, velocidad)
     }
 
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
@@ -74,40 +74,40 @@ class LocationLocalListenerService(
             )
         }
     }
-
-    private suspend fun insertRoomLocation(
-    ) {
-        val porceBateria = getBatteryPercentage(context)
-
-        // Aquí puedes usar el auditTrailRepository para guardar la ubicación en Room
-        LogUtils.insertLogAuditTrailUtils(
-            auditTrailRepository,
-            LocalDateTime.now().toString(),
-            _longitud.value!!,
-            _latitud.value!!,
-            sharedPreferences.getUserId(),
-            sharedPreferences.getUserName().toString(),
-            _speed.value!!.toDouble(),
-            porceBateria
-        )
-    }
-
-    fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
-        _latitud.value = latitud
-        _longitud.value = longitud
-        if (calcularDistancia(
-                latitud,
-                longitud
-            ) >= 50 && (latitud != _latitudInsert.value || longitud != _longitudInsert.value)
+    /*
+        private suspend fun insertRoomLocation(
         ) {
-            _latitudInsert.value = latitud
-            _longitudInsert.value = longitud
-            _speed.value = speed
-            CoroutineScope(Dispatchers.Main).launch {
-                insertRoomLocation()
-            }
+            val porceBateria = getBatteryPercentage(context)
+
+            // Aquí puedes usar el auditTrailRepository para guardar la ubicación en Room
+            LogUtils.insertLogAuditTrailUtils(
+                auditTrailRepository,
+                LocalDateTime.now().toString(),
+                _longitud.value!!,
+                _latitud.value!!,
+                sharedPreferences.getUserId(),
+                sharedPreferences.getUserName().toString(),
+                _speed.value!!.toDouble(),
+                porceBateria
+            )
         }
-    }
+
+        fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
+            _latitud.value = latitud
+            _longitud.value = longitud
+            if (calcularDistancia(
+                    latitud,
+                    longitud
+                ) >= 50 && (latitud != _latitudInsert.value || longitud != _longitudInsert.value)
+            ) {
+                _latitudInsert.value = latitud
+                _longitudInsert.value = longitud
+                _speed.value = speed
+                CoroutineScope(Dispatchers.Main).launch {
+                    insertRoomLocation()
+                }
+            }
+        }*/
 
     private fun calcularDistancia(latitud: Double, longitud: Double): Float {
         // Calcular la distancia en metros entre la ubicación actual y la ubicación anterior

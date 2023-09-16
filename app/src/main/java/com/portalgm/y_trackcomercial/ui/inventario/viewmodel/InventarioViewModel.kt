@@ -90,7 +90,7 @@ class InventarioViewModel @Inject constructor(
 
     fun addLotes() {
 
-        if (_txtCantidad.value.isNullOrBlank() || _txtCantidad.value!!.toInt() == 0) {
+        if (_txtCantidad.value.isNullOrBlank() /*|| _txtCantidad.value!!.toInt() == 0*/) {
             showSnackbar("Ingrese cantidad.",0xFF161010, Icons.Default.Warning)
             return
         }

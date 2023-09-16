@@ -43,8 +43,11 @@ class LocationManager(
         LocationServices.getFusedLocationProviderClient(context)
     }
     private val locationRequest = LocationRequest.create().apply {
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        interval = 10000
+      //  priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+
+
+        interval = 60000
         fastestInterval = 5000
         smallestDisplacement = 10f
     }
@@ -58,15 +61,15 @@ class LocationManager(
             val longitude = lastLocation?.longitude
             val velocidad  = lastLocation?.speed
 
-            if (latitude != null && longitude != null) {
+        /*    if (latitude != null && longitude != null) {
                 locationChangeListener?.onLocationChanged(latitude, longitude)
                 // Insertar el log con la nueva ubicación
                 Log.d("Location", "Latitud: $latitude, Longitud: $longitude")
                 actualizarUbicacion(latitude, longitude, velocidad!!)
-            }
+            }*/
         }
     }
-    fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
+   /* fun actualizarUbicacion(latitud: Double, longitud: Double, speed: Float) {
         _latitud.value = latitud
         _longitud.value = longitud
         if (calcularDistancia(
@@ -77,11 +80,11 @@ class LocationManager(
             _latitudInsert.value = latitud
             _longitudInsert.value = longitud
             _speed.value = speed
-            CoroutineScope(Dispatchers.Main).launch {
+            /*CoroutineScope(Dispatchers.Main).launch {
                 insertRoomLocation()
-            }
+            }*/
         }
-    }
+    }*/
     private fun calcularDistancia(latitud: Double, longitud: Double): Float {
         // Calcular la distancia en metros entre la ubicación actual y la ubicación anterior
         val distancia = FloatArray(1)

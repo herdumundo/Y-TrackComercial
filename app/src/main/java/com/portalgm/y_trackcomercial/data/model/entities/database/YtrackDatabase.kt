@@ -34,8 +34,6 @@ import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.Visit
         PermisosVisitasEntity::class,
         UbicacionesNuevasEntity::class,
         NewPassEntity::class,
-
-
      ],
 
     version =7,

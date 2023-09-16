@@ -2,6 +2,7 @@ package com.portalgm.y_trackcomercial.ui.menuPrincipal
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -108,12 +111,13 @@ fun MenuPrincipal(
         val showDialog by menuPrincipalViewModel.showLoading.observeAsState(initial = false)
         val showDialogOK by menuPrincipalViewModel.showLoadingOk.observeAsState(initial = false)
         val mensajeDialog by menuPrincipalViewModel.mensajeDialog.observeAsState("")
-        val activity = LocalContext.current as Activity
+         val activity = LocalContext.current as Activity
+         val context = LocalContext.current
          val alertaNewPass by cambioPassViewModel.alerta.observeAsState(false)
          val mensajeNewPass by cambioPassViewModel.mensajeAlerta.observeAsState("")
 
 
-             Scaffold(
+        Scaffold(
             topBar = {
                 MyTopAppBar(onNavIconClick = {
                     coroutineScope.launch {
@@ -129,6 +133,18 @@ fun MenuPrincipal(
                     activity,
                     marcacionPromotoraViewModel,navControllerPrincipal
                 )
+            },
+            bottomBar={
+
+                     if(alertaNewPass){
+                         LaunchedEffect(alertaNewPass) {
+                              val duration = Toast.LENGTH_SHORT
+                             val toast = Toast.makeText(context, mensajeNewPass, duration)
+                             toast.show()
+                         }
+                 }
+
+
             },
             scaffoldState = scaffoldState,
             drawerContent = {
@@ -183,10 +199,7 @@ fun MenuPrincipal(
                         menuPrincipalViewModel.cerrarAviso()
                     })
             }
-            if(alertaNewPass){
-                     SnackAlerta(mensajeNewPass,Color(0xFF161010))
-                     Spacer(modifier = Modifier.height(25.dp))
-            }
+
             NavHost(navController, startDestination = "home") {
                 composable("home") {
                     HomeScreen()

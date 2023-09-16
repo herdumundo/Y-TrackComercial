@@ -55,6 +55,8 @@ fun VisitaSupervisorScreen(
     LaunchedEffect(Unit) {
         visitaSupervisorViewModel.consultaVisitaActiva()
         visitaSupervisorViewModel.getAddresses()
+        visitaSupervisorViewModel.inicializarValores()
+
     }
     Column {
        // Text(text = "Metros de distancia: ${metros ?: "-"}")
@@ -155,6 +157,7 @@ fun MyApp(
     val ShowButtonSelectPv by marcacionPromotoraViewModel.showButtonSelectPv.observeAsState(true)
     val ButtonPvText by marcacionPromotoraViewModel.buttonPvText.observeAsState(false)
     val ButtonTextRegistro by marcacionPromotoraViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
+    val enProceso by marcacionPromotoraViewModel.permitirUbicacion.observeAsState(true)
 
 
     var selectedPV by remember { mutableStateOf("") }
@@ -231,11 +234,11 @@ fun MyApp(
         Button(
             modifier = Modifier.width(300.dp),
             onClick = {
-                //marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+
                 marcacionPromotoraViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFFCE0303),
+                backgroundColor = if(enProceso)Color(0xFFCE0303)  else Color(0xFF00641D),
                 contentColor = Color.White
             )
         )

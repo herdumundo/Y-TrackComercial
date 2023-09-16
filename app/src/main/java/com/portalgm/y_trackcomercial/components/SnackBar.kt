@@ -33,7 +33,7 @@ fun SnackAlerta(mensaje:String?,colorSnack:Color) {
     // Creamos un valor animado para controlar la opacidad del SnackBar
     val animatedAlpha = animateFloatAsState(
         targetValue = if (snackbarVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing), label = ""
     )
     // Ejecutar LaunchedEffect cada vez que snackbarVisible cambie a true
     LaunchedEffect(snackbarVisible) {

@@ -16,4 +16,6 @@ object HoraActualUtils {
         val formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.getDefault())
         return LocalTime.parse(fecha, formatter)
     }
+
+
 }

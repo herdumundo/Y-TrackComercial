@@ -1,6 +1,7 @@
 package com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel
 
 import android.content.Context
+import android.location.LocationManager
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -14,7 +15,11 @@ import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 import com.portalgm.y_trackcomercial.repository.CustomerRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NuevaUbicacionRepository
 import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
-import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationListenerTest
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+ import com.portalgm.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,11 +30,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NuevaUbicacionViewModel @Inject constructor(
-        private val context: Context,
-        private val customerRepository: CustomerRepository,
-        private val sharedPreferences: SharedPreferences,
-        private val nuevaUbicacionRepository:NuevaUbicacionRepository
-    ) : ViewModel() {
+    private val context: Context,
+    private val customerRepository: CustomerRepository,
+    private val sharedPreferences: SharedPreferences,
+    private val nuevaUbicacionRepository:NuevaUbicacionRepository,
+) : ViewModel() {
     private val  locationService: LocationService = LocationService()
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
     var latitud: MutableLiveData<Double> = _latitud
@@ -49,24 +54,43 @@ class NuevaUbicacionViewModel @Inject constructor(
     private val _buttonPvText = MutableLiveData<String>()
     val buttonPvText: LiveData<String> = _buttonPvText
 
+    private val _buttonUbicacionActual = MutableLiveData<String>()
+    val buttonUbicacionActual: LiveData<String> = _buttonUbicacionActual
+
     private val _showButtonSelectPv = MutableLiveData<Boolean>()
     val showButtonSelectPv: LiveData<Boolean> = _showButtonSelectPv
     private val _registrado = MutableLiveData<Boolean>()
     val registrado: LiveData<Boolean> = _registrado
 
     private val snackbarDuration = 3000L
-
+    var permitirUbicacion=true
 
     private val _addressesList: MutableList<OcrdItem> = mutableListOf()
+    private lateinit var locationListener: LocationListenerTest
 
     fun obtenerUbicacion(){
-        viewModelScope.launch {
-            val resultLocation= locationService.getUserLocation(context)
-            _longitud.value = resultLocation?.longitude ?: 0.0
-            _latitud.value = resultLocation?.latitude ?: 0.0
-            Log.i("Ubicacion","Latitud "+resultLocation?.latitude.toString()+"  Longitud "+resultLocation?.longitude.toString())
-         }
-        inicializarValores()
+
+        if(permitirUbicacion)
+        {
+            _buttonUbicacionActual.value="Obteniendo ubicacion..."
+            permitirUbicacion=false
+            locationListener = LocationListenerTest()
+            val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            obtenerUbicacionGPSActual(locationListener,context,locationManager)
+
+            viewModelScope.launch {
+                delay(5000) // 10 minutos en milisegundos
+                val resultLocation= locationService.getUserLocation(context)
+                _longitud.value = resultLocation?.longitude ?: 0.0
+                _latitud.value = resultLocation?.latitude ?: 0.0
+                Log.i("Ubicacion","Latitud "+resultLocation?.latitude.toString()+"  Longitud "+resultLocation?.longitude.toString())
+
+                locationManager.removeUpdates(locationListener)
+                permitirUbicacion=true
+                _buttonUbicacionActual.value="Obtener ubicacion actual"
+            }
+            inicializarValores()
+        }
     }
 
     fun getAddresses() {
@@ -97,7 +121,7 @@ class NuevaUbicacionViewModel @Inject constructor(
 
     fun registrar()
     {
-        viewModelScope.launch {
+         viewModelScope.launch {
             nuevaUbicacionRepository.insertNuevaUbicacion(UbicacionesNuevasEntity(
                 id=System.currentTimeMillis(),
                 idOcrd=idOcrd.value!!,

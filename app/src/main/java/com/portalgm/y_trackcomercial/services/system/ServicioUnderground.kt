@@ -135,7 +135,7 @@ class ServicioUnderground : Service() {
             .build()
         startForeground(1, notification)
 
-       locationManager.startLocationUpdates()//activa el gps servicio
+        locationManager.startLocationUpdates()//activa el gps servicio
     }
 
     override fun onBind(intent: Intent?): IBinder? {

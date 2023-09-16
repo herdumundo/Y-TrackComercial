@@ -15,13 +15,13 @@ interface VisitasDao {
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVisitas(visita: com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity): Long
+    suspend fun insertVisitas(visita:  VisitasEntity): Long
 
     @Query("SELECT * FROM VISITAS WHERE estadoVisita = :estado LIMIT 1")
-    suspend fun getVisitaByEstado(estado: String): com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity?
-
+    suspend fun getVisitaByEstado(estado: String):  VisitasEntity?
+//tipoRegistro='A' es Automatico, solo existe un registro automatico, que es el de finalizacion.
     @Query("SELECT * FROM VISITAS WHERE tipoRegistro='A' and estadoVisita = :estado LIMIT 1 ")
-    suspend fun getVisitaActiva(estado: String): com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity?
+    suspend fun getVisitaActiva(estado: String):  VisitasEntity?
 
     @Query("SELECT IDa FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
     suspend fun getIdVisitaActiva(): Long

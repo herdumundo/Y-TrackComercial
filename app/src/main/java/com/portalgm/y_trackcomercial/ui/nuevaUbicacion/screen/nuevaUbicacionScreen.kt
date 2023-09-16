@@ -57,6 +57,7 @@ fun NuevaUbicacionScreen(nuevaUbicacionViewModel: NuevaUbicacionViewModel) {
     val longitud by nuevaUbicacionViewModel.longitud.observeAsState(0.0)
     var showDialog by remember { mutableStateOf(false) }
     val ButtonTextRegistro by nuevaUbicacionViewModel.buttonPvText.observeAsState("Iniciar visita")
+    val ButtonUbicacionActual by nuevaUbicacionViewModel.buttonUbicacionActual.observeAsState("Obtener ubicacion actual")
     val idOcrd by nuevaUbicacionViewModel.idOcrd.observeAsState("")
     val registrado by nuevaUbicacionViewModel.registrado.observeAsState(false)
 
@@ -121,7 +122,7 @@ fun NuevaUbicacionScreen(nuevaUbicacionViewModel: NuevaUbicacionViewModel) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Obtener ubicación actual",
+                        text = ButtonUbicacionActual!!,
                         modifier = Modifier.weight(1f) // Ajusta el ancho del Text para llenar el espacio disponible
                     )
                     Icon(

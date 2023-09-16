@@ -5,14 +5,16 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.LocationServices
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 class LocationService {
 
    @SuppressLint("MissingPermission")
    suspend fun getUserLocation(context:Context):Location?{
-    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-       // val isUserLocationPermissionGranted=true
+
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.GPS_PROVIDER
@@ -33,9 +35,6 @@ class LocationService {
                     return@suspendCancellableCoroutine
                 }
                 addOnSuccessListener {  cont.resume(it){} }
-               /* addOnFailureListener{  cont.resume(null){} }
-                addOnCanceledListener{  cont.resume(null){} }*/
-
             }
         }
 

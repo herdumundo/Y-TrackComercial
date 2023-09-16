@@ -20,6 +20,7 @@ import com.portalgm.y_trackcomercial.data.api.apiResponse.ApikKeyGMSApi
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditLogApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrailApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionMovimientosApiClient
+import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionNewPassApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionNuevasUbicacionesApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiClient
 import dagger.Module
@@ -169,6 +170,13 @@ object NetworkModule {
     @Singleton
     fun provideExportacionNuevasUbicacionesApiClient(retrofit: Retrofit): ExportacionNuevasUbicacionesApiClient {
         return retrofit.create(ExportacionNuevasUbicacionesApiClient::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideExportacionNewPassApiClient(retrofit: Retrofit): ExportacionNewPassApiClient {
+        return retrofit.create(ExportacionNewPassApiClient::class.java)
     }
 
 

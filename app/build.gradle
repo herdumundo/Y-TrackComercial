@@ -3,7 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-   // id 'com.google.relay' version '0.3.02'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+
 }
 
 android {
@@ -14,8 +15,8 @@ android {
         applicationId "com.portalgm.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 18
-        versionName "2.7_06092023_16_19"
+        versionCode 20
+        versionName "2.9_15092023_12_10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,19 +26,17 @@ android {
 
     buildTypes
     {
-
         debug
         {
           buildConfigField "String", "BASE_URL", "\"http://192.168.6.134:8000/\""
-          debuggable true
+          debuggable false
         }
         release
         {
             buildConfigField "String", "BASE_URL", "\"https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
             minifyEnabled true
-            debuggable true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
             signingConfig signingConfigs.debug
             // Habilita la generación del archivo de desofuscación
             //  consumerProguardFiles 'consumer-rules.pro'
@@ -124,7 +123,6 @@ dependencies {
 
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
     implementation 'com.google.android.play:app-update:2.1.0'
-
-     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+"
 
 }

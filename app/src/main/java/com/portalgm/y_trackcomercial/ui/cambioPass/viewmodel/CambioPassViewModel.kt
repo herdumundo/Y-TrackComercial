@@ -33,8 +33,11 @@ class CambioPassViewModel @Inject constructor(
     private val _confirmNewPassword: MutableLiveData<String> = MutableLiveData()
     val confirmNewPassword: LiveData<String> = _confirmNewPassword
 
+    private val _mensajeBoton: MutableLiveData<String> = MutableLiveData()
+    val  mensajeBoton: LiveData<String> = _mensajeBoton
+
     private val _mensajeAlerta: MutableLiveData<String> = MutableLiveData()
-    val mensajeAlerta: LiveData<String> = _mensajeAlerta
+    val  mensajeAlerta: LiveData<String> = _mensajeAlerta
 
     private val snackbarDuration = 3000L
 
@@ -61,12 +64,16 @@ class CambioPassViewModel @Inject constructor(
                 id=System.currentTimeMillis(),
                 idUsuario = sharedPreferences.getUserId(),
                 estado="P",
-                newPass = _confirmNewPassword.value!!
+                newPass = _confirmNewPassword.value.toString()
             )
             )
              viewModelScope.launch {
                  _alerta.value=true
-                 _mensajeAlerta.value="Cambiar Contraseña"
+                 _mensajeBoton.value="Cambiar Contraseña"
+                 _mensajeAlerta.value="Contraseña modificada"
+                 delay(snackbarDuration)
+                 _alerta.value=false
+
                  _newPassword.value=""
                  _confirmNewPassword.value=""
             }
@@ -76,12 +83,31 @@ class CambioPassViewModel @Inject constructor(
     fun errorDatos (){
         viewModelScope.launch {
             _alerta.value=true
+            _mensajeBoton.value="Las contraseñas no coinciden"
             _mensajeAlerta.value="Las contraseñas no coinciden"
             delay(snackbarDuration)
-            _mensajeAlerta.value="Cambiar Contraseña"
+            _alerta.value=false
+            _mensajeBoton.value="Cambiar Contraseña"
 
         }
+    }
 
+    fun camposVacios (){
+        viewModelScope.launch {
+            _alerta.value=true
+            _mensajeBoton.value="Complete los datos"
+            _mensajeAlerta.value="Complete los datos"
+            delay(snackbarDuration)
+            _alerta.value=false
+
+            _mensajeBoton.value="Cambiar Contraseña"
+
+        }
+    }
+
+    fun limpiarDatos(){
+        _newPassword.value=""
+        _confirmNewPassword.value=""
     }
 }
 

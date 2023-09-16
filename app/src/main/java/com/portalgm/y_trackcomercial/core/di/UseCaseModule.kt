@@ -27,6 +27,9 @@ import com.portalgm.y_trackcomercial.usecases.inventario.GetMovimientoPendientes
 import com.portalgm.y_trackcomercial.usecases.marcacionPromotora.GetIdVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.usecases.marcacionPromotora.VerificarCierrePendienteUseCase
 import com.portalgm.y_trackcomercial.usecases.marcacionPromotora.VerificarInventarioCierreVisitaUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.CountNewPassPendienteUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.ExportarNewPassPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.newPass.GetNewPassPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.newPass.InsertarNewPassUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
@@ -274,6 +277,31 @@ object UseCaseModule {
         newPassRepository: NewPassRepository
     ):  InsertarNewPassUseCase {
         return InsertarNewPassUseCase(newPassRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountNewPassPendienteUseCase(
+        newPassRepository: NewPassRepository
+    ):  CountNewPassPendienteUseCase {
+        return CountNewPassPendienteUseCase(newPassRepository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetNewPassPendientesUseCase(
+        newPassRepository: NewPassRepository
+    ):  GetNewPassPendientesUseCase {
+        return GetNewPassPendientesUseCase(newPassRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideExportarNewPassPendientesUseCase(
+        newPassRepository: NewPassRepository
+    ):  ExportarNewPassPendientesUseCase {
+        return ExportarNewPassPendientesUseCase(newPassRepository)
     }
 
 

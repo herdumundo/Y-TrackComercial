@@ -1,6 +1,7 @@
 package com.portalgm.y_trackcomercial.ui.login2
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -137,5 +138,6 @@ class LoginViewModel @Inject constructor(
     }
     fun fetchApiKey() {
          _apiKey.value = sharedPreferences.getApiKeyGms()
+        Log.i("MensajeApi", _apiKey.value!!)
     }
 }

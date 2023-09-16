@@ -24,12 +24,14 @@ fun ScreenExportaciones(
     val logCount by exportacionViewModel.logCount.observeAsState()
     val movimientosCount by exportacionViewModel.movimientosCount.observeAsState()
     val ubicacionesNuevasCount by exportacionViewModel.ubicacionesNuevasCount.observeAsState()
+    val newPassCount by exportacionViewModel.newPassCount.observeAsState()
 
     val loadingVisitas by exportacionViewModel.loadingVisitas.observeAsState(false)
     val loadingAuditTrail by exportacionViewModel.loadingAuditTrail.observeAsState(false)
     val loadingLog by exportacionViewModel.loadingLog.observeAsState(false)
     val loadingMovimientos by exportacionViewModel.loadingMovimientos.observeAsState(false)
     val loadingNuevasUbicaciones by exportacionViewModel.loadingNuevasUbicaciones.observeAsState(false)
+    val loadingNewPass by exportacionViewModel.loadingNewPass.observeAsState(false)
 
     val colorCard = if (visitasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCard = if (visitasCount == 0) "Visitas sin pendientes" else "Exportar visitas"
@@ -46,6 +48,9 @@ fun ScreenExportaciones(
 
     val colorCardNuevasUbicaciones = if (ubicacionesNuevasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCardNuevasUbicaciones= if (ubicacionesNuevasCount == 0) "Ubicaciones nuevas sin pendientes" else "Exportar Ubicaciones Nuevas"
+
+    val colorCardNuevaContraseña = if (newPassCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeCardNuevoPass= if (newPassCount == 0) "Nueva contraseña sin pendientes" else "Exportar Nueva Contraseña"
 
 
 
@@ -100,6 +105,18 @@ fun ScreenExportaciones(
                 image = R.drawable.ic_permisos,
                 isLoading = loadingNuevasUbicaciones
             ) { exportacionViewModel.enviarPendientes(5) }
+        }
+
+
+        item {
+            cardViewLoadingTablas(
+                textoLoading = "Enviando Nueva Clave...",
+                title = mensajeCardNuevoPass,
+                color = colorCardNuevaContraseña,
+                subTitle = newPassCount.toString(),
+                image = R.drawable.ic_permisos,
+                isLoading = loadingNewPass
+            ) { exportacionViewModel.enviarPendientes(6) }
         }
     }
 }

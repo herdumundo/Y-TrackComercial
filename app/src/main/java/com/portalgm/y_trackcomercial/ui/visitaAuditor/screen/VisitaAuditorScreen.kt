@@ -55,6 +55,8 @@ fun VisitaAuditorScreen(
     LaunchedEffect(Unit) {
         visitaAuditorViewModel.consultaVisitaActiva()
         visitaAuditorViewModel.getAddresses()
+        visitaAuditorViewModel.inicializarValores()
+
     }
     Column {
        // Text(text = "Metros de distancia: ${metros ?: "-"}")
@@ -154,6 +156,7 @@ fun ScreenVisitaAuditor(
     val ShowButtonSelectPv by visitaAuditorViewModel.showButtonSelectPv.observeAsState(true)
     val ButtonPvText by visitaAuditorViewModel.buttonPvText.observeAsState(false)
     val ButtonTextRegistro by visitaAuditorViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
+    val enProceso by visitaAuditorViewModel.permitirUbicacion.observeAsState(true)
 
 
     var selectedPV by remember { mutableStateOf("") }
@@ -234,7 +237,7 @@ fun ScreenVisitaAuditor(
                 visitaAuditorViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFFCE0303),
+                backgroundColor = if(enProceso)Color(0xFFCE0303)  else Color(0xFF00641D),
                 contentColor = Color.White
             )
         )
