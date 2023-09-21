@@ -2,11 +2,13 @@ package com.portalgm.y_trackcomercial
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -19,23 +21,19 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
@@ -52,8 +50,8 @@ import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import com.portalgm.y_trackcomercial.components.InfoDialogSinBoton
 import com.portalgm.y_trackcomercial.components.InfoDialogUnBoton
-import com.portalgm.y_trackcomercial.components.SnackAlerta
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.portalgm.y_trackcomercial.services.gps.GpsStatusLiveData
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.iniciarCicloObtenerUbicacion
@@ -74,7 +72,6 @@ import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.portalgm.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
 import com.portalgm.y_trackcomercial.ui.visitaHorasTranscurridas.viewmodel.VisitasHorasTranscurridasViewModel
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
-import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -85,8 +82,6 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var locationViewModel: LocationLocalViewModel
-    private lateinit var locationListener: LocationLocalListener
     private val loginViewModel: LoginViewModel by viewModels()
     private val tablasRegistradasViewModel: TablasRegistradasViewModel by viewModels()
     private val menuPrincipalViewModel: MenuPrincipalViewModel by viewModels()
@@ -101,30 +96,36 @@ class MainActivity : ComponentActivity() {
     private val rastreoUsuariosViewModel: RastreoUsuariosViewModel by viewModels()
     private val nuevaUbicacionViewModel: NuevaUbicacionViewModel by viewModels()
     private val cambioPassViewModel: CambioPassViewModel by viewModels()
+    private val updateType = AppUpdateType.IMMEDIATE
+    private val locationPermissions = arrayOf(  Manifest.permission.ACCESS_FINE_LOCATION,  Manifest.permission.ACCESS_BACKGROUND_LOCATION)// Agrega esto para "Allow all the time"
+    private lateinit var locationViewModel: LocationLocalViewModel
+    private lateinit var locationListener: LocationLocalListener
+    private lateinit var appUpdateManager: AppUpdateManager
+    private lateinit var gpsStatusLiveData: GpsStatusLiveData
     @Inject
     lateinit var auditTrailRepository: AuditTrailRepository
     @Inject
     lateinit var sharedPreferences: SharedPreferences
-    var contUbicacion=0
 
-    private val locationPermissions = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION // Agrega esto para "Allow all the time"
-    )
-    private lateinit var appUpdateManager: AppUpdateManager
-    private val updateType = AppUpdateType.IMMEDIATE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*loginViewModel.apiKey.observe(this) { apiKey ->
-            if (!apiKey.isNullOrEmpty()) {
-                val applicationInfo =
-                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-                applicationInfo.metaData.putString("com.google.android.geo.API_KEY", apiKey)
-            }
+
+        /*
+        val packageManager = packageManager
+        val applications = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        for (application in applications) {
+            // Imprimimos el nombre de la aplicación
+            Log.d("Mensaje", application.loadLabel(packageManager).toString())
         }*/
 
+        //SE CAMBIA LA FORMA DE OBTENER EL ESTADO DE GPS, SIN NECESIDAD DE TENER EL GPS SIEMPRE.
+        gpsStatusLiveData = GpsStatusLiveData(this)
+        gpsStatusLiveData.observe(this) { isGpsEnabled ->
+            locationViewModel.setGpsEnabled(isGpsEnabled)
+        }
+
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
-        if(updateType==AppUpdateType.FLEXIBLE){
+        if (updateType == AppUpdateType.FLEXIBLE) {
             appUpdateManager.registerListener(installStateUpdateListener)
         }
         checkForAppUpdates()
@@ -139,12 +140,11 @@ class MainActivity : ComponentActivity() {
         locationViewModel = ViewModelProvider(this).get(LocationLocalViewModel::class.java)
         locationListener = LocationLocalListener(locationViewModel)
         // Verificar y solicitar permisos de ubicación si es necesario
-        verificarPermisosUbicacion()
+
 
         setContent {
             val context = LocalContext.current
-
-          val servicioUnderground = isServiceRunning(ServicioUnderground::class.java)
+            val servicioUnderground = isServiceRunning(ServicioUnderground::class.java)
             val contService = countRunningServices(this@MainActivity)
             //SI EL SERVICIO NO ESTA ACTIVO
             if (!servicioUnderground) {
@@ -157,10 +157,10 @@ class MainActivity : ComponentActivity() {
                 Log.d(
                     "RunningServices",
                     "SERVICIO NO ESTABA ACTIVO Y ARRANCO: $seviceActive Cantidad: $contService"
-                )
-            }
+                )  }
             //SI EL SERVICIO ESTA ACTIVO
-            else {
+            else
+            {
                 val serviceIntent = Intent(this, ServicioUnderground::class.java)
                 stopService(serviceIntent)
                 val seviceActive = isServiceRunning(ServicioUnderground::class.java)
@@ -185,8 +185,6 @@ class MainActivity : ComponentActivity() {
             var dialogAvisoInternet by remember { mutableStateOf(true) }
             AppScreen(context = context)
             MaterialTheme {
-
-
                 GpsAvisoPermisos(locationViewModel, dialogAvisoInternet)
                 val navController = rememberNavController()
                 Router(
@@ -205,16 +203,17 @@ class MainActivity : ComponentActivity() {
                     visitasHorasTranscurridasViewModel,
                     rastreoUsuariosViewModel,
                     nuevaUbicacionViewModel,
-                    cambioPassViewModel
+                    cambioPassViewModel,
+                    sharedPreferences
                 )
-
-
             }
         }
+        iniciarObtencionUbicacionGPS()
     }
+
     override fun onResume() {
         super.onResume()
-        verificarPermisosUbicacion()
+        // verificarPermisosUbicacion()
         if (updateType == AppUpdateType.IMMEDIATE) {
             appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
                 if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
@@ -229,20 +228,21 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
         if (!permissionsGranted) {
-            Toast.makeText(this, "Debes dar permiso de GPS como 'Permitir todo el tiempo' ", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                "Debes dar permiso de GPS como 'Permitir todo el tiempo' ",
+                Toast.LENGTH_LONG
+            ).show()
             redirectToLocationSettings()
         }
     }
-    override fun onDestroy(){
+
+    override fun onDestroy() {
         super.onDestroy()
-        if(updateType==AppUpdateType.FLEXIBLE){
+        if (updateType == AppUpdateType.FLEXIBLE) {
             appUpdateManager.unregisterListener(installStateUpdateListener)
         }
     }
-    override fun onStart() {
-        super.onStart()
-}
-
 
     private fun redirectToLocationSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -293,37 +293,22 @@ class MainActivity : ComponentActivity() {
         return false
     }
 
-
-    private fun verificarPermisosUbicacion() {
-        val permission = Manifest.permission.ACCESS_FINE_LOCATION
-        val permissionGranted = PackageManager.PERMISSION_GRANTED
-
-        if (ContextCompat.checkSelfPermission(this, permission) == permissionGranted) {
-            contUbicacion++
-            // Si se tienen los permisos, iniciar la obtención de la ubicación GPS
-            locationViewModel.setGpsIsPermission(true)
-            if(contUbicacion==1){
-                iniciarObtencionUbicacionGPS()
-            }
-        } else {
-            // Si no se tienen los permisos, solicitarlos al usuario
-            locationViewModel.setGpsIsPermission(false)
-            ActivityCompat.requestPermissions(this, arrayOf(permission), 1)
-        }
-    }
-
     @SuppressLint("MissingPermission")
     private fun iniciarObtencionUbicacionGPS() {
         // Inicia la obtención de la ubicación GPS
         //   obtenerUbicacionGPS(this, locationViewModel, locationListener)
-              iniciarCicloObtenerUbicacion(this, locationViewModel, locationListener,sharedPreferences,auditTrailRepository)
+        iniciarCicloObtenerUbicacion(
+            this,
+            locationViewModel,
+            locationListener,
+            sharedPreferences,
+            auditTrailRepository
+        )
     }
-
     @Composable
     fun GpsAvisoPermisos(locationViewModel: LocationLocalViewModel, dialogAvisoInternet: Boolean) {
         val gpsEnabled by locationViewModel.gpsEnabled.observeAsState()
         val gpsIsPermission by locationViewModel.gpsIsPermission.observeAsState()
-
 
         if (gpsIsPermission == false) {
             // El permiso de GPS está deshabilitado, mostrar el diálogo de información
@@ -340,8 +325,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (gpsEnabled == false ) {
-           InfoDialogUnBoton(
+        if (gpsEnabled == false) {
+            InfoDialogUnBoton(
                 title = "Acceso a la Ubicación",
                 titleBottom = "Permitir Acceso",
                 desc = "Debes habilitar el GPS para usar la APP",
@@ -350,20 +335,20 @@ class MainActivity : ComponentActivity() {
                 val settingsIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivity(settingsIntent)
             }
-        }
 
+        }
     }
 
-    private val installStateUpdateListener = InstallStateUpdatedListener {state ->
-        if(state.installStatus()==InstallStatus.DOWNLOADED){
-            Toast.makeText(applicationContext,"Aplicacion descargada con exito",Toast.LENGTH_LONG).show()
-            lifecycleScope.launch { delay(5.seconds)
+    private val installStateUpdateListener = InstallStateUpdatedListener { state ->
+        if (state.installStatus() == InstallStatus.DOWNLOADED) {
+            Toast.makeText(applicationContext, "Aplicacion descargada con exito", Toast.LENGTH_LONG)
+                .show()
+            lifecycleScope.launch {
+                delay(5.seconds)
                 appUpdateManager.completeUpdate()
             }
         }
-
     }
-
 }
 
 @Composable
@@ -384,14 +369,13 @@ fun Router(
     rastreoUsuariosViewModel: RastreoUsuariosViewModel,
     nuevaUbicacionViewModel: NuevaUbicacionViewModel,
     cambioPassViewModel: CambioPassViewModel,
+    sharedPreferences: SharedPreferences,
 
     ) {
     NavHost(
         navController = navController,
-        startDestination = "login"
-    )
+        startDestination = "menu" )
     {
-        composable("login") { LoginScreen(loginViewModel, navController) }
         composable("menu") {
             MenuPrincipal(
                 loginViewModel,
@@ -409,44 +393,45 @@ fun Router(
                 visitasHorasTranscurridasViewModel,
                 rastreoUsuariosViewModel,
                 nuevaUbicacionViewModel,
-                cambioPassViewModel
+                cambioPassViewModel,
+                sharedPreferences
             )
         }
-    }
+        composable("login") { LoginScreen(loginViewModel, navController) }
 
+    }
 }
 
 @Composable
 fun AppScreen(context: Context) {
-
     val connectivityManagerInit =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkCapabilities = connectivityManagerInit.activeNetwork?.let {
         connectivityManagerInit.getNetworkCapabilities(it)
     }
-
     val accesoInternet =
         networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) != true
     var dialogInternet by remember { mutableStateOf(accesoInternet) }
-
     val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
     val networkCallback = remember {
-        object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
+        object : ConnectivityManager.NetworkCallback()
+        {
+            override fun onAvailable(network: Network)
+            {
                 val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
                 val hasInternetCapability =
                     networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
                 val hasCellularCapability =
                     networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true
 
-                if (hasInternetCapability && hasCellularCapability) {
+                if (hasInternetCapability && hasCellularCapability)
+                {
                     dialogInternet = false
                 }
             }
-
-            override fun onLost(network: Network) {
+            override fun onLost(network: Network)
+            {
                 dialogInternet = true
             }
         }
@@ -467,8 +452,27 @@ fun AppScreen(context: Context) {
             // Handle dialog button click
         }
     }
-
 }
+
+
+
+/*private fun verificarPermisosUbicacion() {
+    val permission = Manifest.permission.ACCESS_FINE_LOCATION
+    val permissionGranted = PackageManager.PERMISSION_GRANTED
+
+    if (ContextCompat.checkSelfPermission(this, permission) == permissionGranted) {
+        contUbicacion++
+        // Si se tienen los permisos, iniciar la obtención de la ubicación GPS
+        locationViewModel.setGpsIsPermission(true)
+        if(contUbicacion==1){
+            iniciarObtencionUbicacionGPS()
+        }
+    } else {
+        // Si no se tienen los permisos, solicitarlos al usuario
+        locationViewModel.setGpsIsPermission(false)
+        ActivityCompat.requestPermissions(this, arrayOf(permission), 1)
+    }
+}*/
 
 
 

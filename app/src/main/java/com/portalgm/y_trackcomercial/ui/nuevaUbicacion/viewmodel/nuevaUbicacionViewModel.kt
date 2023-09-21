@@ -17,8 +17,6 @@ import com.portalgm.y_trackcomercial.repository.registroRepositories.NuevaUbicac
 import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
 import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationListenerTest
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
  import com.portalgm.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

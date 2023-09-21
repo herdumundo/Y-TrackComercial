@@ -1,11 +1,15 @@
 package com.portalgm.y_trackcomercial.ui.marcacionPromotora
 
+ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +22,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AltRoute
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,13 +35,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.portalgm.y_trackcomercial.R
+import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
+import com.portalgm.y_trackcomercial.components.SnackAlerta
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.screen.OcrdSelectionDialogNew
+import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel.NuevaUbicacionViewModel
 import java.util.regex.Pattern
 
+
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color as Col
+import android.graphics.Paint
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.Path
+ import androidx.compose.ui.tooling.preview.Preview
+ import com.google.maps.android.compose.MarkerComposable
+ import com.google.maps.android.compose.MarkerInfoWindow
 
 @Composable
 fun GpsLocationScreen(
@@ -55,12 +84,13 @@ fun GpsLocationScreen(
         marcacionPromotoraViewModel.consultaVisitaActiva()
         marcacionPromotoraViewModel.getAddresses()
         marcacionPromotoraViewModel.inicializarValores()
-    }
-    Column {
-       // Text(text = "Metros de distancia: ${metros ?: "-"}")
+        marcacionPromotoraViewModel.obtenerUbicacion()
 
-        MyApp(marcacionPromotoraViewModel, latitudUsuario ?: 0.0, longitudUsuario ?: 0.0)
+
     }
+            MyApp(marcacionPromotoraViewModel, latitudUsuario ?: 0.0, longitudUsuario ?: 0.0)
+
+
 
     if (showDialog) {
         InfoDialogOk(
@@ -158,10 +188,15 @@ fun MyApp(
     val ButtonPvText by marcacionPromotoraViewModel.buttonPvText.observeAsState(false)
     val ButtonTextRegistro by marcacionPromotoraViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
     val enProceso by marcacionPromotoraViewModel.permitirUbicacion.observeAsState(true)
+    val ubicacionLoading by marcacionPromotoraViewModel.ubicacionLoading.observeAsState(true)
+
 
 
     var selectedPV by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+
+    DialogLoading("Obteniendo ubicacion actual...", ubicacionLoading)
+
 
     if (showDialog) {
         OcrdSelectionDialog(
@@ -174,15 +209,18 @@ fun MyApp(
             //  context
         )
     }
-
+  //  Box(Modifier.fillMaxSize()) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+    //    modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    //    horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        CuadroMapa(marcacionPromotoraViewModel = marcacionPromotoraViewModel)
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (ShowButtonSelectPv) {
             Button(
-                modifier = Modifier.width(300.dp),
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
                 onClick = { showDialog = true },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFFCE0303),
@@ -207,7 +245,7 @@ fun MyApp(
         }
         if (ShowButtonPv) {
             Button(
-                modifier = Modifier.width(300.dp),
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
                 onClick = { },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFF000000),
@@ -232,13 +270,13 @@ fun MyApp(
         }
 
         Button(
-            modifier = Modifier.width(300.dp),
+            modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
             onClick = {
-            //    marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
+                //    marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
                 marcacionPromotoraViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if(enProceso)Color(0xFFCE0303)  else Color(0xFF00641D),
+                backgroundColor = if (enProceso) Color(0xFFCE0303) else Color(0xFF00641D),
                 contentColor = Color.White
             )
         )
@@ -259,5 +297,56 @@ fun MyApp(
             }
         }
     }
+
+   // }
 }
+
+@Composable
+fun CuadroMapa(marcacionPromotoraViewModel: MarcacionPromotoraViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+    val latitud by marcacionPromotoraViewModel.latitudUsuario.observeAsState(0.0)
+    val longitud by marcacionPromotoraViewModel.longitudUsuario.observeAsState(0.0)
+
+    val latitudPV by marcacionPromotoraViewModel.latitudPv.observeAsState(0.0)
+    val longitudPV by marcacionPromotoraViewModel.longitudPv.observeAsState(0.0)
+    val Pv by marcacionPromotoraViewModel.ocrdName.observeAsState("")
+
+    val markerPosition = LatLng(latitud, longitud)
+    val markerPositionPV = LatLng(latitudPV, longitudPV)
+    val Paraguay =markerPosition
+    var cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(Paraguay, 17f)}
+            GoogleMap(
+                modifier = Modifier
+                    .height(270.dp) // La composable ocupará el 50% de la pantalla en altura
+                    .padding(3.dp), // Agrega un padding opcional
+                cameraPositionState = cameraPositionState,
+                ) {
+                Marker(
+                    state = MarkerState(position = markerPosition),
+                    title = "MI UBICACIÓN ACTUAL",
+                 )
+                Marker(
+                    state = MarkerState(position = markerPositionPV),
+                    title = Pv,
+                )
+                LaunchedEffect(markerPosition)
+                {
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPosition))
+                 }
+                LaunchedEffect(markerPositionPV)
+                {
+                     cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPositionPV))
+                }
+    }
+}
+
+
+
+
+
+
+
+
+
+
 

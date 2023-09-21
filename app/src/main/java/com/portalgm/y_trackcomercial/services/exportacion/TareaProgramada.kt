@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.services.exportacion
 
+import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest

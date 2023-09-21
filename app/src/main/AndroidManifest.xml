@@ -45,6 +45,10 @@
 
         <service android:name=".services.system.ServicioUnderground" />
 
+        <service
+            android:name=".services.gps.locationGMS.LocationService"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

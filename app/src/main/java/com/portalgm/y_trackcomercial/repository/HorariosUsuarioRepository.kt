@@ -28,6 +28,7 @@ class HorariosUsuarioRepository @Inject constructor(
             try {
                 val horariosResponse = horariosUsuarioApiClient.getHorarioUsuario(idUsuario,sharedPreferences.getToken().toString())
                 val horariosEntityList = convertToEntityList(horariosResponse)
+                horariosUsuarioDao.eliminarTodosHorarios()
                 horariosUsuarioDao.insertAllTurnosHorarios(horariosEntityList)
                 return@withContext getTurnosHorariosCountRepository()
             } catch (e: Exception) {

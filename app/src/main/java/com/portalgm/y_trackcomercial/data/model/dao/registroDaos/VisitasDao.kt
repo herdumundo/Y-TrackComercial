@@ -46,7 +46,7 @@ interface VisitasDao {
     @Query("SELECT COUNT(*) FROM visitas WHERE pendienteSincro='N'")
     fun getCantidadRegistrosPendientes(): LiveData<Int>
 
-    @Query("SELECT ocrdName FROM visitas WHERE pendienteSincro='N'")
+    @Query("SELECT  case count(ocrdName) when 0 then '' else ocrdName end as ocrdName  FROM visitas WHERE pendienteSincro='N'")
     fun getOcrdPendiente(): LiveData<String>
 
 

@@ -4,7 +4,6 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
-
 }
 
 android {
@@ -15,8 +14,8 @@ android {
         applicationId "com.portalgm.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 20
-        versionName "2.9_15092023_12_10"
+        versionCode 24
+        versionName "3.3_200920231455"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,7 +28,7 @@ android {
         debug
         {
           buildConfigField "String", "BASE_URL", "\"http://192.168.6.134:8000/\""
-          debuggable false
+          debuggable true
         }
         release
         {

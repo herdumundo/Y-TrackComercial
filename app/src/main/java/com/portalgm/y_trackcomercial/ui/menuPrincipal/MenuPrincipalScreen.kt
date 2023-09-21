@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,18 +34,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialog
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
-import com.portalgm.y_trackcomercial.components.SnackAlerta
 import com.portalgm.y_trackcomercial.components.cardViewToolBar
 import com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity
 //import com.ytrack.y_trackcomercial.components.toIcon
@@ -76,6 +74,7 @@ import com.portalgm.y_trackcomercial.ui.visitaHorasTranscurridas.screen.VisitasH
 import com.portalgm.y_trackcomercial.ui.visitaHorasTranscurridas.viewmodel.VisitasHorasTranscurridasViewModel
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
+import com.portalgm.y_trackcomercial.util.SharedPreferences
 //import com.ytrack.y_trackcomercial.ui.registroEntradaPromotoras.cargar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -98,9 +97,11 @@ fun MenuPrincipal(
      visitasHorasTranscurridasViewModel: VisitasHorasTranscurridasViewModel,
      rastreoUsuariosViewModel: RastreoUsuariosViewModel,
      nuevaUbicacionViewModel: NuevaUbicacionViewModel,
-     cambioPassViewModel: CambioPassViewModel
+     cambioPassViewModel: CambioPassViewModel,
+     sharedPreferences: SharedPreferences
  ) {
-     if (loginViewModel.loggedIn.value == true) {
+     //  if (loginViewModel.loggedIn.value == true) {
+       if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
         val scaffoldState = rememberScaffoldState()
         val coroutineScope = rememberCoroutineScope()
         var expanded by rememberSaveable { mutableStateOf(false) }
@@ -116,9 +117,8 @@ fun MenuPrincipal(
          val alertaNewPass by cambioPassViewModel.alerta.observeAsState(false)
          val mensajeNewPass by cambioPassViewModel.mensajeAlerta.observeAsState("")
 
-
         Scaffold(
-            topBar = {
+              topBar = {
                 MyTopAppBar(onNavIconClick = {
                     coroutineScope.launch {
                         scaffoldState.drawerState.open()
@@ -147,6 +147,8 @@ fun MenuPrincipal(
 
             },
             scaffoldState = scaffoldState,
+            /**drawerGesturesEnabled USAMOS PARA QUE NO SE PUEDA DESLIZAR EL MENU HACIA LA IZQUIERDA **/
+            drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
             drawerContent = {
                 MyDrawer(
                     //menu_items = navigationItems,
@@ -165,7 +167,9 @@ fun MenuPrincipal(
                 InfoDialog(title = "Atención!",
                     desc = "¿Deseas cerrar sesión?.",
                     R.drawable.icono_exit,
-                    { activity.finish() },
+                    {sharedPreferences.clearPreferences()
+                    activity.finish()
+                    },
                     onDismiss = {
                         openDialogSesion.value = false
                     })
@@ -191,7 +195,7 @@ fun MenuPrincipal(
                     cambioPassViewModel)
             }
             if (showDialogOK) {
-                InfoDialogOk(title = "Atenciòn!",
+                InfoDialogOk(title = "Atención!",
                     desc = mensajeDialog,
                     R.drawable.icono_sincro,
                     { },
@@ -309,13 +313,12 @@ fun MyTopAppBar(
     activity: Activity,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
     navControllerPrincipal: NavController,
-
     ) {
     var showSnackbar by remember { mutableStateOf(false) }
     val registrosConPendiente: Int by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(
-        0
-    )
+        0)
     val ocrdNameLivedata: String by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
+    val userName = menuPrincipalViewModel.getUserName()
 
     TopAppBar(backgroundColor = Color(0xFFCE0303), contentColor = Color.White,
 
@@ -332,11 +335,17 @@ fun MyTopAppBar(
         },
 
         title = {
-            Text(
-                text = "Y TRACK", color = Color.White, fontSize = 20.sp
-            )
-        }, actions = {
-            IconButton(onClick = {
+            Column {
+                Text(
+                    text = userName +" -  ${BuildConfig.VERSION_NAME}" , color = Color.White, fontSize = 13.sp
+                )
+                Text(
+                    text =  ocrdNameLivedata , color = Color.White, fontSize = 12.sp
+                )
+            }
+        },
+        actions = {
+          /*  IconButton(onClick = {
                // openWhatsApp(activity, menuPrincipalViewModel)
             }) {
                 //painter = painterResource(id = androidx.compose.foundation.layout.R.drawable.img_what),
@@ -349,9 +358,9 @@ fun MyTopAppBar(
                         .padding(5.dp)
                         .clip(CircleShape),
                 )
-            }
+            }*/
 
-            if (registrosConPendiente > 0) {
+         /*   if (registrosConPendiente > 0) {
 
                 IconButton(onClick = {
                     "Tienes un punto de venta pendiente"
@@ -370,7 +379,7 @@ fun MyTopAppBar(
                     //}
                 }
 
-            }
+            }*/
             IconButton(
                 onClick = { onMoreOptionsClick() }, modifier = Modifier.padding(end = 16.dp)
             ) {
@@ -497,13 +506,6 @@ fun MyDrawer(
         )
         DrawerItem2(acessoState,coroutineScope, scaffoldState, navController)
 
-        /* acessoState.forEach { rutaAcceso ->
-             val icono = rutaAcceso.icono  // Obtener el icono correspondiente
-             val nombre = rutaAcceso.name
-             val ruta = rutaAcceso.ruta
-
-             DrawerItem(icono, nombre, ruta, coroutineScope, scaffoldState, navController)
-         }*/
     }
 }
 

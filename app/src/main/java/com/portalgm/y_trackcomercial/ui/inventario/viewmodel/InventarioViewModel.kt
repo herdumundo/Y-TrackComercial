@@ -50,7 +50,10 @@ class InventarioViewModel @Inject constructor(
     val textButtonLote: MutableLiveData<String> = _textButtonLote
 
     private val _itemCode: MutableLiveData<String> = MutableLiveData()
+
     private val _itemName: MutableLiveData<String> = MutableLiveData()
+    val itemName: MutableLiveData<String> = _itemName
+
     private val _idLote: MutableLiveData<String> = MutableLiveData()
     private val _codeBar: MutableLiveData<String> = MutableLiveData()
     private val _descUbicacion: MutableLiveData<String> = MutableLiveData()

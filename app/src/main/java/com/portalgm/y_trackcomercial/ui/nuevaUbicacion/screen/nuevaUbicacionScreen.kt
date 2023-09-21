@@ -96,7 +96,6 @@ fun NuevaUbicacionScreen(nuevaUbicacionViewModel: NuevaUbicacionViewModel) {
                 cameraPositionState = cameraPositionState,
 
                 ) {
-
                 Marker(
                     state = MarkerState(position = markerPosition),
                     title = "Ubicación Actual",
@@ -108,7 +107,6 @@ fun NuevaUbicacionScreen(nuevaUbicacionViewModel: NuevaUbicacionViewModel) {
                 }
             }
            // Spacer(modifier = Modifier.height(16.dp)) // Add space between the map and button
-
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
                 onClick = { nuevaUbicacionViewModel.obtenerUbicacion()},

@@ -28,6 +28,8 @@ interface HorariosUsuarioDao {
     @Query("SELECT * FROM turnosHorarios WHERE strftime('%H:%M', inicioEnt) <= strftime('%H:%M', :horaActual) AND strftime('%H:%M', finSal) >= strftime('%H:%M', :horaActual)")
     fun getHorarioActual(horaActual: String): List<HorariosUsuarioEntity>
 
+    @Query("delete from turnosHorarios")
+    suspend fun eliminarTodosHorarios()
 
     @Query("SELECT  case when COUNT(*)>0 then id else 0  end id FROM turnosHorarios WHERE strftime('%H:%M', inicioEnt) <= strftime('%H:%M', :horaActual) AND strftime('%H:%M', horaSal) >= strftime('%H:%M', :horaActual)")
     suspend fun getIdTurno(horaActual: String): Int

@@ -66,7 +66,7 @@ fun ScreenInventario(inventarioViewModel: InventarioViewModel) {
     val idLote by inventarioViewModel.idLote.observeAsState("")
     val txtCantidad by inventarioViewModel.txtCantidad.observeAsState(initial = "")
     val colorSnack by inventarioViewModel.colorSnack.observeAsState()
-    val lotesList = inventarioViewModel.lotesList
+      val lotesList = inventarioViewModel.lotesList
 
      Scaffold(
                  content = {
@@ -104,6 +104,7 @@ fun InventarioBody(
     val textButtonLote by inventarioViewModel.textButtonLote.observeAsState("")
     val textButtonProducto by inventarioViewModel.textButtonProducto.observeAsState("")
     val textButtonUbicacion by inventarioViewModel.textButtonUbicacion.observeAsState("")
+    val itemName = inventarioViewModel.itemName
 
     LaunchedEffect(Unit) {
         inventarioViewModel.setValoresIniciales()
@@ -159,7 +160,7 @@ fun InventarioBody(
             inventarioViewModel.setShowDialogLote(false)
         }, onDismissRequest = {
             // Hacer algo cuando se solicite cerrar el diálogo
-        }, inventarioViewModel
+        }, inventarioViewModel,itemName.value!!
         )
     }
 
@@ -213,6 +214,7 @@ fun LotesSelectionDialog(
     onLoteSelected: () -> Unit,
     onDismissRequest: () -> Unit,
     inventarioViewModel: InventarioViewModel,
+    producto:String
 ) {
     var searchText by remember { mutableStateOf("") }
 
@@ -221,6 +223,8 @@ fun LotesSelectionDialog(
     }
     AlertDialog(onDismissRequest = onDismissRequest, text = {
         Column {
+            Text(text = producto,    fontWeight = FontWeight.Bold
+            )
             OutlinedTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -276,11 +280,10 @@ fun OitmSelectionDialog(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedLabelColor = Color(0xFFCE0303),
                     focusedBorderColor = Color(0xFFCE0303)
-                )
-            )
+                ) )
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(filteredOitms) { oitms ->
-                    Text(text = oitms.CodeBars!!.takeLast(3) + "-" + oitms.ItemName,
+                    Text(text = oitms.ItemCode +"-"+oitms.CodeBars!!.takeLast(3) + "-" + oitms.ItemName,
                         modifier = Modifier
                             .clickable {
                                 inventarioViewModel.setProducto(

@@ -1,8 +1,7 @@
 package com.portalgm.y_trackcomercial.services.gps.locationGMS
 
 import android.Manifest
-import android.app.Service
-import android.content.Context
+ import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
@@ -10,9 +9,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
-import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
-import com.portalgm.y_trackcomercial.util.SharedPreferences
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -23,23 +19,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocationService @Inject constructor(
-    private val auditTrailRepository: AuditTrailRepository,
-    private val sharedPreferences: SharedPreferences,
-    private val logRepository: LogRepository,
-    private val context: Context
-
 ) : Service() {
-
-    // Binder para permitir la conexión al servicio desde un componente externo
     private val binder: IBinder = LocationBinder()
-
-    // Listener para recibir las actualizaciones de ubicación
     private var locationChangeListener: LocationChangeListener? = null
-
-    // Cliente para acceder a los servicios de ubicación de Google Play
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    // Configuración de la solicitud de ubicación
     private val locationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         interval = 10000 // Intervalo de tiempo en milisegundos entre actualizaciones
@@ -47,8 +30,6 @@ class LocationService @Inject constructor(
         smallestDisplacement =
             10f // Distancia mínima en metros para considerar un cambio de ubicación
     }
-
-    // Binder para permitir la conexión al servicio desde un componente externo
     inner class LocationBinder : Binder() {
         fun getService(): LocationService {
             return this@LocationService
@@ -77,8 +58,9 @@ class LocationService @Inject constructor(
         return START_STICKY
     }
 
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(
+      fun startLocationUpdates() {
+
+          if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(

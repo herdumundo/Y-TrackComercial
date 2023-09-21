@@ -10,6 +10,6 @@ import javax.inject.Singleton
 
 @Singleton
 interface ExportacionVisitasApiClient {
-    @POST("/exportarVisitas")
+    @POST("/exportarVisitasversiondos")
     suspend fun uploadVisitasData(@Body lotesVisitas: EnviarVisitasRequest,@Header("Authorization") authorization: String): ApiResponse
 }

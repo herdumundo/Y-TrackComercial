@@ -24,5 +24,6 @@ data class lotesDeVisitas(
     val ocrdName: String,
     val tipoCierre: String,
     val rol: String,
-    val secuencia: Int
-)
+    val secuencia: Int,
+    val versionApp: String,
+    )

@@ -51,11 +51,10 @@ var longitudInsert=0.0
             // Actualizar el ViewModel con la última ubicación conocida
             lastKnownLocation?.let {
             c++
-                if(c==1){
+                if(c==1)
+                {
                     if ((calcularDistancia(
-                            it.latitude,
-                            it.longitude,latitudInsert,longitudInsert
-                        ) ) >= 50 && (it.latitude != latitudInsert  || it.longitude != longitudInsert)
+                            it.latitude,it.longitude,latitudInsert,longitudInsert )) >= 50 && (it.latitude != latitudInsert  || it.longitude != longitudInsert)
                     ){
                         insertRoomLocation(it.latitude, it.longitude ,
                             context,sharedPreferences,auditTrailRepository)
@@ -94,6 +93,7 @@ private fun calcularDistancia(latitud: Double, longitud: Double,latitudInsert:Do
         do {
             doCoroutine=false
             gpsDelay=true
+           // delay(240000) // 4 minutos en milisegundos
             delay(240000) // 4 minutos en milisegundos
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             obtenerUbicacionGPS(context, locationViewModel, locationListener, locationManager,sharedPreferences,auditTrailRepository)
@@ -132,7 +132,7 @@ private suspend fun insertRoomLocation(
             longitud ,
             latitud ,
             sharedPreferences.getUserId(),
-            sharedPreferences.getUserName().toString()+"1",
+            sharedPreferences.getUserName().toString(),
             0.0,
             porceBateria
         )

@@ -2,6 +2,7 @@ package com.portalgm.y_trackcomercial.repository.registroRepositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiClient
 import com.portalgm.y_trackcomercial.data.api.request.EnviarVisitasRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeVisitas
@@ -94,7 +95,8 @@ class VisitasRepository @Inject constructor
                 tipoCierre = entity.tipoCierre,
                 rol = entity.rol,
                 secuencia = entity.secuencia,
-                id=entity.id.toString()
+                id=entity.id.toString(),
+                versionApp = BuildConfig.VERSION_NAME
             )
         }
     }

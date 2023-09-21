@@ -89,6 +89,12 @@ class MarcacionPromotoraViewModel @Inject constructor(
     private val _longitudPv: MutableLiveData<Double> = MutableLiveData()
     val longitudPv: MutableLiveData<Double> = _longitudPv
 
+    private val _latitudUsuario: MutableLiveData<Double> = MutableLiveData()
+    var latitudUsuario: MutableLiveData<Double> = _latitudUsuario
+
+    private val _longitudUsuario: MutableLiveData<Double> = MutableLiveData()
+    val longitudUsuario: MutableLiveData<Double> = _longitudUsuario
+
     private val _buttonTextRegistro: MutableLiveData<String> = MutableLiveData()
     val buttonTextRegistro: MutableLiveData<String> = _buttonTextRegistro
 
@@ -96,6 +102,9 @@ class MarcacionPromotoraViewModel @Inject constructor(
     val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
     private val _permitirUbicacion = MutableLiveData<Boolean>()
     val permitirUbicacion: LiveData<Boolean> = _permitirUbicacion
+
+    private val _ubicacionLoading = MutableLiveData<Boolean>()
+    val ubicacionLoading: LiveData<Boolean> = _ubicacionLoading
 
     private val _validacionVisita =
         MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
@@ -112,7 +121,6 @@ class MarcacionPromotoraViewModel @Inject constructor(
             }
         }
     }
-
 
     fun getStoredAddresses(): List<OcrdItem> {
         return _addressesList
@@ -137,10 +145,13 @@ class MarcacionPromotoraViewModel @Inject constructor(
         //VALIDAR QUE NO SE PUEDA FINALIZAR VISITA SI ESTA A MAS DE 100 METROS.
         viewModelScope.launch {
             //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
-            delay(5000) // 10 minutos en milisegundos
+            delay(8000) // 10 minutos en milisegundos
             val resultLocation= locationService.getUserLocation(context)
             var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
             var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
+
+            _latitudUsuario.value=resultLocation?.latitude ?: 0.0
+            _longitudUsuario.value=resultLocation?.longitude ?: 0.0
 
             val isAutomaticTimeZone = isAutomaticTimeZone(context)
             val isAutomaticDateTime = isAutomaticDateTime(context)
@@ -149,7 +160,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
             //FUNCION SUSPENDIDA
             val esPrimeraVisita = horariosUsuarioRepository.esPrimeraVisitaTurno(idTurno)
 
-            val rangoDistancia = 200
+            val rangoDistancia = 300
 
             /**HACER QUE SI EXISTE UN CIERRE PENDIENTE, NO ENTRE EN "ES PRIMERA VISITA.
              * ESTO PORQUE PUEDE EXISTIR UNA VISITA DEL DIA ANTERIOR QUE NO SE FINALIZO, ENTONCES AL SIGUIENTE DIA,
@@ -314,7 +325,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
                  *  4 = No existen turnos para el horario en que se intenta iniciar visita.
                  * */
                 if ((tipoRespuestaValidacion == 2 && !permisoVisitaToken) || tipoRespuestaValidacion in listOf(3, 4)) {
-                    mostrarMensajeDialogo(mensajeValidacion!!)
+                    mostrarMensajeDialogo(mensajeValidacion!!+ ". Lat: $latitudUsuarioVal y Long: $longitudUsuarioVal\"")
                     _buttonTextRegistro.value = "Iniciar visita"
 
                     return@launch
@@ -335,7 +346,7 @@ class MarcacionPromotoraViewModel @Inject constructor(
                     _buttonTextRegistro.value = "Iniciar visita"
 
                 } else if (metros > rangoDistancia) {
-                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros del punto de venta.")
+                    mostrarMensajeDialogo("Estás fuera del área de cobertura. $metros metros de ${ocrdName.value!!}. Lat: $latitudUsuarioVal y Long: $longitudUsuarioVal")
                     _buttonTextRegistro.value = "Iniciar visita"
                 } else {
                     val visitaApertura = crearVisitaEntity(
@@ -445,5 +456,27 @@ class MarcacionPromotoraViewModel @Inject constructor(
         _showButtonPv.value = false
 // _showDialog.value = false
 //_mensajeDialog.value = ""
+    }
+
+  fun obtenerUbicacion(){
+      locationListener = LocationListenerTest()
+      val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+      obtenerUbicacionGPSActual(locationListener,context,locationManager)
+      _ubicacionLoading.value=true
+      viewModelScope.launch {
+
+          //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
+          delay(4000) // 10 minutos en milisegundos
+          val resultLocation= locationService.getUserLocation(context)
+          var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
+          var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
+
+          _latitudUsuario.value=resultLocation?.latitude ?: 0.0
+          _longitudUsuario.value=resultLocation?.longitude ?: 0.0
+          delay(2000) // 10 minutos en milisegundos
+          locationManager.removeUpdates(locationListener)
+          _ubicacionLoading.value=false
+
+      }
     }
 }

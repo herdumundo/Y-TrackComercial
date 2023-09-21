@@ -7,12 +7,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.ViewModelProvider
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.portalgm.y_trackcomercial.services.exportacion.ExportarDatos
+import com.portalgm.y_trackcomercial.services.gps.GpsStatusLiveData
 import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationManager
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
@@ -72,26 +76,37 @@ class ServicioUnderground : Service() {
     lateinit var getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase
     @Inject
     lateinit var countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase
-
-
     lateinit var context: Context
 
-    private lateinit var locationManager: LocationManager
+    //private lateinit var locationViewModel: LocationLocalViewModel
+
+    //private lateinit var gpsStatusLiveData: GpsStatusLiveData
+
 
     override fun onCreate() {
         super.onCreate()
-      locationManager = LocationManager(
-            auditTrailRepository,
-            sharedPreferences,
-            logRepository,
-            this
-        )
+     /*   context = this.applicationContext // O utiliza otra forma de obtener el contexto según tus necesidades
+        gpsStatusLiveData = GpsStatusLiveData(context)
+
+        gpsStatusLiveData.observeForever { isGpsEnabled ->
+           // locationViewModel.setGpsEnabled(isGpsEnabled)
+            Toast.makeText(this,
+                "Debes dar permiso de GPS como 'Permitir todo el tiempo' $isGpsEnabled", Toast.LENGTH_LONG).show()
+
+        }*/
+
+        /*   locationManager = LocationManager(
+                 auditTrailRepository,
+                 sharedPreferences,
+                 logRepository,
+                 this
+             )*/
     }
     override fun onDestroy() {
         super.onDestroy()
         Log.d("RunningServices", "Matamos el servicio")
-        locationManager.unregisterGpsStateChangeListener()
-        locationManager.stopLocationUpdates()
+       /* locationManager.unregisterGpsStateChangeListener()
+        locationManager.stopLocationUpdates()*/
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -118,8 +133,7 @@ class ServicioUnderground : Service() {
             enviarMovimientoPendientesUseCase,
             enviarNuevasUbicacionesPendientesUseCase,
             getNuevasUbicacionesPendientesUseCase,
-            countUbicacionesNuevasPendientesUseCase
-        )
+            countUbicacionesNuevasPendientesUseCase  )
         // Crear el canal de notificación para Android 8.0 (Oreo) y versiones posteriores
         if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.TIRAMISU) {
             val channelId = "servicio_channel"
@@ -134,8 +148,7 @@ class ServicioUnderground : Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .build()
         startForeground(1, notification)
-
-        locationManager.startLocationUpdates()//activa el gps servicio
+       // locationManager.startLocationUpdates()//activa el gps servicio
     }
 
     override fun onBind(intent: Intent?): IBinder? {
