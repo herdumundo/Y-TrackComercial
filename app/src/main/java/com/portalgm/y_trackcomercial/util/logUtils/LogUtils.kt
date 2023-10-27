@@ -5,6 +5,7 @@ import com.portalgm.y_trackcomercial.data.model.entities.logs.AuditTrailEntity
 import com.portalgm.y_trackcomercial.data.model.entities.logs.LogEntity
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
+import com.portalgm.y_trackcomercial.util.SharedData
 
 object LogUtils {
 
@@ -33,7 +34,9 @@ object LogUtils {
         return logRepository.insertLog(log)
     }
     suspend fun insertLogAuditTrailUtils(auditTrailRepository: AuditTrailRepository,
-                                         fecha: String, longitud: Double, latitud: Double, idUsuario: Int, nombreUsuario: String, velocidad: Double,bateria:Int): Long {
+                                         fecha: String, longitud: Double, latitud: Double, idUsuario: Int, nombreUsuario: String, velocidad: Double,bateria:Int,tipoRegistro:String): Long {
+        val sharedData = SharedData.getInstance()
+
         val log = AuditTrailEntity(
             id = null,
             fecha = fecha,
@@ -44,7 +47,11 @@ object LogUtils {
             velocidad = velocidad * 3.6,
             nombreUsuario = nombreUsuario,
             estado = "P",
-            bateria = bateria
+            bateria = bateria,
+             idVisita = sharedData.idVisitaGlobal.value ?:0,
+            distanciaPV = sharedData.distanciaPV.value ?:1000000 ,
+            tiempo = sharedData.tiempo.value ?:0,
+            tipoRegistro = tipoRegistro
         )
         return auditTrailRepository.insertAuditTrailDao(log)
     }

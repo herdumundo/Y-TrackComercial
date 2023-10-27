@@ -1,14 +1,12 @@
 package com.portalgm.y_trackcomercial.ui.marcacionPromotora
 
- import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
+ import android.content.Context
+ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -22,8 +20,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AltRoute
-import androidx.compose.material.icons.filled.ArrowDropDown
+ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
  import androidx.compose.runtime.Composable
@@ -35,13 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
- import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
+ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
@@ -50,66 +43,76 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
-import com.portalgm.y_trackcomercial.components.SnackAlerta
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
-import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.screen.OcrdSelectionDialogNew
-import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel.NuevaUbicacionViewModel
-import java.util.regex.Pattern
+ import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+ import java.util.regex.Pattern
 
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color as Col
-import android.graphics.Paint
+ import android.widget.Toast
+ import androidx.compose.foundation.shape.CircleShape
+ import androidx.compose.material.BottomAppBar
+ import androidx.compose.material.Scaffold
+ import androidx.compose.material.SnackbarHost
+ import androidx.compose.material.icons.filled.PunchClock
+ import androidx.compose.material.icons.filled.TrackChanges
+ import androidx.compose.material.rememberScaffoldState
  import androidx.compose.ui.graphics.Color
- import androidx.compose.ui.graphics.Path
- import androidx.compose.ui.tooling.preview.Preview
- import com.google.maps.android.compose.MarkerComposable
- import com.google.maps.android.compose.MarkerInfoWindow
+ import androidx.compose.ui.platform.LocalContext
+ import com.portalgm.y_trackcomercial.components.BottomMenuItem
+ import com.portalgm.y_trackcomercial.components.MyBottomBar
+ import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 
 @Composable
 fun GpsLocationScreen(
     locationViewModel: LocationLocalViewModel,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel
 ) {
-    val latitudUsuario by locationViewModel.latitud.observeAsState()
-    val longitudUsuario by locationViewModel.longitud.observeAsState()
+    val context = LocalContext.current.applicationContext
+    val context2 = LocalContext.current
 
+    Scaffold(
+        scaffoldState = rememberScaffoldState(),
+        snackbarHost = { SnackbarHost(it) },
+        bottomBar = {
+            // Agregar un ícono para el menú desplegable
+            BottomAppBar(
+                backgroundColor = Color(0xFF000000),
+                cutoutShape = CircleShape, // Cambiar a CircleShape si quieres un botón flotante
+                content = { MyBottomBar( prepareBottomMenu(context2,marcacionPromotoraViewModel))
+                })
 
-    val metros by marcacionPromotoraViewModel.metros.observeAsState()
-    val showDialog by marcacionPromotoraViewModel.showDialog.observeAsState(false)
-    val mensajeDialog by marcacionPromotoraViewModel.mensajeDialog.observeAsState("")
+        },
+        content = {
 
-    LaunchedEffect(Unit) {
-        marcacionPromotoraViewModel.consultaVisitaActiva()
-        marcacionPromotoraViewModel.getAddresses()
-        marcacionPromotoraViewModel.inicializarValores()
-        marcacionPromotoraViewModel.obtenerUbicacion()
+            val latitudUsuario by locationViewModel.latitud.observeAsState()
+            val longitudUsuario by locationViewModel.longitud.observeAsState()
+            val metros by marcacionPromotoraViewModel.metros.observeAsState()
+            val showDialog by marcacionPromotoraViewModel.showDialog.observeAsState(false)
+            val mensajeDialog by marcacionPromotoraViewModel.mensajeDialog.observeAsState("")
 
-
-    }
+            LaunchedEffect(Unit) {
+                marcacionPromotoraViewModel.consultaVisitaActiva()
+                marcacionPromotoraViewModel.getAddresses()
+                marcacionPromotoraViewModel.inicializarValores()
+                marcacionPromotoraViewModel.obtenerUbicacion()
+            }
             MyApp(marcacionPromotoraViewModel, latitudUsuario ?: 0.0, longitudUsuario ?: 0.0)
 
-
-
-    if (showDialog) {
-        InfoDialogOk(
-            title = "Atención",
-            desc = mensajeDialog,
-            image = R.drawable.bolt_uix_no_internet,
-            funcion = { marcacionPromotoraViewModel.cerrarDialogMensaje() }) {
-
+            if (showDialog) {
+                InfoDialogOk(
+                    title = "Atención",
+                    desc = mensajeDialog,
+                    image = R.drawable.bolt_uix_no_internet,
+                    funcion = { marcacionPromotoraViewModel.cerrarDialogMensaje() }) {
+                }
+            }
         }
-
-    }
+    )
 }
 
 @Composable
 fun OcrdSelectionDialog(
-    ocrds: List<com.portalgm.y_trackcomercial.data.model.models.OcrdItem>,
-    /* latitudUsuario: Double,
-     longitudUsuario: Double,*/
-    onAddressSelected: (com.portalgm.y_trackcomercial.data.model.models.OcrdItem) -> Unit,
+    ocrds: List< OcrdItem>,
+    onAddressSelected: (OcrdItem) -> Unit,
     onDismissRequest: () -> Unit,
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel,
 ) {
@@ -149,7 +152,6 @@ fun OcrdSelectionDialog(
                                         ocrd.latitud.toDouble(),
                                         ocrd.longitud.toDouble()
                                     )
-
                                     //marcacionPromotoraViewModel.setMetros(metros)
                                     onAddressSelected(ocrd)
                                 }
@@ -188,14 +190,14 @@ fun MyApp(
     val ButtonPvText by marcacionPromotoraViewModel.buttonPvText.observeAsState(false)
     val ButtonTextRegistro by marcacionPromotoraViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
     val enProceso by marcacionPromotoraViewModel.permitirUbicacion.observeAsState(true)
-    val ubicacionLoading by marcacionPromotoraViewModel.ubicacionLoading.observeAsState(true)
-
-
+    val cuadroLoading by marcacionPromotoraViewModel.cuadroLoading.observeAsState(true)
+    val cuadroLoadingMensaje by marcacionPromotoraViewModel.cuadroLoadingMensaje.observeAsState("")
 
     var selectedPV by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
-    DialogLoading("Obteniendo ubicacion actual...", ubicacionLoading)
+    // marcacionPromotoraViewModel.abrirmapaGoogleMaps(context)
+    DialogLoading(cuadroLoadingMensaje, cuadroLoading)
 
 
     if (showDialog) {
@@ -206,22 +208,22 @@ fun MyApp(
             },
             onDismissRequest = { showDialog = false },
             marcacionPromotoraViewModel,
-            //  context
+
         )
     }
   //  Box(Modifier.fillMaxSize()) {
     Column(
-    //    modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-    //    horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+         verticalArrangement = Arrangement.Center,
+     ) {
         CuadroMapa(marcacionPromotoraViewModel = marcacionPromotoraViewModel)
         Spacer(modifier = Modifier.height(16.dp))
 
         if (ShowButtonSelectPv) {
             Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
-                onClick = { showDialog = true },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(300.dp),
+                onClick = {showDialog = true},
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFFCE0303),
                     contentColor = Color.White
@@ -245,7 +247,9 @@ fun MyApp(
         }
         if (ShowButtonPv) {
             Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(300.dp),
                 onClick = { },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFF000000),
@@ -270,7 +274,9 @@ fun MyApp(
         }
 
         Button(
-            modifier = Modifier.align(Alignment.CenterHorizontally).width(300.dp),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .width(300.dp),
             onClick = {
                 //    marcacionPromotoraViewModel.insertarVisita(latitudUsuario, longitudUsuario)
                 marcacionPromotoraViewModel.insertarVisita()
@@ -323,12 +329,10 @@ fun CuadroMapa(marcacionPromotoraViewModel: MarcacionPromotoraViewModel) {
                 ) {
                 Marker(
                     state = MarkerState(position = markerPosition),
-                    title = "MI UBICACIÓN ACTUAL",
-                 )
+                    title = "MI UBICACIÓN ACTUAL" )
                 Marker(
                     state = MarkerState(position = markerPositionPV),
-                    title = Pv,
-                )
+                    title = Pv)
                 LaunchedEffect(markerPosition)
                 {
                     cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPosition))
@@ -338,6 +342,20 @@ fun CuadroMapa(marcacionPromotoraViewModel: MarcacionPromotoraViewModel) {
                      cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPositionPV))
                 }
     }
+}
+
+
+private fun prepareBottomMenu(
+    context: Context,
+    marcacionPromotoraViewModel: MarcacionPromotoraViewModel
+): List<BottomMenuItem> {
+    val bottomMenuItemsList = arrayListOf<BottomMenuItem>()
+
+    // add menu items
+    bottomMenuItemsList.add( BottomMenuItem(label = "OBTENER PERMISOS",icon = Icons.Filled.PunchClock,{marcacionPromotoraViewModel.obtenerPermisos() }))
+    bottomMenuItemsList.add( BottomMenuItem(label = "OBTENER UBICACIÓN",icon = Icons.Filled.TrackChanges,{marcacionPromotoraViewModel.abrirmapaGoogleMaps(context) }))
+
+    return bottomMenuItemsList
 }
 
 

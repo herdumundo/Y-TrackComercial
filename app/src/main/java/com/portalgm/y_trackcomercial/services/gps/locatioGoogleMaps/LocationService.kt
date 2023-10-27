@@ -5,12 +5,9 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.LocationServices
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 class LocationService {
-
    @SuppressLint("MissingPermission")
    suspend fun getUserLocation(context:Context):Location?{
 

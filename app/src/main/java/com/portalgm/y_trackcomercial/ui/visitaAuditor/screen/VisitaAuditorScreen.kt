@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,7 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.portalgm.y_trackcomercial.R
+import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
@@ -47,7 +57,6 @@ fun VisitaAuditorScreen(
     val latitudUsuario by locationViewModel.latitud.observeAsState()
     val longitudUsuario by locationViewModel.longitud.observeAsState()
 
-
     val metros by visitaAuditorViewModel.metros.observeAsState()
     val showDialog by visitaAuditorViewModel.showDialog.observeAsState(false)
     val mensajeDialog by visitaAuditorViewModel.mensajeDialog.observeAsState("")
@@ -56,6 +65,7 @@ fun VisitaAuditorScreen(
         visitaAuditorViewModel.consultaVisitaActiva()
         visitaAuditorViewModel.getAddresses()
         visitaAuditorViewModel.inicializarValores()
+        visitaAuditorViewModel.obtenerUbicacion()
 
     }
     Column {
@@ -157,10 +167,11 @@ fun ScreenVisitaAuditor(
     val ButtonPvText by visitaAuditorViewModel.buttonPvText.observeAsState(false)
     val ButtonTextRegistro by visitaAuditorViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
     val enProceso by visitaAuditorViewModel.permitirUbicacion.observeAsState(true)
-
-
     var selectedPV by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    val ubicacionLoading by visitaAuditorViewModel.ubicacionLoading.observeAsState(true)
+
+    DialogLoading("Obteniendo ubicacion actual...", ubicacionLoading)
 
     if (showDialog) {
         OcrdSelectionDialog(
@@ -173,6 +184,8 @@ fun ScreenVisitaAuditor(
             //  context
         )
     }
+
+    CuadroMapaAuditor(visitaAuditorViewModel = visitaAuditorViewModel)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -260,3 +273,41 @@ fun ScreenVisitaAuditor(
     }
 }
 
+@Composable
+fun CuadroMapaAuditor(visitaAuditorViewModel: VisitaAuditorViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+    val latitud by visitaAuditorViewModel.latitudUsuario.observeAsState(0.0)
+    val longitud by visitaAuditorViewModel.longitudUsuario.observeAsState(0.0)
+
+    val latitudPV by visitaAuditorViewModel.latitudPv.observeAsState(0.0)
+    val longitudPV by visitaAuditorViewModel.longitudPv.observeAsState(0.0)
+    val Pv by visitaAuditorViewModel.ocrdName.observeAsState("")
+
+    val markerPosition = LatLng(latitud, longitud)
+    val markerPositionPV = LatLng(latitudPV, longitudPV)
+    val Paraguay =markerPosition
+    var cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(Paraguay, 17f)}
+    GoogleMap(
+        modifier = Modifier
+            .height(270.dp) // La composable ocupará el 50% de la pantalla en altura
+            .padding(3.dp), // Agrega un padding opcional
+        cameraPositionState = cameraPositionState,
+    ) {
+        Marker(
+            state = MarkerState(position = markerPosition),
+            title = "MI UBICACIÓN ACTUAL",
+        )
+        Marker(
+            state = MarkerState(position = markerPositionPV),
+            title = Pv,
+        )
+        LaunchedEffect(markerPosition)
+        {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPosition))
+        }
+        LaunchedEffect(markerPositionPV)
+        {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPositionPV))
+        }
+    }
+}

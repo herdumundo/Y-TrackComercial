@@ -25,7 +25,9 @@ import com.portalgm.y_trackcomercial.usecases.login.AuthUseCase
 import kotlinx.coroutines.withContext
 import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
+import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.portalgm.y_trackcomercial.util.SharedData
 
 @HiltViewModel
 class MenuPrincipalViewModel @Inject constructor(
@@ -41,7 +43,7 @@ class MenuPrincipalViewModel @Inject constructor(
     private val ocrdOitmRepository: OcrdOitmRepository,
     private val oitmRepository: OitmRepository,
     private val importarUbicacionesPvUseCase: ImportarUbicacionesPvUseCase,
-    //  private var developerModeObserver: DeveloperModeObserver,
+    private val importarParametrosUseCase: ImportarParametrosUseCase,
     private val context: Context
 
 
@@ -54,6 +56,8 @@ class MenuPrincipalViewModel @Inject constructor(
 
     private val _customers = MutableLiveData<List<OCRD>>()
     val customers: LiveData<List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>> = customerRepository.customers
+
+
 
     private val _progress: MutableLiveData<Float> = MutableLiveData()
     val progress: LiveData<Float> = _progress
@@ -80,9 +84,11 @@ class MenuPrincipalViewModel @Inject constructor(
     fun getUserLogin(): String = sharedPreferences.getUserLogin().toString()
     fun getUserId(): Int = sharedPreferences.getUserId()
     //  fun getRutasAccesos(): List<RutasAccesos> = sharedPreferences.getRutasAccesos()
+    val sharedData = SharedData.getInstance()
 
+    val webSocketConectado: LiveData<Boolean> = sharedData.webSocketConectado
 
-    init {
+        init {
         obtenerRutasAccesosDesdeRoom()
     }
 
@@ -90,11 +96,11 @@ class MenuPrincipalViewModel @Inject constructor(
     fun getOCRD() {
         _showLoading.value = true
         viewModelScope.launch(Dispatchers.Main) {
-
-            _mensajeDialog.value = "Cargando Lotes..."
+            try {
+        /*    _mensajeDialog.value = "Cargando Lotes..."
 
             lotesListasRepository.fetchLotesListas()
-
+*/
             _mensajeDialog.value = "Cargando Clientes..."
             customerRepository.fetchCustomers()
 
@@ -106,12 +112,14 @@ class MenuPrincipalViewModel @Inject constructor(
 
             val result = authUseCase(getUserLogin(), getPasswordUserName())
             rutasAccesosRepository.deleteAndInsertAllRutasAccesos(result!!.RutasAccesos)
-
             obtenerRutasAccesosDesdeRoom()
 
 
-            _mensajeDialog.value = "Cargando Permisos de visitas ..."
+         /*   _mensajeDialog.value = "Cargando Permisos de visitas ..."
             permisosVisitasRepository.fetchPermisosVisitas(getUserId())
+         */
+                _mensajeDialog.value = "Cargando Parametros ..."
+                importarParametrosUseCase.importarParametros()
 
             _mensajeDialog.value = "Cargando horarios ..."
             horariosUsuarioRepository.fetchHorariosUsuario(getUserId())
@@ -128,7 +136,14 @@ class MenuPrincipalViewModel @Inject constructor(
             _mensajeDialog.value = "Datos importados correctamente."
             _showLoading.value = false
             _showLoadingOk.value = true
+            }
+            catch (e :Exception){
+                _mensajeDialog.value = "Ha ocurrido un error al obtener los datos, verifique internet."
+                _showLoading.value = false
+                _showLoadingOk.value = true
+            }
         }
+
 
     }
 

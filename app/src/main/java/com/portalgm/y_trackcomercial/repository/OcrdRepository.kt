@@ -25,12 +25,22 @@ class CustomerRepository @Inject constructor(
         }
     }
 
+    suspend fun insertOcrd(list:List<OCRDEntity>) {
+            customerDao.eliminarOcrdTodos()
+            customerDao.insertAllCustomers(list)
+    }
+
+
     fun getOcrdCount():  Int  {
         return customerDao.getCustomerCount()
     }
 
     fun getAddresses(): List< OcrdItem> {
         return customerDao.getOcrdAddresses()
+    }
+
+    fun getAllOcrd(): List<OCRDEntity> {
+        return customerDao.getAllCustomers()
     }
 
 }

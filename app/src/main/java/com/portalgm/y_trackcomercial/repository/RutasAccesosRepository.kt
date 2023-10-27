@@ -1,11 +1,13 @@
 package com.portalgm.y_trackcomercial.repository
 
 import com.portalgm.y_trackcomercial.data.api.RutasAccesos
+import com.portalgm.y_trackcomercial.data.model.dao.RutasAccesosDao
+import com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity
 import javax.inject.Inject
 
 
 class RutasAccesosRepository @Inject constructor(
-    private val rutasAccesosDao: com.portalgm.y_trackcomercial.data.model.dao.RutasAccesosDao
+    private val rutasAccesosDao: RutasAccesosDao
     )
 {
     suspend fun fetchRutasAccesos(result: List<RutasAccesos>) {
@@ -20,8 +22,8 @@ class RutasAccesosRepository @Inject constructor(
         }
     }
     // Conversion function to convert RutasAccesos to RutasAccesosEntity
-    private fun convertToRutasAccesosEntity(rutasAccesos: RutasAccesos): com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity {
-        return com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity(
+    private fun convertToRutasAccesosEntity(rutasAccesos: RutasAccesos): RutasAccesosEntity {
+        return RutasAccesosEntity(
             id = rutasAccesos.id,
             idPermisoModulo = rutasAccesos.idPermisoModulo,
             name = rutasAccesos.name,
@@ -30,7 +32,7 @@ class RutasAccesosRepository @Inject constructor(
         )
     }
 
-    fun getAllRutasAccesos(): List<com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity> {
+    fun getAllRutasAccesos(): List<RutasAccesosEntity> {
         return rutasAccesosDao.getAllRutasaccesos()
     }
     fun getRutasAccesosCount():  Int  {

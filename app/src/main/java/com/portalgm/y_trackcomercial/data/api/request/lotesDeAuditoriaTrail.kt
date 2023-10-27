@@ -14,5 +14,9 @@ data class lotesDeAuditoriaTrail(
     val nombreUsuario: String?,
     val createdAt: String?,
     val updatedAt: String?,
-    val bateria: String?
+    val bateria: String?,
+    val idVisita: String?,
+    val distanciaPV: String?,
+    val tiempo: String?,
+    val tipoRegistro: String?
 )

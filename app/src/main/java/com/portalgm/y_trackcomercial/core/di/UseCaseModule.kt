@@ -2,6 +2,7 @@ package com.portalgm.y_trackcomercial.core.di
 
 import androidx.annotation.Keep
 import com.portalgm.y_trackcomercial.repository.ApiKeyGMSRepository
+import com.portalgm.y_trackcomercial.repository.ParametrosRepository
 import com.portalgm.y_trackcomercial.repository.PermisosVisitasRepository
 import com.portalgm.y_trackcomercial.repository.UbicacionesPvRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.MovimientosRepository
@@ -14,6 +15,7 @@ import com.portalgm.y_trackcomercial.usecases.apiKeyGMS.GetApiKeyGMSUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
+import com.portalgm.y_trackcomercial.usecases.auditLog.GetUltimaHoraRegistroUseCase
 import com.portalgm.y_trackcomercial.usecases.exportacionAuditTrail.CountAuditTrailUseCase
 import com.portalgm.y_trackcomercial.usecases.exportacionAuditTrail.EnviarAuditTrailPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.exportacionAuditTrail.GetAuditTrailPendienteUseCase
@@ -35,11 +37,14 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNue
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.InsertarNuevaUbicacionUseCase
+import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
+import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisitaUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvCountUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.portalgm.y_trackcomercial.usecases.visitas.GetDatosVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetHorasTranscurridasVisitasUseCase
 import dagger.Module
 import dagger.Provides
@@ -303,6 +308,39 @@ object UseCaseModule {
     ):  ExportarNewPassPendientesUseCase {
         return ExportarNewPassPendientesUseCase(newPassRepository)
     }
+    @Provides
+    @ViewModelScoped
+    fun provideGetDatosVisitaActivaUseCase(
+        visitasRepository: VisitasRepository
+    ):  GetDatosVisitaActivaUseCase {
+        return GetDatosVisitaActivaUseCase(visitasRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetUltimaHoraRegistroUseCase(
+        auditTrailRepository: AuditTrailRepository
+    ):  GetUltimaHoraRegistroUseCase {
+        return GetUltimaHoraRegistroUseCase(auditTrailRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarParametrosUseCase(
+        parametrosRepository: ParametrosRepository
+    ):  ImportarParametrosUseCase {
+        return ImportarParametrosUseCase(parametrosRepository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetTimerGpsHilo1UseCase(
+        parametrosRepository: ParametrosRepository
+    ):  GetTimerGpsHilo1UseCase {
+        return GetTimerGpsHilo1UseCase(parametrosRepository)
+    }
+
 
 
 }

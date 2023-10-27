@@ -44,9 +44,12 @@ object DataBaseModule  {
         val migration6to7 =
             Migration6to7()
 
+        val migration7to8 =
+            Migration7to8()
+
 
              return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
-            .addMigrations(migration6to7)
+            .addMigrations(migration7to8)
             .build()
     }
 
@@ -142,4 +145,9 @@ object DataBaseModule  {
         return database.NewPassDao()
     }
 
+    @Provides
+    @Singleton
+    fun provideParametrosDao(database: YtrackDatabase): ParametrosDao {
+        return database.ParametrosDao()
+    }
 }

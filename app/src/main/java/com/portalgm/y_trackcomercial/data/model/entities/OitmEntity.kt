@@ -3,8 +3,6 @@ package com.portalgm.y_trackcomercial.data.model.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import javax.annotation.Nullable
-
-
 @Entity(tableName = "OITM")
 data class OitmEntity(
     @PrimaryKey

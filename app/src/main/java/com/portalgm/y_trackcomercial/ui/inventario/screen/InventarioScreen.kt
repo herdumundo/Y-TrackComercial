@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
@@ -36,6 +39,7 @@ import androidx.compose.material.icons.filled.Backpack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.PunchClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,37 +52,70 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.portalgm.y_trackcomercial.components.InfoDialog
 import com.portalgm.y_trackcomercial.components.SnackAlerta
 import com.portalgm.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.portalgm.y_trackcomercial.R
+import com.portalgm.y_trackcomercial.components.BottomMenuItem
+import com.portalgm.y_trackcomercial.components.DialogLoading
+import com.portalgm.y_trackcomercial.components.MyBottomBar
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Surface
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
+import com.portalgm.y_trackcomercial.data.model.models.LotesItem
+import com.portalgm.y_trackcomercial.data.model.models.UbicacionPv
 
-  @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScreenInventario(inventarioViewModel: InventarioViewModel) {
-    val snackbarMessage by inventarioViewModel.snackbarMessage.observeAsState()
-    val idLote by inventarioViewModel.idLote.observeAsState("")
-    val txtCantidad by inventarioViewModel.txtCantidad.observeAsState(initial = "")
-    val colorSnack by inventarioViewModel.colorSnack.observeAsState()
-      val lotesList = inventarioViewModel.lotesList
 
-     Scaffold(
-                 content = {
-                 InventarioBody(inventarioViewModel, idLote, txtCantidad,lotesList)
-             },
-             snackbarHost = {
-                 // Show the Snackbar using SnackbarHost
-                 if (!snackbarMessage.isNullOrEmpty()) {
-                     SnackAlerta(snackbarMessage,Color(colorSnack!!))
-                 }
-             }
-         )
+    val registrosConPendiente by inventarioViewModel.registrosConPendiente.observeAsState(0)
+
+    if(registrosConPendiente==0){
+        cuadroAvisoInventario()
+    }
+    else{
+        val snackbarMessage by inventarioViewModel.snackbarMessage.observeAsState()
+        val idLote by inventarioViewModel.idLote.observeAsState("")
+        val txtCantidad by inventarioViewModel.txtCantidad.observeAsState(initial = "")
+        val colorSnack by inventarioViewModel.colorSnack.observeAsState()
+        val lotesList = inventarioViewModel.lotesList
+        val cuadroLoading by inventarioViewModel.cuadroLoading.observeAsState(false)
+        val cuadroLoadingMensaje by inventarioViewModel.cuadroLoadingMensaje.observeAsState("")
+
+        DialogLoading(cuadroLoadingMensaje, cuadroLoading)
+        Scaffold(
+            content = {
+                InventarioBody(inventarioViewModel, idLote, txtCantidad,lotesList)
+            },
+            snackbarHost = {
+                // Show the Snackbar using SnackbarHost
+                if (!snackbarMessage.isNullOrEmpty()) {
+                    SnackAlerta(snackbarMessage,Color(colorSnack!!))
+                }
+            },
+            bottomBar = {
+                // Agregar un ícono para el menú desplegable
+                BottomAppBar(
+                    backgroundColor = Color(0xFF000000),
+                    cutoutShape = CircleShape, // Cambiar a CircleShape si quieres un botón flotante
+                    content = { MyBottomBar(  prepareBottomMenuInventario(inventarioViewModel))
+                    })
+            },
+        )
+    }
+
  }
 
 
@@ -89,29 +126,28 @@ fun InventarioBody(
     txtCantidad: String,
     lotesList: SnapshotStateList<com.portalgm.y_trackcomercial.data.model.models.Lotes>
 ) {
-
     val oitmList = inventarioViewModel.getOitm()
     val ubicacionesList = inventarioViewModel.getUbicaciones()
     val LotesList = inventarioViewModel.getLotes()
     var showDialogOitm by remember { mutableStateOf(false) }
     var showDialogUbicacion by remember { mutableStateOf(false) }
-
     val showDialogLote by inventarioViewModel.showDialogLote.observeAsState(false)
     val showButtonLote by inventarioViewModel.showButtonLote.observeAsState(false)
     val showDialogDelete by inventarioViewModel.showDialogDelete.observeAsState(false)
     val showDialogRegistrar by inventarioViewModel.showDialogRegistrar.observeAsState(false)
-
     val textButtonLote by inventarioViewModel.textButtonLote.observeAsState("")
     val textButtonProducto by inventarioViewModel.textButtonProducto.observeAsState("")
     val textButtonUbicacion by inventarioViewModel.textButtonUbicacion.observeAsState("")
     val itemName = inventarioViewModel.itemName
+    val itemCode = inventarioViewModel.itemCode
+    val codeBar = inventarioViewModel.codeBar
 
     LaunchedEffect(Unit) {
         inventarioViewModel.setValoresIniciales()
         inventarioViewModel.setOitm()
         inventarioViewModel.setUbicaciones()
+       // inventarioViewModel.obtenerLotesNuevos()
     }
-
     if (showDialogRegistrar) {
         InfoDialog(title = "Atenciòn!",
             desc = "¿Deseas registrar el inventario?.",
@@ -160,7 +196,7 @@ fun InventarioBody(
             inventarioViewModel.setShowDialogLote(false)
         }, onDismissRequest = {
             // Hacer algo cuando se solicite cerrar el diálogo
-        }, inventarioViewModel,itemName.value!!
+        }, inventarioViewModel,itemName.value!!,itemCode.value!!
         )
     }
 
@@ -210,12 +246,13 @@ fun InventarioBody(
 }
 @Composable
 fun LotesSelectionDialog(
-    lotes: List<com.portalgm.y_trackcomercial.data.model.models.LotesItem>,
+    lotes: List<LotesItem>,
     onLoteSelected: () -> Unit,
     onDismissRequest: () -> Unit,
     inventarioViewModel: InventarioViewModel,
-    producto:String
-) {
+    itemName: String,
+    itemCode: String
+ ) {
     var searchText by remember { mutableStateOf("") }
 
     val filteredLotes = lotes.filter {
@@ -223,7 +260,7 @@ fun LotesSelectionDialog(
     }
     AlertDialog(onDismissRequest = onDismissRequest, text = {
         Column {
-            Text(text = producto,    fontWeight = FontWeight.Bold
+            Text(text = "$itemCode-$itemName",    fontWeight = FontWeight.Bold
             )
             OutlinedTextField(
                 value = searchText,
@@ -239,7 +276,7 @@ fun LotesSelectionDialog(
                 items(filteredLotes) { lote ->
                     Text(text = lote.id!!, modifier = Modifier
                         .clickable {
-                            inventarioViewModel.setLote(lote.id,lote.CodeBars)
+                            inventarioViewModel.setLote(lote.id, lote.CodeBars)
                             onLoteSelected()
                         }
                         .fillMaxWidth()
@@ -289,7 +326,6 @@ fun OitmSelectionDialog(
                                 inventarioViewModel.setProducto(
                                     oitms.ItemName!!, oitms.ItemCode
                                 )
-
                                 onDismiss()
                             }
                             .fillMaxWidth()
@@ -312,7 +348,7 @@ fun OitmSelectionDialog(
 
 @Composable
 fun UbicacionSelectionDialog(
-    ubicaciones: List<com.portalgm.y_trackcomercial.data.model.models.UbicacionPv>,
+    ubicaciones: List<UbicacionPv>,
     onDismiss: () -> Unit,
     inventarioViewModel: InventarioViewModel,
 ) {
@@ -580,3 +616,187 @@ fun RowScope.StatusCell(
     )
 }
 
+
+private fun prepareBottomMenuInventario(
+     inventarioViewModel: InventarioViewModel
+): List<BottomMenuItem> {
+    val bottomMenuItemsList = arrayListOf<BottomMenuItem>()
+
+    // add menu items
+    bottomMenuItemsList.add(
+        BottomMenuItem(
+            label = "OBTENER NUEVOS LOTES",
+            icon = Icons.Filled.PunchClock
+        ) { inventarioViewModel.obtenerLotesNuevos() }
+    )
+    return bottomMenuItemsList
+}
+
+
+
+
+
+
+@Composable
+fun AreShapeOnBorderCenterSurface(
+    cornerRadius: Dp,
+    centerCircleRadius: Dp,
+    content: @Composable () -> Unit
+) {
+
+    val density = LocalDensity.current
+    val cornerRadiusPx = density.run {
+//        15.dp.toPx()
+        cornerRadius.toPx()
+    }
+    val centerCircleRadiusPx = density.run {
+//        50.dp.toPx()
+        centerCircleRadius.toPx()
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .wrapContentHeight(),
+        elevation = 5.dp,
+        color = Color.White,
+        shape = GenericShape { size: androidx.compose.ui.geometry.Size, _: androidx.compose.ui.unit.LayoutDirection ->
+            buildCustomPath(size, cornerRadiusPx, centerCircleRadiusPx)
+        },
+        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.6f))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = centerCircleRadius)
+        ) {
+            content()
+        }
+    }
+}
+
+fun Path.buildCustomPath(size: androidx.compose.ui.geometry.Size, cornerRadius: Float, centerCircleRadius: Float) {
+    val width = size.width
+    val height = size.height
+
+    // 顶部简化计算的
+    val topHalfMoveLength = (width - 2 * cornerRadius - 2 * centerCircleRadius) / 2
+
+    // 单位长度
+    val smallCubeLength = centerCircleRadius / 20
+
+    val firstCubicPoint1 = Offset(
+        x = 1 * cornerRadius + topHalfMoveLength + 8 * smallCubeLength,
+        y = 1 * smallCubeLength
+    )
+    val firstCubicPoint2 = Offset(
+        x = 1 * cornerRadius + topHalfMoveLength + 4 * smallCubeLength,
+        y = 16 * smallCubeLength
+    )
+    val firstCubicTarget = Offset(
+        x = 1 * cornerRadius + topHalfMoveLength + centerCircleRadius,
+        y = 16 * smallCubeLength
+    )
+    val secondCubicPoint1 = Offset(
+        x = width - firstCubicPoint2.x,
+        y = firstCubicPoint2.y
+    )
+    val secondCubicPoint2 = Offset(
+        x = width - firstCubicPoint1.x,
+        y = firstCubicPoint1.y
+    )
+    val secondCubicTarget = Offset(
+        x = 1 * cornerRadius + topHalfMoveLength + 2 * centerCircleRadius,
+        y = 0f
+    )
+
+
+    moveTo(cornerRadius, 0f)
+    lineTo(cornerRadius + topHalfMoveLength, 0f)
+
+    cubicTo(
+        x1 = firstCubicPoint1.x,
+        y1 = firstCubicPoint1.y,
+        x2 = firstCubicPoint2.x,
+        y2 = firstCubicPoint2.y,
+        x3 = firstCubicTarget.x,
+        y3 = firstCubicTarget.y,
+    )
+    cubicTo(
+        x1 = secondCubicPoint1.x,
+        y1 = secondCubicPoint1.y,
+        x2 = secondCubicPoint2.x,
+        y2 = secondCubicPoint2.y,
+        x3 = secondCubicTarget.x,
+        y3 = secondCubicTarget.y,
+    )
+
+    lineTo(width - cornerRadius, 0f)
+    arcTo(
+        rect = Rect(
+            topLeft = Offset(x = width - 2 * cornerRadius, y = 0f),
+            bottomRight = Offset(x = width, y = 2 * cornerRadius)
+        ),
+        startAngleDegrees = -90f,
+        sweepAngleDegrees = 90f,
+        forceMoveTo = false
+    )
+    lineTo(width, height - cornerRadius)
+    arcTo(
+        rect = Rect(
+            topLeft = Offset(x = width - 2 * cornerRadius, y = height - 2 * cornerRadius),
+            bottomRight = Offset(x = width, y = height)
+        ),
+        startAngleDegrees = 0f,
+        sweepAngleDegrees = 90f,
+        forceMoveTo = false
+    )
+    lineTo(0f + cornerRadius, height)
+    arcTo(
+        rect = Rect(
+            topLeft = Offset(x = 0f, y = height - 2 * cornerRadius),
+            bottomRight = Offset(x = 2 * cornerRadius, y = height)
+        ),
+        startAngleDegrees = 90f,
+        sweepAngleDegrees = 90f,
+        forceMoveTo = false
+    )
+    lineTo(0f, cornerRadius)
+    arcTo(
+        rect = Rect(
+            topLeft = Offset.Zero,
+            bottomRight = Offset(x = 2 * cornerRadius, y = 2 * cornerRadius)
+        ),
+        startAngleDegrees = 180f,
+        sweepAngleDegrees = 90f,
+        forceMoveTo = false
+    )
+    close()
+}
+
+
+@Composable
+fun cuadroAvisoInventario() {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        AreShapeOnBorderCenterSurface(
+            cornerRadius = 15.dp,
+            centerCircleRadius = 50.dp
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Error", color = Color.Red, fontSize = 15.sp)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Lo siento!", color = Color.Black, fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(17.dp))
+                Text(text = "Debes iniciar visita para realizar el inventario", color = Color.Gray, fontSize = 15.sp)
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+}

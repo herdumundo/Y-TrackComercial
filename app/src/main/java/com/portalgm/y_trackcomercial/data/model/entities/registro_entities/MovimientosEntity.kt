@@ -58,6 +58,7 @@ data class MovimientosEntity(
     val loteCorto: String,
 
     val obs: String,
+
     @ColumnInfo(name = "estado")
     val estado: String,
 

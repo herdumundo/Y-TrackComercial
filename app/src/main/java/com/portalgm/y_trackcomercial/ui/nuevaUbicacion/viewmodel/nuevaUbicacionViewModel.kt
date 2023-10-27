@@ -1,6 +1,7 @@
 package com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel
 
 import android.content.Context
+import android.location.Location
 import android.location.LocationManager
 import android.util.Log
 import androidx.compose.material.icons.Icons
@@ -14,10 +15,11 @@ import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.Ubica
 import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 import com.portalgm.y_trackcomercial.repository.CustomerRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NuevaUbicacionRepository
-import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
+//import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
 import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationListenerTest
- import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationCallBacks
+import com.portalgm.y_trackcomercial.util.SharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,15 +27,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import javax.inject.Inject
-
+import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationService
 @HiltViewModel
 class NuevaUbicacionViewModel @Inject constructor(
     private val context: Context,
     private val customerRepository: CustomerRepository,
     private val sharedPreferences: SharedPreferences,
     private val nuevaUbicacionRepository:NuevaUbicacionRepository,
+    private val locationService: LocationService
+
 ) : ViewModel() {
-    private val  locationService: LocationService = LocationService()
+   // private val  locationService: LocationService = LocationService()
     private val _latitud: MutableLiveData<Double> = MutableLiveData()
     var latitud: MutableLiveData<Double> = _latitud
 
@@ -64,7 +68,7 @@ class NuevaUbicacionViewModel @Inject constructor(
     var permitirUbicacion=true
 
     private val _addressesList: MutableList<OcrdItem> = mutableListOf()
-    private lateinit var locationListener: LocationListenerTest
+  //  private lateinit var locationListener: LocationListenerTest
 
     fun obtenerUbicacion(){
 
@@ -72,18 +76,28 @@ class NuevaUbicacionViewModel @Inject constructor(
         {
             _buttonUbicacionActual.value="Obteniendo ubicacion..."
             permitirUbicacion=false
-            locationListener = LocationListenerTest()
-            val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            obtenerUbicacionGPSActual(locationListener,context,locationManager)
-
+            //   locationListener = LocationListenerTest()
+            /*  val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            obtenerUbicacionGPSActual(locationListener,context,locationManager) */
             viewModelScope.launch {
-                delay(5000) // 10 minutos en milisegundos
-                val resultLocation= locationService.getUserLocation(context)
+                locationService.startLocationUpdates()
+                delay(5000)
+                locationService.setLocationCallback(object : LocationCallBacks {
+                    override fun onLocationUpdated(location: Location) {
+                        // Actualiza la latitud y longitud con la ubicación actualizada
+                        _longitud.value = location.longitude
+                        _latitud.value = location.latitude
+                    }
+                })
+                delay(2000)
+                // 10 minutos en milisegundos
+              /*  val resultLocation= locationService.getUserLocation(context)
                 _longitud.value = resultLocation?.longitude ?: 0.0
                 _latitud.value = resultLocation?.latitude ?: 0.0
-                Log.i("Ubicacion","Latitud "+resultLocation?.latitude.toString()+"  Longitud "+resultLocation?.longitude.toString())
+               // Log.i("Ubicacion","Latitud "+resultLocation?.latitude.toString()+"  Longitud "+resultLocation?.longitude.toString())
 
-                locationManager.removeUpdates(locationListener)
+                locationManager.removeUpdates(locationListener)*/
+                locationService.stopLocationUpdates()
                 permitirUbicacion=true
                 _buttonUbicacionActual.value="Obtener ubicacion actual"
             }

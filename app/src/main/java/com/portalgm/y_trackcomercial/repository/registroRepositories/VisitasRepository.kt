@@ -8,6 +8,7 @@ import com.portalgm.y_trackcomercial.data.api.request.EnviarVisitasRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeVisitas
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 import com.portalgm.y_trackcomercial.data.model.models.HorasTranscurridasPv
+import com.portalgm.y_trackcomercial.data.model.models.LatitudLongitudPVIniciado
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import javax.inject.Inject
 
@@ -36,6 +37,10 @@ class VisitasRepository @Inject constructor
 
     suspend fun getIdVisitaActiva(): Long {
         return visitasDao.getIdVisitaActiva()
+    }
+
+    suspend fun getDatosVisitaActiva(): List<LatitudLongitudPVIniciado> {
+        return visitasDao.getDatosVisitaActiva()
     }
 
     suspend fun getSecuenciaVisita(): Int {

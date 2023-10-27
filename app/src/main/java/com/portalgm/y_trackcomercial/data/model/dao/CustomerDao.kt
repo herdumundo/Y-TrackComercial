@@ -6,12 +6,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity
 import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 
 @Dao
 interface CustomerDao {
     @Query("SELECT * FROM ocrd   ")
-    fun getCustomers(): LiveData<List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>>
+    fun getCustomers(): LiveData<List<OCRDEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
@@ -28,5 +29,11 @@ interface CustomerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
-    suspend fun insertAllCustomers(customers: List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>)
+    suspend fun insertAllCustomers(customers: List<OCRDEntity>)
+
+    @Query("delete from OCRD")
+    suspend fun eliminarOcrdTodos()
+    @Query("SELECT id,Address,CardCode,CardName FROM ocrd   ")
+    fun getAllCustomers():  List<OCRDEntity>
+
 }

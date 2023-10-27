@@ -1,6 +1,8 @@
 package com.portalgm.y_trackcomercial.repository
 
 import com.portalgm.y_trackcomercial.data.api.OcrdOitmClient
+import com.portalgm.y_trackcomercial.data.model.entities.LotesListasEntity
+import com.portalgm.y_trackcomercial.data.model.entities.OcrdOitmEntity
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,6 +23,10 @@ class OcrdOitmRepository @Inject constructor(
             ocrdOitmDao.insertAllOcrdOitm(Oitm)
             return@withContext getCountOcrdOitm()
         }
+    }
+    suspend fun insertAllOitmXocrd(list:List<OcrdOitmEntity>){
+        ocrdOitmDao.deleteAllOcrdOitm()
+        ocrdOitmDao.insertAllOcrdOitm(list)
     }
 
     fun getCountOcrdOitm(): Int = ocrdOitmDao.getOcrdOitmCount()

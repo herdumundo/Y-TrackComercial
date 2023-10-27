@@ -23,13 +23,12 @@ fun ScreenTablasRegistradas(
     val ocrdOitmCount by tablasRegistradasViewModel.ocrdOitmCount.observeAsState()
     val ubicacionesPvCount by tablasRegistradasViewModel.ubicacionesPvCount.observeAsState()
     val permisoVisitaCount by tablasRegistradasViewModel.permisoVisitaCount.observeAsState()
-
     val LoadingOcrdCount by tablasRegistradasViewModel.loadingOcrdCount.observeAsState(false)
     val  LoadingUbicacionesCount by tablasRegistradasViewModel.loadingUbicacionesCount.observeAsState(false)
     val  LoadingRutasAccesosCount by tablasRegistradasViewModel.loadingRutasAccesosCount.observeAsState(false)
     val  LoadingLotesListasCount by tablasRegistradasViewModel.loadingLotesListasCount.observeAsState(false)
     val  LoadingHorariosUsuarioCount by tablasRegistradasViewModel.loadingHorariosUsuarioCount.observeAsState(false)
-     val LoadingOitmCount by tablasRegistradasViewModel.loadingOitmCount.observeAsState(false)
+    val LoadingOitmCount by tablasRegistradasViewModel.loadingOitmCount.observeAsState(false)
     val  LoadingOcrdOitmCount by tablasRegistradasViewModel.loadingOcrdOitmCount.observeAsState(false)
     val  LoadingUbicacionesPvCount by tablasRegistradasViewModel.loadingUbicacionesPvCount.observeAsState(false)
     val  loadingpermisoVisitaCount by tablasRegistradasViewModel.loadingpermisoVisitaCount.observeAsState(false)
@@ -39,7 +38,6 @@ fun ScreenTablasRegistradas(
     LaunchedEffect(Unit) {
         tablasRegistradasViewModel.getTablasRegistradas()
     }
-
 
     LazyColumn {
         item {

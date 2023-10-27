@@ -18,12 +18,15 @@ interface AuditTrailDao {
     @Query("SELECT COUNT(*) FROM AuditTrail where estado='P'")
     suspend fun getCountAuditTrail(): Int
 
+    @Query("SELECT  fechaLong FROM audittrail ORDER BY id DESC LIMIT 1")
+    suspend fun getUltimoRegistroHoraLong(): Long
 
 
-    @Query("select fechaLong as id,strftime('%Y-%m-%d %H:%M:%S', fecha)  as Fecha,FechaLong,idUsuario,latitud,longitud,velocidad,nombreUsuario,strftime('%Y-%m-%d %H:%M:%S', fecha)  as createdAt,  strftime('%Y-%m-%d %H:%M:%S', fecha)  as updatedAt,bateria  from audittrail where estado='P'")
+    @Query("select fechaLong as id,strftime('%Y-%m-%d %H:%M:%S', fecha)  as Fecha,FechaLong,idUsuario,latitud,longitud,velocidad,nombreUsuario,strftime('%Y-%m-%d %H:%M:%S', fecha)  as createdAt,  strftime('%Y-%m-%d %H:%M:%S', fecha)  as updatedAt,bateria,idVisita,distanciaPV,tiempo,tipoRegistro  from audittrail where estado='P'")
     suspend fun  getAllTrailExportar():  List<lotesDeAuditoriaTrail>
 
     @Query("UPDATE audittrail SET estado='C' where estado='P'")
     suspend fun updateExportadoCerrado(  )
+
 
 }

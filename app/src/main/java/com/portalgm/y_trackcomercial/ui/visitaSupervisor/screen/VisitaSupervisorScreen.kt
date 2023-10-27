@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,10 +33,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.portalgm.y_trackcomercial.R
+import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
 import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+import com.portalgm.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import java.util.regex.Pattern
 
@@ -56,7 +67,8 @@ fun VisitaSupervisorScreen(
         visitaSupervisorViewModel.consultaVisitaActiva()
         visitaSupervisorViewModel.getAddresses()
         visitaSupervisorViewModel.inicializarValores()
-
+        visitaSupervisorViewModel.obtenerUbicacion()
+       // visitaSupervisorViewModel.observarMetrosDistancia()
     }
     Column {
        // Text(text = "Metros de distancia: ${metros ?: "-"}")
@@ -147,18 +159,19 @@ fun OcrdSelectionDialog(
 
 @Composable
 fun MyApp(
-    marcacionPromotoraViewModel: VisitaSupervisorViewModel,
+    visitaSupervisorViewModel: VisitaSupervisorViewModel,
     latitudUsuario: Double,
     longitudUsuario: Double,
 ) {
+    val ocrdList = visitaSupervisorViewModel.getStoredAddresses()
+    val ShowButtonPv by visitaSupervisorViewModel.showButtonPv.observeAsState(false)
+    val ShowButtonSelectPv by visitaSupervisorViewModel.showButtonSelectPv.observeAsState(true)
+    val ButtonPvText by visitaSupervisorViewModel.buttonPvText.observeAsState(false)
+    val ButtonTextRegistro by visitaSupervisorViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
+    val enProceso by visitaSupervisorViewModel.permitirUbicacion.observeAsState(true)
+    val ubicacionLoading by visitaSupervisorViewModel.ubicacionLoading.observeAsState(true)
 
-    val ocrdList = marcacionPromotoraViewModel.getStoredAddresses()
-    val ShowButtonPv by marcacionPromotoraViewModel.showButtonPv.observeAsState(false)
-    val ShowButtonSelectPv by marcacionPromotoraViewModel.showButtonSelectPv.observeAsState(true)
-    val ButtonPvText by marcacionPromotoraViewModel.buttonPvText.observeAsState(false)
-    val ButtonTextRegistro by marcacionPromotoraViewModel.buttonTextRegistro.observeAsState("Iniciar visita")
-    val enProceso by marcacionPromotoraViewModel.permitirUbicacion.observeAsState(true)
-
+    DialogLoading("Obteniendo ubicacion actual...", ubicacionLoading)
 
     var selectedPV by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
@@ -170,10 +183,13 @@ fun MyApp(
                 showDialog = false
             },
             onDismissRequest = { showDialog = false },
-            marcacionPromotoraViewModel,
+            visitaSupervisorViewModel,
             //  context
         )
     }
+
+    CuadroMapaSupervisor(visitaSupervisorViewModel = visitaSupervisorViewModel)
+    Spacer(modifier = Modifier.height(2.dp))
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -235,7 +251,7 @@ fun MyApp(
             modifier = Modifier.width(300.dp),
             onClick = {
 
-                marcacionPromotoraViewModel.insertarVisita()
+                visitaSupervisorViewModel.insertarVisita()
             },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if(enProceso)Color(0xFFCE0303)  else Color(0xFF00641D),
@@ -257,6 +273,46 @@ fun MyApp(
                     modifier = Modifier.padding(start = 18.dp) // Ajusta el espaciado aquí
                 )
             }
+        }
+    }
+}
+
+
+@Composable
+fun CuadroMapaSupervisor(visitaSupervisorViewModel: VisitaSupervisorViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+    val latitud by visitaSupervisorViewModel.latitudUsuario.observeAsState(0.0)
+    val longitud by visitaSupervisorViewModel.longitudUsuario.observeAsState(0.0)
+
+    val latitudPV by visitaSupervisorViewModel.latitudPv.observeAsState(0.0)
+    val longitudPV by visitaSupervisorViewModel.longitudPv.observeAsState(0.0)
+    val Pv by visitaSupervisorViewModel.ocrdName.observeAsState("")
+
+    val markerPosition = LatLng(latitud, longitud)
+    val markerPositionPV = LatLng(latitudPV, longitudPV)
+    val Paraguay =markerPosition
+    var cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(Paraguay, 17f)}
+    GoogleMap(
+        modifier = Modifier
+            .height(360.dp) // La composable ocupará el 50% de la pantalla en altura
+            .padding(3.dp), // Agrega un padding opcional
+        cameraPositionState = cameraPositionState,
+    ) {
+        Marker(
+            state = MarkerState(position = markerPosition),
+            title = "MI UBICACIÓN ACTUAL",
+        )
+        Marker(
+            state = MarkerState(position = markerPositionPV),
+            title = Pv,
+        )
+        LaunchedEffect(markerPosition)
+        {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPosition))
+        }
+        LaunchedEffect(markerPositionPV)
+        {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPositionPV))
         }
     }
 }

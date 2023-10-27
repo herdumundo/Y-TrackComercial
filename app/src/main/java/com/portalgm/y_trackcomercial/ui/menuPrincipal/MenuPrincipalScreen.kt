@@ -74,6 +74,9 @@ import com.portalgm.y_trackcomercial.ui.visitaHorasTranscurridas.screen.VisitasH
 import com.portalgm.y_trackcomercial.ui.visitaHorasTranscurridas.viewmodel.VisitasHorasTranscurridasViewModel
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisorScreen
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
+import com.portalgm.y_trackcomercial.ui.visitasSinUbicacion.screen.VisitaSinUbicacionScreen
+import com.portalgm.y_trackcomercial.ui.visitasSinUbicacion.viewmodel.VisitaSinUbicacionViewModel
+import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 //import com.ytrack.y_trackcomercial.ui.registroEntradaPromotoras.cargar
 import kotlinx.coroutines.CoroutineScope
@@ -98,7 +101,8 @@ fun MenuPrincipal(
      rastreoUsuariosViewModel: RastreoUsuariosViewModel,
      nuevaUbicacionViewModel: NuevaUbicacionViewModel,
      cambioPassViewModel: CambioPassViewModel,
-     sharedPreferences: SharedPreferences
+     sharedPreferences: SharedPreferences,
+     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel
  ) {
      //  if (loginViewModel.loggedIn.value == true) {
        if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
@@ -271,6 +275,19 @@ fun MenuPrincipal(
                         marcacionPromotoraViewModel = marcacionPromotoraViewModel
                     )
                 }
+
+
+                composable("marcacionPermisos") {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            visitaSinUbicacionViewModel.limpiarValores()
+                        }
+                    }
+                    VisitaSinUbicacionScreen(
+                        visitaSinUbicacionViewModel = visitaSinUbicacionViewModel
+                    )
+                }
+
             }
         }
     } else {
@@ -301,6 +318,7 @@ private fun openWhatsApp(
 }*/
 
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun MyTopAppBar(
     onNavIconClick: () -> Unit,
@@ -315,12 +333,15 @@ fun MyTopAppBar(
     navControllerPrincipal: NavController,
     ) {
     var showSnackbar by remember { mutableStateOf(false) }
-    val registrosConPendiente: Int by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(
-        0)
-    val ocrdNameLivedata: String by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
+    val registrosConPendiente: Int  by marcacionPromotoraViewModel.registrosConPendiente.observeAsState(0)
+    val ocrdNameLivedata: String    by marcacionPromotoraViewModel.OcrdNameLivedata.observeAsState("")
+    val socket by menuPrincipalViewModel.webSocketConectado.observeAsState(initial = false)
+
     val userName = menuPrincipalViewModel.getUserName()
 
-    TopAppBar(backgroundColor = Color(0xFFCE0303), contentColor = Color.White,
+      TopAppBar(backgroundColor = Color(if(socket){0xFFCE0303} else {0xFF000000}), contentColor = Color.White,
+
+      //   TopAppBar(backgroundColor = Color(0xFFCE0303), contentColor = Color.White,
 
         navigationIcon = {
             IconButton(onClick = {
@@ -345,41 +366,6 @@ fun MyTopAppBar(
             }
         },
         actions = {
-          /*  IconButton(onClick = {
-               // openWhatsApp(activity, menuPrincipalViewModel)
-            }) {
-                //painter = painterResource(id = androidx.compose.foundation.layout.R.drawable.img_what),
-                Image(
-                    painter = painterResource(id = R.drawable.whatsapp),
-                    contentDescription = "Image",
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                        .padding(5.dp)
-                        .clip(CircleShape),
-                )
-            }*/
-
-         /*   if (registrosConPendiente > 0) {
-
-                IconButton(onClick = {
-                    "Tienes un punto de venta pendiente"
-                    showSnackbar = true
-                    // Lógica para manejar el clic en el icono de notificaciones
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Notifications,
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                    //  if (notificacionesPendientes > 0) {
-                    Badge(modifier = Modifier.offset(x = 8.dp, y = (-8).dp), content = {
-                        Text(text = "1", color = Color.White)
-                    })
-                    //}
-                }
-
-            }*/
             IconButton(
                 onClick = { onMoreOptionsClick() }, modifier = Modifier.padding(end = 16.dp)
             ) {
@@ -393,7 +379,7 @@ fun MyTopAppBar(
 
                 DropdownMenuItem(onClick = {
                     openDialogSincro.value = true
-                    onMoreOptionsClick();
+                    onMoreOptionsClick()
                 }) {
 
                     Icon(
@@ -407,7 +393,7 @@ fun MyTopAppBar(
 
                 DropdownMenuItem(onClick = {
                     openDialogCustom.value = true
-                    onMoreOptionsClick();/*  activity.finish()*/
+                    onMoreOptionsClick()/*  activity.finish()*/
                 }
 
                 ) {

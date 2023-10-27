@@ -34,5 +34,26 @@ data class AuditTrailEntity(
     @ColumnInfo(name = "estado")
     val estado: String,
     @NonNull
-    val bateria: Int
+    val bateria: Int ,
+
+    @NonNull // Anotación para indicar que idUsuario no puede ser nulo
+    @ColumnInfo(name = "idVisita")
+    val idVisita: Long ,
+
+    @NonNull // Anotación para indicar que idUsuario no puede ser nulo
+    @ColumnInfo(name = "distanciaPV")
+    val distanciaPV: Int,
+
+
+    @NonNull // Anotación para indicar que idUsuario no puede ser nulo
+    @ColumnInfo(name = "tiempo")
+    val tiempo: Int,
+
+
+    @NonNull // Anotación para indicar que idUsuario no puede ser nulo
+    @ColumnInfo(name = "tipoRegistro")
+    val tipoRegistro: String
+
+
+
 )

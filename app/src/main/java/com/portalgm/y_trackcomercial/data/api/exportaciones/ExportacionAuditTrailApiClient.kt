@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 interface ExportacionAuditTrailApiClient {
-    @POST("/insertarAllAuditoriaTrail")
+    @POST("/insertarAllAuditoriaTrail_V2")
     suspend fun uploadAuditoriaTrailData(@Body lotesAuditTrail: EnviarAuditoriaTrailRequest
                                          ,@Header("Authorization") authorization: String): ApiResponse
 }

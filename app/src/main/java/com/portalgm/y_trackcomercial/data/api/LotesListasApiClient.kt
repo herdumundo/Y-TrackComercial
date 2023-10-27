@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.data.api
 
+ import com.portalgm.y_trackcomercial.data.model.entities.LotesListasEntity
  import retrofit2.http.GET
  import retrofit2.http.Header
  import retrofit2.http.POST
@@ -7,7 +8,7 @@ package com.portalgm.y_trackcomercial.data.api
 @Singleton
 interface LotesListasApiClient {
     @POST("/LotesListas") // Reemplaza "tu/ruta/api" por la ruta correcta de tu API
-    suspend fun getListasLotes(@Header("Authorization") authorization: String): List<com.portalgm.y_trackcomercial.data.model.entities.LotesListasEntity>
+    suspend fun getListasLotes(@Header("Authorization") authorization: String): List<LotesListasEntity>
 }
 
 

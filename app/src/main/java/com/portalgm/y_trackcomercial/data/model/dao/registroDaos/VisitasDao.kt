@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 import com.portalgm.y_trackcomercial.data.model.models.HorasTranscurridasPv
+import com.portalgm.y_trackcomercial.data.model.models.LatitudLongitudPVIniciado
 
 @Dao
 interface VisitasDao {
@@ -25,6 +26,10 @@ interface VisitasDao {
 
     @Query("SELECT IDa FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
     suspend fun getIdVisitaActiva(): Long
+
+    @Query("SELECT  count(IDa), case  when IDa=NULL then 0 else IDa end  as idVisita,longitudPV,latitudPV FROM VISITAS WHERE pendienteSincro='N' LIMIT 1  ") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
+    suspend fun getDatosVisitaActiva():  List<LatitudLongitudPVIniciado>
+
 
     @Query("SELECT count(*)+1 FROM VISITAS WHERE estadoVisita='A' and strftime('%d/%m/%Y', createdAt)=strftime('%d/%m/%Y',  datetime('now') )") //TIENE QUE DEVOLVER EL ID DE LA VISITA DE APERTURA, ES "N" PORQUE DEBERIA DE EXISTIR SOLO UN REGISTRO CON ESE VALOR
     suspend fun getSecuenciaVisita(): Int
@@ -48,8 +53,6 @@ interface VisitasDao {
 
     @Query("SELECT  case count(ocrdName) when 0 then '' else ocrdName end as ocrdName  FROM visitas WHERE pendienteSincro='N'")
     fun getOcrdPendiente(): LiveData<String>
-
-
 
     @Query("SELECT count(*) FROM visitas WHERE strftime('%d/%m/%Y', createdAt) = :fecha AND idTurno = :idTurno and estadoVisita='A'")
     suspend fun getEsPrimeraVisita(fecha: String, idTurno: Int): Int

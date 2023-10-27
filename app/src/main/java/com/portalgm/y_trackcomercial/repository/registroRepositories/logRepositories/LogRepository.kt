@@ -4,16 +4,18 @@ import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditLogApiClient
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeActividades
+import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.LogDao
+import com.portalgm.y_trackcomercial.data.model.entities.logs.LogEntity
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import javax.inject.Inject
 
 class LogRepository @Inject constructor
-    (private val logDao: com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.LogDao,
+    (private val logDao: LogDao,
      private val exportacionAuditLogApiClient: ExportacionAuditLogApiClient,
      private val sharedPreferences: SharedPreferences,
 
      ) {
-    suspend fun insertLog(log: com.portalgm.y_trackcomercial.data.model.entities.logs.LogEntity): Long {
+    suspend fun insertLog(log:LogEntity): Long {
         return logDao.insertLog(log)
     }
 

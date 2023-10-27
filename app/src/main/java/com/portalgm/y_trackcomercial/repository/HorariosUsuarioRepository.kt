@@ -153,7 +153,6 @@ class HorariosUsuarioRepository @Inject constructor(
     suspend fun esPrimeraVisitaTurno(idTurno: Int): Boolean {
         val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         val fechaActual = LocalDateTime.now().format(dateFormat)
-
         return withContext(Dispatchers.IO) {
             visitasDao.getEsPrimeraVisita(fechaActual, idTurno) == 0
         }

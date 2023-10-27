@@ -10,9 +10,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
+import com.portalgm.y_trackcomercial.data.model.models.Lotes
+import com.portalgm.y_trackcomercial.data.model.models.LotesItem
+import com.portalgm.y_trackcomercial.data.model.models.OitmItem
+import com.portalgm.y_trackcomercial.data.model.models.UbicacionPv
 import com.portalgm.y_trackcomercial.repository.LotesListasRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.MovimientosRepository
+import com.portalgm.y_trackcomercial.repository.registroRepositories.VisitasRepository
+import com.portalgm.y_trackcomercial.usecases.inventario.EnviarMovimientoPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.inventario.GetMovimientoPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.marcacionPromotora.GetIdVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvUseCase
 import com.portalgm.y_trackcomercial.util.SharedPreferences
@@ -32,12 +40,13 @@ class InventarioViewModel @Inject constructor(
     private val getUbicacionesPvUseCase: GetUbicacionesPvUseCase,
     private val getIdVisitaActivaUseCase: GetIdVisitaActivaUseCase,
     private val sharedPreferences: SharedPreferences,
-
-
+    private val visitasRepository: VisitasRepository,
+    private val enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase,
+    private val getMovimientoPendientesUseCase: GetMovimientoPendientesUseCase,
     ) : ViewModel() {
-    private val _oitmItemList: MutableList<com.portalgm.y_trackcomercial.data.model.models.OitmItem> = mutableListOf()
-    private val _ubicacionesList: MutableList<com.portalgm.y_trackcomercial.data.model.models.UbicacionPv> = mutableListOf()
-    private val _LoteItemList: MutableList<com.portalgm.y_trackcomercial.data.model.models.LotesItem> = mutableListOf()
+    private val _oitmItemList: MutableList<OitmItem> = mutableListOf()
+    private val _ubicacionesList: MutableList<UbicacionPv> = mutableListOf()
+    private val _LoteItemList: MutableList<LotesItem> = mutableListOf()
 
 
     private val _textButtonProducto: MutableLiveData<String> = MutableLiveData()
@@ -50,12 +59,15 @@ class InventarioViewModel @Inject constructor(
     val textButtonLote: MutableLiveData<String> = _textButtonLote
 
     private val _itemCode: MutableLiveData<String> = MutableLiveData()
+    val itemCode: MutableLiveData<String> = _itemCode
 
     private val _itemName: MutableLiveData<String> = MutableLiveData()
     val itemName: MutableLiveData<String> = _itemName
 
     private val _idLote: MutableLiveData<String> = MutableLiveData()
     private val _codeBar: MutableLiveData<String> = MutableLiveData()
+    val codeBar: MutableLiveData<String> = _codeBar
+
     private val _descUbicacion: MutableLiveData<String> = MutableLiveData()
     val idLote: MutableLiveData<String> = _idLote
 
@@ -68,7 +80,7 @@ class InventarioViewModel @Inject constructor(
     private val _showButtonLote: MutableLiveData<Boolean> = MutableLiveData(false)
     val showButtonLote: LiveData<Boolean> = _showButtonLote
 
-    val lotesList = mutableStateListOf<com.portalgm.y_trackcomercial.data.model.models.Lotes>()
+    val lotesList = mutableStateListOf<Lotes>()
     private val snackbarDuration = 3000L
 
     private val _snackbarMessage = MutableLiveData<String>()
@@ -86,15 +98,21 @@ class InventarioViewModel @Inject constructor(
     private val _iConoSnack: MutableLiveData<ImageVector> = MutableLiveData()
     val iConoSnack: LiveData<ImageVector> = _iConoSnack
 
-    var _posicionFila=0
+    private val _cuadroLoading = MutableLiveData<Boolean>()
+    val cuadroLoading: LiveData<Boolean> = _cuadroLoading
 
+    private val _cuadroLoadingMensaje = MutableLiveData<String>()
+    val cuadroLoadingMensaje: LiveData<String> = _cuadroLoadingMensaje
+    var _posicionFila = 0
 
-    var idVisita:Long =0
+    val registrosConPendiente: LiveData<Int> = visitasRepository.getCantidadRegistrosPendientes()
+
+    var idVisita: Long = 0
 
     fun addLotes() {
 
         if (_txtCantidad.value.isNullOrBlank() /*|| _txtCantidad.value!!.toInt() == 0*/) {
-            showSnackbar("Ingrese cantidad.",0xFF161010, Icons.Default.Warning)
+            showSnackbar("Ingrese cantidad.", 0xFF161010, Icons.Default.Warning)
             return
         }
         if (_descUbicacion.value.isNullOrBlank()) {
@@ -105,36 +123,36 @@ class InventarioViewModel @Inject constructor(
         val ubicacion = _descUbicacion.value ?: ""
 
         // Verificar si ya existe un lote con los mismos valores en la lista
-        val loteExistente = lotesList.any {  it.Lote == lote && it.ubicacion == ubicacion }
+        val loteExistente = lotesList.any { it.Lote == lote && it.ubicacion == ubicacion }
         if (loteExistente) {
             showSnackbar("El lote ya existe en la lista.", 0xFF161010, Icons.Default.Warning)
             return
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            idVisita=getIdVisitaActivaUseCase.getActiveVisitId()
+            idVisita = getIdVisitaActivaUseCase.getActiveVisitId()
 
-            viewModelScope.launch(Dispatchers.Main){
-            val createdAtLongVar=System.currentTimeMillis()
-            val newLote = com.portalgm.y_trackcomercial.data.model.models.Lotes(
-                ItemName = _itemName.value!!,
-                Lote = _idLote.value!!,
-                Cantidad = _txtCantidad.value!!.toInt(),
-                ubicacion = _descUbicacion.value!!,
-                idUsuario = sharedPreferences.getUserId(),
-                userName = sharedPreferences.getUserName()!!,
-                tipoMovimiento = 1,
-                createdAt = LocalDateTime.now().toString(),
-                createdAtLong = createdAtLongVar,
-                codeBars = _codeBar.value ?: "",
-                idVisitas = idVisita,
-                loteLargo = _idLote.value!!,
-                loteCorto = _idLote.value!!,
-                obs = "",
-                itemCode = _itemCode.value!!
-            )
+            viewModelScope.launch(Dispatchers.Main) {
+                val createdAtLongVar = System.currentTimeMillis()
+                val newLote = Lotes(
+                    ItemName = _itemName.value!!,
+                    Lote = _idLote.value!!,
+                    Cantidad = _txtCantidad.value!!.toInt(),
+                    ubicacion = _descUbicacion.value!!,
+                    idUsuario = sharedPreferences.getUserId(),
+                    userName = sharedPreferences.getUserName()!!,
+                    tipoMovimiento = 1,
+                    createdAt = LocalDateTime.now().toString(),
+                    createdAtLong = createdAtLongVar,
+                    codeBars = _codeBar.value ?: "",
+                    idVisitas = idVisita,
+                    loteLargo = _idLote.value!!,
+                    loteCorto = _idLote.value!!,
+                    obs = "",
+                    itemCode = _itemCode.value!!
+                )
 
-            lotesList.add(newLote)
+                lotesList.add(newLote)
                 for (lote in lotesList) {
                     Log.i("Mensaje", lote.toString())
                 }
@@ -163,6 +181,7 @@ class InventarioViewModel @Inject constructor(
         _txtCantidad.value = ""
         _LoteItemList.clear()
     }
+
     fun limpiarDatos() {
         _textButtonProducto.value = "Seleccione producto"
         _textButtonUbicacion.value = "Seleccione ubicacion"
@@ -178,8 +197,8 @@ class InventarioViewModel @Inject constructor(
 
     fun showSnackbar(message: String, Color: Long, icono: ImageVector) {
         _snackbarMessage.value = message
-        _colorSnack.value=Color
-        _iConoSnack.value=icono
+        _colorSnack.value = Color
+        _iConoSnack.value = icono
         //_colorSnack.value=0xFF161010
         // Iniciar el temporizador para borrar el mensaje del Snackbar después de 3 segundos
         viewModelScope.launch {
@@ -199,11 +218,12 @@ class InventarioViewModel @Inject constructor(
         _itemName.value = ItemName
         setLotesListas(ItemCode)
 
+
     }
 
     fun setLote(Id: String, codeBars: String) {
         _idLote.value = Id
-        _codeBar.value=codeBars
+        _codeBar.value = codeBars
         _textButtonLote.value = Id
     }
 
@@ -235,7 +255,6 @@ class InventarioViewModel @Inject constructor(
     }
 
     fun setLotesListas(itemCode: String) {
-
         _textButtonLote.value = "No se encuentran lotes"
         _idLote.value = ""
         _txtCantidad.value = ""
@@ -247,55 +266,88 @@ class InventarioViewModel @Inject constructor(
                 setShowDialogLote(true)
             }
         }
-
     }
 
-    fun getUbicaciones(): List<com.portalgm.y_trackcomercial.data.model.models.UbicacionPv> {
+    fun getUbicaciones(): List<UbicacionPv> {
         return _ubicacionesList
     }
 
-    fun getOitm(): List<com.portalgm.y_trackcomercial.data.model.models.OitmItem> {
+    fun getOitm(): List<OitmItem> {
         return _oitmItemList
     }
 
-    fun getLotes(): List<com.portalgm.y_trackcomercial.data.model.models.LotesItem> {
+    fun getLotes(): List<LotesItem> {
         return _LoteItemList
     }
 
-    fun registrarInventario(){
+    fun consultaRegistro() {
+        _showDialogRegistrar.value = true
+
+    }
+
+    fun consultaRemoverFilar(index: Int) {
+        _showDialogDelete.value = true
+        _posicionFila = index
+    }
+
+    fun confirmaRemoverFila() {
+        lotesList.removeAt(_posicionFila)
+        cerrarDialogRemoverFila()
+    }
+
+    fun cerrarDialogRemoverFila() {
+        _showDialogDelete.value = false
+    }
+
+    fun cerrarDialogRegistro() {
+        _showDialogRegistrar.value = false
+    }
+
+    fun registrarInventario() {
         if (lotesList.isEmpty()) {
             showSnackbar("Debes cargar articulo.", 0xFF161010, Icons.Default.Warning)
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            movimientosRepository.insertLotesInBulk(lotesList)
-            viewModelScope.launch(Dispatchers.Main) {
-                cerrarDialogRegistro()
-                showSnackbar("Registrado con exito.", 0xFF1C6900, Icons.Default.ThumbUp)
+        _cuadroLoadingMensaje.value = "Registrando, espere..."
+        _cuadroLoading.value = true
 
+        viewModelScope.launch(Dispatchers.IO) {
+
+            movimientosRepository.insertLotesInBulk(lotesList)
+            val movimientosPendientes =  getMovimientoPendientesUseCase.GetPendientes()
+            val enviarmovimientosRequest = EnviarLotesDeMovimientosRequest(movimientosPendientes)
+            enviarMovimientoPendientesUseCase.enviarPendientes(enviarmovimientosRequest)
+
+            viewModelScope.launch(Dispatchers.Main) {
+                _cuadroLoading.value = false
+
+                showSnackbar("Registrado con exito.", 0xFF1C6900, Icons.Default.ThumbUp)
                 limpiarDatos()
+
             }
         }
     }
+    fun obtenerLotesNuevos() {
+        try {
+            _cuadroLoadingMensaje.value = "Obteniendo nuevos lotes..."
+            viewModelScope.launch(Dispatchers.Main) {
+                _cuadroLoading.value = true
+                lotesListasRepository.fetchLotesListas()
+                viewModelScope.launch(Dispatchers.IO) {
+                    val lotesLista =
+                        lotesListasRepository.getLotesListasByItemCode(_itemCode.value ?: "")
+                    withContext(Dispatchers.Main) {
+                        _LoteItemList.clear()
+                        _LoteItemList.addAll(lotesLista)
+                    }
+                }
+                _cuadroLoading.value = false
+            }
+        }
+        catch (e: Exception) {
+            _cuadroLoading.value = false
 
-    fun consultaRegistro(){
-        _showDialogRegistrar.value=true
+        }
 
-    }
-
-    fun consultaRemoverFilar(index:Int){
-        _showDialogDelete.value=true
-        _posicionFila=index
-    }
-    fun confirmaRemoverFila(){
-        lotesList.removeAt(_posicionFila)
-        cerrarDialogRemoverFila()
-    }
-    fun cerrarDialogRemoverFila(){
-        _showDialogDelete.value=false
-    }
-
-    fun cerrarDialogRegistro(){
-        _showDialogRegistrar.value=false
     }
 }

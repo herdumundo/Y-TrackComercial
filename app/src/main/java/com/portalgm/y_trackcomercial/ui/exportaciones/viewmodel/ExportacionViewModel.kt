@@ -201,13 +201,9 @@ class ExportacionViewModel @Inject constructor(
                         if (!loadingMovimientos.value!!) {
                             if (countMovimientoUseCase.CountPendientes() > 0) {
                                 _loadingMovimientos.value = true
-                                val movimientosPendientes =
-                                    getMovimientoPendientesUseCase.GetPendientes()
-                                val enviarmovimientosRequest =
-                                    EnviarLotesDeMovimientosRequest(movimientosPendientes)
-                                enviarMovimientoPendientesUseCase.enviarPendientes(
-                                    enviarmovimientosRequest
-                                )
+                                val movimientosPendientes =  getMovimientoPendientesUseCase.GetPendientes()
+                                val enviarmovimientosRequest = EnviarLotesDeMovimientosRequest(movimientosPendientes)
+                                enviarMovimientoPendientesUseCase.enviarPendientes(enviarmovimientosRequest)
                                 _loadingMovimientos.value = false
                             }
                         }

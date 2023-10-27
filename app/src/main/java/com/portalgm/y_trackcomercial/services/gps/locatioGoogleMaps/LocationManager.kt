@@ -218,7 +218,7 @@ class LocationManager(
                 sharedPreferences.getUserId(),
                 sharedPreferences.getUserName().toString(),
                 _speed.value!!.toDouble(),
-                porceBateria
+                porceBateria,"LOCATION MANAGER"
             )
         }
     }

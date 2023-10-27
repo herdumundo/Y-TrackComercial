@@ -24,8 +24,6 @@ import java.time.LocalDateTime
     pendienteSincro: String,
     secuencia:Int,
     id:Long
-
-
 ): com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity {
     return com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity(
         id = id,

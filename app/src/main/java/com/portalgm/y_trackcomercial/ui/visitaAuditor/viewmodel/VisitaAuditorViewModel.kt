@@ -2,24 +2,29 @@ package com.portalgm.y_trackcomercial.ui.visitaAuditor.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.location.LocationManager
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.portalgm.y_trackcomercial.data.api.request.EnviarVisitasRequest
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 import com.portalgm.y_trackcomercial.repository.CustomerRepository
 import com.portalgm.y_trackcomercial.repository.HorariosUsuarioRepository
 import com.portalgm.y_trackcomercial.repository.PermisosVisitasRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.VisitasRepository
+import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
 import com.portalgm.y_trackcomercial.services.battery.getBatteryPercentage
 import com.portalgm.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 import com.portalgm.y_trackcomercial.services.gps.calculoMetrosPuntosGps
-import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationService
-import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
+ import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationListenerTest
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.insertRoomLocation
+import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationCallBacks
 import com.portalgm.y_trackcomercial.services.time_zone.isAutomaticDateTime
 import com.portalgm.y_trackcomercial.services.time_zone.isAutomaticTimeZone
 import com.portalgm.y_trackcomercial.util.SharedPreferences
@@ -33,7 +38,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import javax.inject.Inject
-
+import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationService
+import com.portalgm.y_trackcomercial.usecases.exportacionVisitas.EnviarVisitasPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.exportacionVisitas.GetVisitasPendientesUseCase
+import com.portalgm.y_trackcomercial.util.SharedData
 
 @HiltViewModel
 class VisitaAuditorViewModel @Inject constructor(
@@ -43,11 +51,16 @@ class VisitaAuditorViewModel @Inject constructor(
     private val permisosVisitasRepository: PermisosVisitasRepository,
     private val horariosUsuarioRepository: HorariosUsuarioRepository,
     private val logRepository: LogRepository,
-    private val context: Context
+    private val context: Context,
+    private val locationService:  LocationService,
+    private val auditTrailRepository: AuditTrailRepository,
+    private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
+    private val enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
 
-) : ViewModel() {
 
-    private val  locationService:LocationService= LocationService()
+    ) : ViewModel() {
+
+   // private val  locationService:LocationService= LocationService()
     private val _addressesList: MutableList<OcrdItem> = mutableListOf()
 
     private val _metros: MutableLiveData<Int> = MutableLiveData()
@@ -76,10 +89,10 @@ class VisitaAuditorViewModel @Inject constructor(
     val showButtonSelectPv: LiveData<Boolean> = _showButtonSelectPv
 
     private val _latitudPv: MutableLiveData<Double> = MutableLiveData()
-    private var latitudPv: MutableLiveData<Double> = _latitudPv
+   var latitudPv: MutableLiveData<Double> = _latitudPv
 
     private val _longitudPv: MutableLiveData<Double> = MutableLiveData()
-    private val longitudPv: MutableLiveData<Double> = _longitudPv
+      var longitudPv: MutableLiveData<Double> = _longitudPv
 
     private val _buttonTextRegistro: MutableLiveData<String> = MutableLiveData()
     val buttonTextRegistro: MutableLiveData<String> = _buttonTextRegistro
@@ -87,14 +100,21 @@ class VisitaAuditorViewModel @Inject constructor(
     private val _permitirUbicacion = MutableLiveData<Boolean>()
     val permitirUbicacion: LiveData<Boolean> = _permitirUbicacion
 
+    private val _ubicacionLoading = MutableLiveData<Boolean>()
+    val ubicacionLoading: LiveData<Boolean> = _ubicacionLoading
 
     private val _developerModeEnabled = MutableLiveData<Boolean>()
     //val developerModeEnabled: LiveData<Boolean> = _developerModeEnabled
 
     private val _validacionVisita =  MutableLiveData<ValidacionesVisitas.ValidacionInicioHoraResult>()
 
-    private lateinit var locationListener: LocationListenerTest
-    //var permitirUbicacion=true
+    private val _latitudUsuario: MutableLiveData<Double> = MutableLiveData()
+    var latitudUsuario: MutableLiveData<Double> = _latitudUsuario
+
+    private val _longitudUsuario: MutableLiveData<Double> = MutableLiveData()
+    val longitudUsuario: MutableLiveData<Double> = _longitudUsuario
+
+    val sharedData = SharedData.getInstance()
 
     fun getAddresses() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -118,126 +138,63 @@ class VisitaAuditorViewModel @Inject constructor(
         _buttonPvText.value = ocrd
     }
 
-/*   @SuppressLint("SuspiciousIndentation")
- fun insertarVisita() {
-
-      viewModelScope.launch {
-         //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
-         val resultLocation= locationService.getUserLocation(context)
-         var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
-         var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
-
-         val isAutomaticTimeZone = isAutomaticTimeZone(context)
-         val isAutomaticDateTime = isAutomaticDateTime(context)
-         val porceBateria = getBatteryPercentage(context)
-         val idTurno = horariosUsuarioRepository.getIdTurno()
-         //FUNCION SUSPENDIDA
-         val rangoDistancia = 200
-         /** ES PRIMERA VISITA EN FALSE AUTOMATICAMENTE, PORQUE EL AUDITOR NO DEPENDE DEL HORARIO **/
-         _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
-         _developerModeEnabled.value = isDeveloperModeEnabled(context)
-
-         if (_developerModeEnabled.value == true) {
-             mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
-             LogUtils.insertLog(
-                 logRepository,
-                 LocalDateTime.now().toString(),
-                 "Modo desarrollador activado",
-                 "Se ha activado el modo desarrollador",
-                 sharedPreferences.getUserId(),
-                 sharedPreferences.getUserName()!!,
-                 "REGISTRO DE VISITAS",
-                 porceBateria
-             )
-         }
-         else if (isAutomaticTimeZone == 0) {
-             mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
-             LogUtils.insertLog(
-                 logRepository,
-                 LocalDateTime.now().toString(),
-                 "Zona horaria manual ",
-                 "Zona horaria manual activada",
-                 sharedPreferences.getUserId(),
-                 sharedPreferences.getUserName()!!,
-                 "REGISTRO DE VISITAS",
-                 porceBateria
-             )
-         }
-         // SI SE COLOCO LA HORA MANUAL
-         else if (isAutomaticDateTime == 0) {
-             mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
-             LogUtils.insertLog(
-                 logRepository,
-                 LocalDateTime.now().toString(),
-                 "Hora y fecha manual ",
-                 "Hora y fecha activado manualmente",
-                 sharedPreferences.getUserId(),
-                 sharedPreferences.getUserName()!!,
-                 "REGISTRO DE VISITAS",
-                 porceBateria
-             )
-         }
-         else if (_validacionVisita.value?.respuestaVisita == 1)// SI MI HORARIO ESTA DENTRO DE LO PERMITIDO
-         {
-             transaccionVisita(
-                 latitudUsuarioVal,
-                 longitudUsuarioVal,
-                 porceBateria,
-                 idTurno,
-                 rangoDistancia,
-                 "NO"
-             )
-         }
-         else //SI INTENTO MARCAR CON LLEGADA TARDIA
-         {
-             // VERIFICA SI TIENE ALGUN PERMISO PARA INICIAR VISITA FUERA DE HORA
-             val permisoVisitaToken =
-                 permisosVisitasRepository.verificarPermisoVisita("INICIOVISITA")
-
-             if (!permisoVisitaToken) {
-                 mostrarMensajeDialogo(_validacionVisita.value!!.mensaje)
-             } else {
-                 transaccionVisita(
-                     latitudUsuarioVal,
-                     longitudUsuarioVal,
-                     porceBateria,
-                     idTurno,
-                     rangoDistancia,
-                     "SI"
-                 )
-             }
-         }
-     }
- }
-*/
-
 
     fun inicializarValores(){
         _permitirUbicacion.value=true
     }
 
+    fun obtenerUbicacion(){
+        _ubicacionLoading.value=true
+        viewModelScope.launch {
+            locationService.startLocationUpdates()
+            locationService.setLocationCallback(object : LocationCallBacks {
+                override fun onLocationUpdated(location: Location) {
+                    // Actualiza la latitud y longitud con la ubicación actualizada
+                    _latitudUsuario.value=location.latitude
+                    _longitudUsuario.value=location.longitude
+                }
+            })
+            delay(8000) // 10 minutos en milisegundos
+            locationService.stopLocationUpdates()
+            _ubicacionLoading.value=false
+        }
 
+    }
  @SuppressLint("SuspiciousIndentation")
  fun insertarVisita() {
      if(_permitirUbicacion.value!!){
 
          _buttonTextRegistro.value = "Procesando..."
          _permitirUbicacion.value=false
-         locationListener = LocationListenerTest()
+
+        /* locationListener = LocationListenerTest()
          val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-         obtenerUbicacionGPSActual(locationListener,context,locationManager)
+         obtenerUbicacionGPSActual(locationListener,context,locationManager)*/
+         locationService.startLocationUpdates()
+
          //VALIDAR QUE NO SE PUEDA FINALIZAR VISITA SI ESTA A MAS DE 100 METROS.
          viewModelScope.launch {
              //AL LLAMAR insertarVisita() EJECUTA LA UBICACION ACTUAL DEL DISPOSITIVO
-             delay(5000) // 10 minutos en milisegundos
-             val resultLocation= locationService.getUserLocation(context)
+
+                  locationService.setLocationCallback(object : LocationCallBacks {
+                     override fun onLocationUpdated(location: Location) {
+                         // Actualiza la latitud y longitud con la ubicación actualizada
+                         _latitudUsuario.value=location.latitude
+                         _longitudUsuario.value=location.longitude
+                     }
+                 })
+             delay(8000)
+
+           /*  val resultLocation= locationService.getUserLocation(context)
              var longitudUsuarioVal = resultLocation?.longitude ?: 0.0
-             var latitudUsuarioVal = resultLocation?.latitude ?: 0.0
+             var latitudUsuarioVal = resultLocation?.latitude ?: 0.0*/
 
              val isAutomaticTimeZone = isAutomaticTimeZone(context)
              val isAutomaticDateTime = isAutomaticDateTime(context)
              val porceBateria = getBatteryPercentage(context)
              val idTurno = horariosUsuarioRepository.getIdTurno()
+             _developerModeEnabled.value = isDeveloperModeEnabled(context)
+
              //FUNCION SUSPENDIDA
              //val esPrimeraVisita = horariosUsuarioRepository.esPrimeraVisitaTurno(idTurno)
 
@@ -251,25 +208,25 @@ class VisitaAuditorViewModel @Inject constructor(
              // val cierrePendiente = verificarCierrePendienteUseCase.verificarCierrePendiente()
               _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
 
-
-
-             _developerModeEnabled.value = isDeveloperModeEnabled(context)
-
              if (_developerModeEnabled.value==true)
              {
                  mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
+                 _buttonTextRegistro.value = "Reintentar"
              } // SI SE COLOCO LA ZONA HORARIA MANUAL
              else if (isAutomaticTimeZone == 0)
              {
                  mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
+                 _buttonTextRegistro.value = "Reintentar"
+
              }
              // SI SE COLOCO LA HORA MANUAL
              else if (isAutomaticDateTime == 0)
              {
                  mostrarMensajeDialogo("Error, la fecha y hora debe estar automatica")
                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Hora y fecha manual ", "Hora y fecha activado manualmente", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
+                 _buttonTextRegistro.value = "Reintentar"
              }
              else
              {//COMIENZA EL INTENTO PARA REGISTRO.
@@ -278,8 +235,8 @@ class VisitaAuditorViewModel @Inject constructor(
                  val permisoVisitaToken = permisosVisitasRepository.verificarPermisoVisita("INICIOVISITA")
                  val llegadaTardia= if  (tipoRespuestaValidacion==1)  "NO" else "SI"
                  transaccionVisita(
-                     latitudUsuarioVal,
-                     longitudUsuarioVal,
+                     _latitudUsuario.value?:0.0,
+                     _longitudUsuario.value?:0.0,
                      porceBateria,
                      idTurno,
                      rangoDistancia,
@@ -288,9 +245,8 @@ class VisitaAuditorViewModel @Inject constructor(
                      tipoRespuestaValidacion,
                      mensajeValidacion,
                      permisoVisitaToken )
-
              }
-             locationManager.removeUpdates(locationListener)
+             locationService.stopLocationUpdates()
              _permitirUbicacion.value=true
          }
      }
@@ -355,30 +311,20 @@ class VisitaAuditorViewModel @Inject constructor(
                      _showButtonSelectPv.value = true
                      _mensajeDialog.value = "Visita finalizada con éxito"
                      _buttonTextRegistro.value = "Iniciar visita"
+                     exportarPendientes()
+                     finalizarVariablesGlobalesVisita(latitudUsuarioVal,longitudUsuarioVal)
                  }
              }
-             //SI NO SE REALIZO EL INVENTARIO NO DEBE FINALIZAR VISITA, A NO SER DE QUE EXISTA UN PERMISO
-           /*  else if (!inventarioExistente)
-             {
-                 if (!permisoCierreForzado)
-                 {
-                     mostrarMensajeDialogo("No se puede finalizar la visita, primero debes realizar el inventario.")
-                     _buttonTextRegistro.value = "Finalizar visita"
-                 }
-                 else {
-                     visitasRepository.updateVisita(visitaEstadoF)
-                     _showDialog.value = true
-                     _showButtonSelectPv.value = true
-                     _mensajeDialog.value = "Visita finalizada con éxito"
-                     _buttonTextRegistro.value = "Iniciar visita"
-                 }
-             }*/
+
              else {
                  visitasRepository.updateVisita(visitaEstadoF)
                  _showDialog.value = true
                  _showButtonSelectPv.value = true
                  _mensajeDialog.value = "Visita finalizada con éxito"
                  _buttonTextRegistro.value = "Iniciar visita"
+                 exportarPendientes()
+                 finalizarVariablesGlobalesVisita(latitudUsuarioVal,longitudUsuarioVal)
+
              }
          }
          /**  CASO PARA INICIAR UNA VISITA, TAMBIEN SE REGISTRA LA FINALIZACION PERO COMO AUTOMATICO */
@@ -473,6 +419,8 @@ class VisitaAuditorViewModel @Inject constructor(
                          _showButtonSelectPv.value = false
                          _mensajeDialog.value = "Visita realizada con éxito"
                          _buttonTextRegistro.value = "Finalizar visita"
+                         exportarPendientes()
+                         iniciarVariablesGlobalesVisita(idPrimeraVisita,latitudPv,longitudPv)
                          limpiarValores()
                      } else {
                          mostrarMensajeDialogo("Error al insertar la visita")
@@ -678,6 +626,39 @@ class VisitaAuditorViewModel @Inject constructor(
 //_mensajeDialog.value = ""
  }
 
+    suspend fun iniciarVariablesGlobalesVisita(idPrimeraVisita : Long,latitudPv : Double,longitudPv: Double){
+        sharedData.idVisitaGlobal.value=idPrimeraVisita
+        sharedData.latitudPV.value=latitudPv
+        sharedData.longitudPV.value=longitudPv
+        sharedData.fechaLongGlobal.value=System.currentTimeMillis()
+        sharedData.tiempo.value=0
+        insertRoomLocation(
+            latitudPv, longitudPv,
+            context, sharedPreferences, auditTrailRepository,"INICIO VISITA"
+        )
+    }
+
+    suspend fun finalizarVariablesGlobalesVisita( latitudPv : Double,longitudPv: Double){
+
+        sharedData.fechaLongGlobal.value=System.currentTimeMillis()
+        insertRoomLocation(
+            latitudPv, longitudPv,
+            context, sharedPreferences, auditTrailRepository,"FINAL VISITA"
+        )
+        sharedData.idVisitaGlobal.value=0
+
+    }
+    private fun exportarPendientes(){
+        viewModelScope.launch {
+            try {
+                val visitasPendientes =  getVisitasPendientesUseCase.getVisitasPendientes()
+                val enviarVisitasRequest = EnviarVisitasRequest(visitasPendientes)
+                enviarVisitasPendientesUseCase.enviarVisitasPendientes(  enviarVisitasRequest  )
+            } catch (e: Exception) {
+                Log.i("Mensaje",e.toString())
+            }
+        }
+    }
 }
 
 

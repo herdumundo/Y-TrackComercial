@@ -1,22 +1,31 @@
 package com.portalgm.y_trackcomercial.services.system
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.IBinder
-import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
+import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.R
+import com.portalgm.y_trackcomercial.repository.CustomerRepository
+import com.portalgm.y_trackcomercial.repository.LotesListasRepository
+import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
+import com.portalgm.y_trackcomercial.repository.OcrdUbicacionesRepository
+import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.portalgm.y_trackcomercial.services.battery.BatteryLevelReceiver
+import com.portalgm.y_trackcomercial.services.battery.getBatteryPercentage
+import com.portalgm.y_trackcomercial.services.datos_moviles.MobileDataReceiver
 import com.portalgm.y_trackcomercial.services.exportacion.ExportarDatos
-import com.portalgm.y_trackcomercial.services.gps.GpsStatusLiveData
-import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.LocationManager
-import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+import com.portalgm.y_trackcomercial.services.gps.locationLocal.insertRoomLocation
+import com.portalgm.y_trackcomercial.services.websocket.PieSocketListener
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
@@ -32,13 +41,18 @@ import com.portalgm.y_trackcomercial.usecases.inventario.GetMovimientoPendientes
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
+import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.SharedPreferences
- import dagger.hilt.android.AndroidEntryPoint
+import com.portalgm.y_trackcomercial.util.logUtils.LogUtils
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ServicioUnderground : Service() {
-
     @Inject
     lateinit var auditTrailRepository: AuditTrailRepository
     @Inject
@@ -69,44 +83,138 @@ class ServicioUnderground : Service() {
     lateinit var enviarLogPendientesUseCase: EnviarLogPendientesUseCase
     @Inject
     lateinit var enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase
-
     @Inject
     lateinit var enviarNuevasUbicacionesPendientesUseCase: ExportarNuevasUbicacionesPendientesUseCase
     @Inject
     lateinit var getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase
     @Inject
     lateinit var countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase
-    lateinit var context: Context
+    @Inject
+    lateinit var lotesListasRepository: LotesListasRepository
+    @Inject
+    lateinit var ocrdUbicacionesRepository: OcrdUbicacionesRepository
+    @Inject
+    lateinit var OcrdOitmRepository: OcrdOitmRepository
+    @Inject
+    lateinit var oitmRepository: OitmRepository
+    @Inject
+    lateinit var customerRepository: CustomerRepository
+    @Inject
+    lateinit var pieSocketListener: PieSocketListener
 
-    //private lateinit var locationViewModel: LocationLocalViewModel
+    private var previousDataMobileState: Boolean? = null
+    private lateinit var context: Context // Declaración de la propiedad de clase para el contexto
+    private val gpsStateReceiver = GpsStateReceiver()
+    private val mobileDataReceiver = MobileDataReceiver()
+    val filter = IntentFilter("android.location.PROVIDERS_CHANGED")
+    val sharedData = SharedData.getInstance()
+    val batteryLevelReceiver = BatteryLevelReceiver()
+    var latitudViejaWebSocket =0.0
 
-    //private lateinit var gpsStatusLiveData: GpsStatusLiveData
-
-
-    override fun onCreate() {
+    @SuppressLint("SuspiciousIndentation")
+    override fun onCreate()
+    {
+        context = applicationContext // Asignación del contexto en onCreate
         super.onCreate()
-     /*   context = this.applicationContext // O utiliza otra forma de obtener el contexto según tus necesidades
-        gpsStatusLiveData = GpsStatusLiveData(context)
+        registerReceiver(gpsStateReceiver, filter)
+        val filterDataMobile = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(mobileDataReceiver, filterDataMobile)
+        //BATERIA SERVICIO
+        context.registerReceiver(batteryLevelReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
-        gpsStatusLiveData.observeForever { isGpsEnabled ->
-           // locationViewModel.setGpsEnabled(isGpsEnabled)
-            Toast.makeText(this,
-                "Debes dar permiso de GPS como 'Permitir todo el tiempo' $isGpsEnabled", Toast.LENGTH_LONG).show()
+        sharedData.sharedBooleanLiveData.observeForever(gpsEnabledObserver)
+        sharedData.sharedBooleanLiveDataMobile.observeForever(mobileDataEnabledObserver)
+        sharedData.porcentajeBateria.observeForever(bateriaObserver)
+        sharedData.latitudUsuarioActual.observeForever(latitudObserver)
 
-        }*/
+        // Crea una instancia de PieSocketListener
+        pieSocketListener = PieSocketListener(customerRepository,lotesListasRepository,ocrdUbicacionesRepository,OcrdOitmRepository,oitmRepository)
+        pieSocketListener.connectToServer(BuildConfig.BASE_URL_WEB_SOCKET)
 
-        /*   locationManager = LocationManager(
-                 auditTrailRepository,
-                 sharedPreferences,
-                 logRepository,
-                 this
-             )*/
+    }
+    private val latitudObserver = Observer<Double> { nuevaLatitud ->
+        // Verificar si el WebSocket está abierto
+        if (pieSocketListener.isConnected()) {
+            if(nuevaLatitud!=latitudViejaWebSocket){
+            // Crear un objeto JSON con los nuevos datos
+            val data = JSONObject()
+            data.put("id", sharedPreferences.getUserId())
+            data.put("latitud", nuevaLatitud)
+            data.put("longitud", sharedData.longitudUsuarioActual.value ?: 0.0)
+            val message = data.toString()
+            pieSocketListener.enviarCoordenadas(message)
+            }
+            latitudViejaWebSocket=nuevaLatitud
+        }
+    }
+    private val bateriaObserver = Observer<Int> { cambioPorcentaje ->
+        //val context = applicationContext
+        GlobalScope.launch {
+            if(sharedPreferences.getUserId()>0){
+                  insertRoomLocation(
+                    1.0, 1.0,
+                     context, sharedPreferences, auditTrailRepository,"BATERIA"
+                )
+            }
+        }
+    }
+    private val gpsEnabledObserver = Observer<Boolean> { isGpsEnabled ->
+        GlobalScope.launch {
+            if(sharedPreferences.getUserId()>0){
+
+                val porceBateria = getBatteryPercentage(this@ServicioUnderground)
+            LogUtils.insertLog(
+                logRepository,
+                LocalDateTime.now().toString(),
+                "GPS $isGpsEnabled",
+                isGpsEnabled.toString(),
+                sharedPreferences.getUserId(),
+                sharedPreferences.getUserName()!!,
+                "SERVICIO SEGUNDO PLANO",
+                porceBateria
+            )
+        }
+
+        }
+    }
+    private val mobileDataEnabledObserver = Observer<Boolean> { isDataMobileEnabled ->
+        if (previousDataMobileState != isDataMobileEnabled) {
+            if(sharedPreferences.getUserId()>0){
+                GlobalScope.launch {
+                    val porceBateria = getBatteryPercentage(this@ServicioUnderground)
+                    LogUtils.insertLog(
+                        logRepository,
+                        LocalDateTime.now().toString(),
+                        "Paquete de datos $isDataMobileEnabled",
+                        isDataMobileEnabled.toString(),
+                        sharedPreferences.getUserId(),
+                        sharedPreferences.getUserName()!!,
+                        "SERVICIO SEGUNDO PLANO",
+                        porceBateria
+                    )
+                }
+            }
+            previousDataMobileState = isDataMobileEnabled
+        }
     }
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("RunningServices", "Matamos el servicio")
-       /* locationManager.unregisterGpsStateChangeListener()
-        locationManager.stopLocationUpdates()*/
+        val context = applicationContext
+        //DESTRUIMOS EL OBSERVADORFOREVER PARA QUE NO HAGA INSERT DUPLICADOS.
+        sharedData.sharedBooleanLiveData.removeObserver(gpsEnabledObserver)
+        sharedData.sharedBooleanLiveDataMobile.removeObserver(mobileDataEnabledObserver)
+        sharedData.porcentajeBateria.removeObserver(bateriaObserver)
+        unregisterReceiver(mobileDataReceiver)
+        context.unregisterReceiver(batteryLevelReceiver)
+        unregisterReceiver(gpsStateReceiver)
+        sharedData.latitudUsuarioActual.removeObserver(latitudObserver)
+
+        if (pieSocketListener != null) {
+            pieSocketListener.closeWebSocket() // Agrega un método para cerrar la conexión WebSocket si no lo tienes ya implementado
+        }
+
+        //Log.d("RunningServices", "Matamos el servicio")
+        // Desregistramos el receptor de difusión
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {

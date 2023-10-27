@@ -20,7 +20,9 @@ class AuditTrailRepository @Inject constructor
    suspend fun getAuditTrailCount():  Int  {
         return auditTrailDao.getCountAuditTrail()
     }
-
+    suspend fun getUltimaHoraRegistro():  Long  {
+        return auditTrailDao.getUltimoRegistroHoraLong()
+    }
 
     suspend fun getAllLotesAuditTrail(): List<lotesDeAuditoriaTrail> {
         val lotesDeAuditoriaEntity = auditTrailDao.getAllTrailExportar()
@@ -37,7 +39,11 @@ class AuditTrailRepository @Inject constructor
                 nombreUsuario = entity.nombreUsuario,
                 createdAt = entity.createdAt,
                 updatedAt = entity.updatedAt,
-                bateria = entity.bateria
+                bateria = entity.bateria,
+               idVisita = entity.idVisita,
+                distanciaPV = entity.distanciaPV,
+                tiempo = entity.tiempo,
+                tipoRegistro = entity.tipoRegistro
             )
         }
     }
@@ -48,8 +54,6 @@ class AuditTrailRepository @Inject constructor
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
                auditTrailDao.updateExportadoCerrado()
-            } else {
-                // Manejar otros casos según el valor de "tipo"
             }
            // Log.i("MensajeTest",apiResponse.msg)
         } catch (e: Exception) {

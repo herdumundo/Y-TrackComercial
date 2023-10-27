@@ -58,8 +58,5 @@ class LocationLocalViewModel @Inject constructor(
         return distancia[0]
     }
 
-    // Función para establecer el estado del permiso de GPS
-    /*   fun setGpsIsPermission(permission: Boolean) {
-           _gpsIsPermission.value = permission
-       }*/
+
 }

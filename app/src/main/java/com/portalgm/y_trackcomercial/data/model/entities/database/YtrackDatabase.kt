@@ -36,7 +36,7 @@ import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.Visit
         NewPassEntity::class,
      ],
 
-    version =7,
+    version =8,
     exportSchema = false
 )
 abstract class YtrackDatabase : RoomDatabase() {
