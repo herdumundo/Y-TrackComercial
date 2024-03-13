@@ -110,7 +110,7 @@ class ServicioUnderground : Service() {
     val sharedData = SharedData.getInstance()
     val batteryLevelReceiver = BatteryLevelReceiver()
     var latitudViejaWebSocket =0.0
-
+    var bateriaEach=0 //SE USA PARA QUE AL ABRIR LA APP NUEVAMENTE NO INSERTE EL LOG DE BATERIA.
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate()
     {
@@ -127,56 +127,64 @@ class ServicioUnderground : Service() {
         sharedData.porcentajeBateria.observeForever(bateriaObserver)
         sharedData.latitudUsuarioActual.observeForever(latitudObserver)
 
-        // Crea una instancia de PieSocketListener
-        pieSocketListener = PieSocketListener(customerRepository,lotesListasRepository,ocrdUbicacionesRepository,OcrdOitmRepository,oitmRepository)
-        pieSocketListener.connectToServer(BuildConfig.BASE_URL_WEB_SOCKET)
-
+        if(sharedPreferences.getUserId()>0){
+            //SI EXISTE UN USUARIO INGRESADO PERMITIR.
+            // Crea una instancia de PieSocketListener
+            pieSocketListener = PieSocketListener(customerRepository,lotesListasRepository,ocrdUbicacionesRepository,OcrdOitmRepository,oitmRepository,sharedPreferences)
+            pieSocketListener.connectToServer(BuildConfig.BASE_URL_WEB_SOCKET)
+        }
     }
+
     private val latitudObserver = Observer<Double> { nuevaLatitud ->
         // Verificar si el WebSocket está abierto
-        if (pieSocketListener.isConnected()) {
-            if(nuevaLatitud!=latitudViejaWebSocket){
-            // Crear un objeto JSON con los nuevos datos
-            val data = JSONObject()
-            data.put("id", sharedPreferences.getUserId())
-            data.put("latitud", nuevaLatitud)
-            data.put("longitud", sharedData.longitudUsuarioActual.value ?: 0.0)
-            val message = data.toString()
-            pieSocketListener.enviarCoordenadas(message)
-            }
+        if (pieSocketListener.isConnected())
+        {
+          /*  if(nuevaLatitud!=latitudViejaWebSocket)
+            {*/
+                // Crear un objeto JSON con los nuevos datos
+                val data = JSONObject()
+                data.put("id", sharedPreferences.getUserId())
+                data.put("latitud", nuevaLatitud)
+                data.put("longitud", sharedData.longitudUsuarioActual.value ?: 0.0)
+                val message = data.toString()
+                pieSocketListener.enviarCoordenadas(message)
+           // }
             latitudViejaWebSocket=nuevaLatitud
         }
     }
     private val bateriaObserver = Observer<Int> { cambioPorcentaje ->
         //val context = applicationContext
         GlobalScope.launch {
-            if(sharedPreferences.getUserId()>0){
-                  insertRoomLocation(
-                    1.0, 1.0,
-                     context, sharedPreferences, auditTrailRepository,"BATERIA"
-                )
+            if(bateriaEach>1){
+                if(sharedPreferences.getUserId()>0){
+                    insertRoomLocation(
+                        1.0, 1.0,
+                        context, sharedPreferences, auditTrailRepository,"BATERIA"
+                    )
+                }
             }
+            bateriaEach++
         }
     }
     private val gpsEnabledObserver = Observer<Boolean> { isGpsEnabled ->
         GlobalScope.launch {
-            if(sharedPreferences.getUserId()>0){
-
+            if(sharedPreferences.getUserId()>0)
+            {
                 val porceBateria = getBatteryPercentage(this@ServicioUnderground)
-            LogUtils.insertLog(
-                logRepository,
-                LocalDateTime.now().toString(),
-                "GPS $isGpsEnabled",
-                isGpsEnabled.toString(),
-                sharedPreferences.getUserId(),
-                sharedPreferences.getUserName()!!,
-                "SERVICIO SEGUNDO PLANO",
-                porceBateria
-            )
-        }
-
+                LogUtils.insertLog(
+                    logRepository,
+                    LocalDateTime.now().toString(),
+                    "GPS $isGpsEnabled",
+                    isGpsEnabled.toString(),
+                    sharedPreferences.getUserId(),
+                    sharedPreferences.getUserName()!!,
+                    "SERVICIO SEGUNDO PLANO",
+                    porceBateria
+                )
+            }
         }
     }
+
     private val mobileDataEnabledObserver = Observer<Boolean> { isDataMobileEnabled ->
         if (previousDataMobileState != isDataMobileEnabled) {
             if(sharedPreferences.getUserId()>0){

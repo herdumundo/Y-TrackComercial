@@ -19,4 +19,7 @@ interface LogDao {
 
     @Query("UPDATE activitylog SET estado='C' where estado='P'")
     suspend fun updateExportadoCerrado(  )
+
+    @Query("UPDATE activitylog SET estado='C' WHERE estado='P' AND fechaLong IN (:ids)")
+    suspend fun updateExportadoCerradoPorLotes(ids: List<String>)
 }

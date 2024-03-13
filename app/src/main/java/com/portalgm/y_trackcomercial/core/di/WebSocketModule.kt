@@ -6,6 +6,7 @@ import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
 import com.portalgm.y_trackcomercial.repository.OcrdUbicacionesRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.services.websocket.PieSocketListener
+import com.portalgm.y_trackcomercial.util.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,14 +23,16 @@ object WebSocketModule {
         lotesListasRepository: LotesListasRepository,
         ocrdUbicacionesRepository: OcrdUbicacionesRepository,
         ocrdOitmRepository : OcrdOitmRepository,
-        oitmRepository: OitmRepository
+        oitmRepository: OitmRepository,
+        sharedPreferences:SharedPreferences
     ): PieSocketListener {
         return PieSocketListener(
             customerRepository,
             lotesListasRepository,
             ocrdUbicacionesRepository,
             ocrdOitmRepository,
-            oitmRepository
+            oitmRepository,
+            sharedPreferences
 
         )
     }

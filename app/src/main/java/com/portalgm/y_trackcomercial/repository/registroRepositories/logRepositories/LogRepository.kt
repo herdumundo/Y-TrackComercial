@@ -7,13 +7,15 @@ import com.portalgm.y_trackcomercial.data.api.request.lotesDeActividades
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.LogDao
 import com.portalgm.y_trackcomercial.data.model.entities.logs.LogEntity
 import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.util.logUtils.LogUtils
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class LogRepository @Inject constructor
     (private val logDao: LogDao,
      private val exportacionAuditLogApiClient: ExportacionAuditLogApiClient,
      private val sharedPreferences: SharedPreferences,
-
+    // private val logRepository: LogRepository
      ) {
     suspend fun insertLog(log:LogEntity): Long {
         return logDao.insertLog(log)
@@ -48,11 +50,17 @@ class LogRepository @Inject constructor
             val apiResponse = exportacionAuditLogApiClient.uploadAuditLoglData(lotesLog,sharedPreferences.getToken().toString())
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
-                logDao.updateExportadoCerrado()
+                //logDao.updateExportadoCerrado()
+                val idsLoteActual = lotesLog.lotesDeActividades.map { it.id!! }
+                logDao.updateExportadoCerradoPorLotes(idsLoteActual)
             }
             Log.i("MensajeTest",apiResponse.msg)
         } catch (e: Exception) {
-            Log.i("Mensaje",e.toString())
+
+            //Log.i("Mensaje", "$e  $errorCode")
+
+            val idsLoteActual = lotesLog.lotesDeActividades.map { it.id!! }
+            logDao.updateExportadoCerradoPorLotes(idsLoteActual)
         }
     }
 }

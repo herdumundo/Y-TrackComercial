@@ -69,7 +69,10 @@ import com.portalgm.y_trackcomercial.components.MyBottomBar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.FabPosition
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -105,15 +108,49 @@ fun ScreenInventario(inventarioViewModel: InventarioViewModel) {
                     SnackAlerta(snackbarMessage,Color(colorSnack!!))
                 }
             },
-            bottomBar = {
+          /*  bottomBar = {
                 // Agregar un ícono para el menú desplegable
                 BottomAppBar(
                     backgroundColor = Color(0xFF000000),
                     cutoutShape = CircleShape, // Cambiar a CircleShape si quieres un botón flotante
                     content = { MyBottomBar(  prepareBottomMenuInventario(inventarioViewModel))
                     })
+            },*/
+       /*     floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        inventarioViewModel.obtenerLotesNuevos()
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(56.dp),
+                    backgroundColor = Color.Black // Color de fondo negro
+
+                ) {
+                    Icon(imageVector = Icons.Default.PunchClock, contentDescription = "Agregar",tint=Color.White)
+                }
             },
+            floatingActionButtonPosition = FabPosition.Start , // Posición del botón flotante
+      */
+            floatingActionButton = {
+                Box(
+                    modifier = Modifier
+                        .absolutePadding(right = 330.dp, bottom = 1.dp) // Ajusta la posición a la izquierda
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            inventarioViewModel.obtenerLotesNuevos()
+                        },
+                        modifier = Modifier.size(56.dp),
+                        backgroundColor = Color.Black // Color de fondo negro
+                    ) {
+                        Icon(imageVector = Icons.Default.PunchClock, contentDescription = "Agregar",tint=Color.White)
+                    }
+                }
+            }
+
         )
+
     }
 
  }
@@ -621,7 +658,6 @@ private fun prepareBottomMenuInventario(
      inventarioViewModel: InventarioViewModel
 ): List<BottomMenuItem> {
     val bottomMenuItemsList = arrayListOf<BottomMenuItem>()
-
     // add menu items
     bottomMenuItemsList.add(
         BottomMenuItem(

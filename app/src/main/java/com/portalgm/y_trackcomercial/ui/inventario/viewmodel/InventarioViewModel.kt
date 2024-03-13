@@ -137,7 +137,7 @@ class InventarioViewModel @Inject constructor(
                 val newLote = Lotes(
                     ItemName = _itemName.value!!,
                     Lote = _idLote.value!!,
-                    Cantidad = _txtCantidad.value!!.toInt(),
+                    Cantidad = _txtCantidad.value.toString().trim()!!.toInt(),
                     ubicacion = _descUbicacion.value!!,
                     idUsuario = sharedPreferences.getUserId(),
                     userName = sharedPreferences.getUserName()!!,
@@ -311,20 +311,21 @@ class InventarioViewModel @Inject constructor(
         _cuadroLoadingMensaje.value = "Registrando, espere..."
         _cuadroLoading.value = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-
+        viewModelScope.launch(Dispatchers.IO)
+        {
             movimientosRepository.insertLotesInBulk(lotesList)
-            val movimientosPendientes =  getMovimientoPendientesUseCase.GetPendientes()
-            val enviarmovimientosRequest = EnviarLotesDeMovimientosRequest(movimientosPendientes)
-            enviarMovimientoPendientesUseCase.enviarPendientes(enviarmovimientosRequest)
+
 
             viewModelScope.launch(Dispatchers.Main) {
                 _cuadroLoading.value = false
 
                 showSnackbar("Registrado con exito.", 0xFF1C6900, Icons.Default.ThumbUp)
                 limpiarDatos()
-
             }
+            val movimientosPendientes =  getMovimientoPendientesUseCase.GetPendientes()
+            val enviarmovimientosRequest = EnviarLotesDeMovimientosRequest(movimientosPendientes)
+            enviarMovimientoPendientesUseCase.enviarPendientes(enviarmovimientosRequest)
+
         }
     }
     fun obtenerLotesNuevos() {

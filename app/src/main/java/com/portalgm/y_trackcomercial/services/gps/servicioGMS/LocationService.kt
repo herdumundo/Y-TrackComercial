@@ -12,8 +12,8 @@ class LocationService @Inject constructor(private val context: Context) {
     private var locationCallback: LocationCallBacks? = null // Callback personalizado
     private val fusedLocationClient: FusedLocationProviderClient = FusedLocationProviderClient(context)
     private val locationRequest = LocationRequest.create().apply {
-        interval = 1000 // Intervalo de actualización de ubicación en milisegundos (10 segundos en este ejemplo)
-        fastestInterval = 1000 // Intervalo más rápido en milisegundos
+        interval = 500 // Intervalo de actualización de ubicación en milisegundos (10 segundos en este ejemplo)
+        fastestInterval = 500 // Intervalo más rápido en milisegundos
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
     private val fusedLocationCallback = object : LocationCallback() {

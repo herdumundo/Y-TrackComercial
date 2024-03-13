@@ -53,8 +53,7 @@ class LocationLocalViewModel @Inject constructor(
             _longitudInsert.value ?: 0.0,
             latitud,
             longitud,
-            distancia
-        )
+            distancia  )
         return distancia[0]
     }
 

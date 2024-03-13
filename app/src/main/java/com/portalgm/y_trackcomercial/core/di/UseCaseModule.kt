@@ -2,6 +2,8 @@ package com.portalgm.y_trackcomercial.core.di
 
 import androidx.annotation.Keep
 import com.portalgm.y_trackcomercial.repository.ApiKeyGMSRepository
+import com.portalgm.y_trackcomercial.repository.CustomerRepository
+import com.portalgm.y_trackcomercial.repository.OcrdUbicacionesRepository
 import com.portalgm.y_trackcomercial.repository.ParametrosRepository
 import com.portalgm.y_trackcomercial.repository.PermisosVisitasRepository
 import com.portalgm.y_trackcomercial.repository.UbicacionesPvRepository
@@ -37,6 +39,9 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNue
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.InsertarNuevaUbicacionUseCase
+import com.portalgm.y_trackcomercial.usecases.ocrd.GetOcrdUseCase
+import com.portalgm.y_trackcomercial.usecases.ocrd.ImportarOcrdUseCase
+import com.portalgm.y_trackcomercial.usecases.ocrdUbicaciones.ImportarOcrdUbicacionesUseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
@@ -341,6 +346,29 @@ object UseCaseModule {
         return GetTimerGpsHilo1UseCase(parametrosRepository)
     }
 
+    @Provides
+    @ViewModelScoped
+    fun provideImportarOcrdUseCase(
+        OcrdRepository: CustomerRepository
+    ):  ImportarOcrdUseCase {
+        return ImportarOcrdUseCase(OcrdRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetOcrdUseCase(
+        OcrdRepository: CustomerRepository
+    ):  GetOcrdUseCase {
+        return GetOcrdUseCase(OcrdRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarOcrdUbicacionesUseCase(
+        ocrdUbicacionesRepository: OcrdUbicacionesRepository
+    ):  ImportarOcrdUbicacionesUseCase {
+        return ImportarOcrdUbicacionesUseCase(ocrdUbicacionesRepository)
+    }
 
 
 }

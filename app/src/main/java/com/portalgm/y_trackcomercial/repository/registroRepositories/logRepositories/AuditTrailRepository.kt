@@ -1,19 +1,21 @@
 package com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories
 
-import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrailApiClient
 import com.portalgm.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeAuditoriaTrail
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.AuditTrailDao
+import com.portalgm.y_trackcomercial.data.model.entities.logs.AuditTrailEntity
 import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.util.logUtils.LogUtils
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class AuditTrailRepository @Inject constructor
     (private val auditTrailDao:  AuditTrailDao,
      private val exportacionAuditTrailApiClient: ExportacionAuditTrailApiClient, // Paso 1: Agregar el ApiClient al constructor
      private val sharedPreferences: SharedPreferences,
-            ) {
-    suspend fun insertAuditTrailDao(auditTrailEntity: com.portalgm.y_trackcomercial.data.model.entities.logs.AuditTrailEntity): Long {
+     private val logRepository: LogRepository   ) {
+    suspend fun insertAuditTrailDao(auditTrailEntity: AuditTrailEntity): Long {
         return auditTrailDao.insertAuditTrailDao(auditTrailEntity)
     }
 
@@ -26,7 +28,6 @@ class AuditTrailRepository @Inject constructor
 
     suspend fun getAllLotesAuditTrail(): List<lotesDeAuditoriaTrail> {
         val lotesDeAuditoriaEntity = auditTrailDao.getAllTrailExportar()
-
         return lotesDeAuditoriaEntity.map { entity ->
             lotesDeAuditoriaTrail(
                 id = entity.id,
@@ -40,7 +41,7 @@ class AuditTrailRepository @Inject constructor
                 createdAt = entity.createdAt,
                 updatedAt = entity.updatedAt,
                 bateria = entity.bateria,
-               idVisita = entity.idVisita,
+                idVisita = entity.idVisita,
                 distanciaPV = entity.distanciaPV,
                 tiempo = entity.tiempo,
                 tipoRegistro = entity.tipoRegistro
@@ -53,11 +54,23 @@ class AuditTrailRepository @Inject constructor
             val apiResponse = exportacionAuditTrailApiClient.uploadAuditoriaTrailData(lotesAuditTrail,sharedPreferences.getToken().toString())
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
-               auditTrailDao.updateExportadoCerrado()
+              // auditTrailDao.updateExportadoCerrado()
+                val idsLoteActual = lotesAuditTrail.lotesDeAuditoriaTrail.map { it.id!! }
+              //  val idsString = idsLoteActual.joinToString(",")
+                auditTrailDao.updateExportadoCerradoPorLotes(idsLoteActual)
             }
            // Log.i("MensajeTest",apiResponse.msg)
         } catch (e: Exception) {
-            Log.i("Mensaje",e.toString())
+
+  /*          val idsLoteActual = lotesAuditTrail.lotesDeAuditoriaTrail.map { it.id!! }
+            //  val idsString = idsLoteActual.joinToString(",")
+            auditTrailDao.updateExportadoCerradoPorLotes(idsLoteActual)
+*/
+           // Log.i("ErrorAudit",e.toString())
+            LogUtils.insertLog(logRepository,
+                LocalDateTime.now().toString(),
+                "EXPORTACION AUDITTRAIL",
+                e.toString(),sharedPreferences.getUserId(),sharedPreferences.getUserName()!!,"EXPORTACIONES",0)
         }
     }
 }

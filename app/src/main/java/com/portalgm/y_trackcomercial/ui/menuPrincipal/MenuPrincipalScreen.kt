@@ -171,8 +171,9 @@ fun MenuPrincipal(
                 InfoDialog(title = "Atención!",
                     desc = "¿Deseas cerrar sesión?.",
                     R.drawable.icono_exit,
-                    {sharedPreferences.clearPreferences()
-                    activity.finish()
+                    {
+                        //sharedPreferences.clearPreferences()
+                        activity.finish()
                     },
                     onDismiss = {
                         openDialogSesion.value = false

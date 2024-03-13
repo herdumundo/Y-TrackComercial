@@ -47,15 +47,15 @@ object NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
 
-      val timeoutValue = 30L
+      val timeoutValue = 3L
       return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
-                    .connectTimeout(timeoutValue, TimeUnit.SECONDS)
-                    .readTimeout(timeoutValue, TimeUnit.SECONDS)
-                    .writeTimeout(timeoutValue, TimeUnit.SECONDS)
+                    .connectTimeout(timeoutValue, TimeUnit.MINUTES)
+                    .readTimeout(timeoutValue, TimeUnit.MINUTES)
+                    .writeTimeout(timeoutValue, TimeUnit.MINUTES)
                     .build()
             )
             .build()

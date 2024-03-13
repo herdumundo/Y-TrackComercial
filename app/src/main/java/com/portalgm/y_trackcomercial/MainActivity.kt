@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -76,6 +77,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -123,11 +125,13 @@ class MainActivity : ComponentActivity() {
 
     private var indiceGrupoPermisos = 0
 
+    var cantVecesIntentoServicios=0
     // Índice del permiso actual en el grupo
     private var indicePermisoEnGrupo = 0
     val sharedData = SharedData.getInstance()
 
     var timerGpsHilo1=60000
+    private val REQUEST_READ_PHONE_STATE = 1
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -148,8 +152,6 @@ class MainActivity : ComponentActivity() {
             iniciarObtencionUbicacionGPS()
 
         }
-
-
 
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
 
@@ -172,7 +174,6 @@ class MainActivity : ComponentActivity() {
         locationListener = LocationLocalListener(locationViewModel)
         // Verificar y solicitar permisos de ubicación si es necesario
         setContent {
-
             val context = LocalContext.current
             val servicioUnderground = isServiceRunning(ServicioUnderground::class.java)
             val contService = countRunningServices(this@MainActivity)
@@ -189,27 +190,33 @@ class MainActivity : ComponentActivity() {
                     "SERVICIO NO ESTABA ACTIVO Y ARRANCO: $seviceActive Cantidad: $contService"
                 )
             }
-            //SI EL SERVICIO ESTA ACTIVO
-            else {
-                val serviceIntent = Intent(this, ServicioUnderground::class.java)
-                stopService(serviceIntent)
-                val seviceActive = isServiceRunning(ServicioUnderground::class.java)
-                val contServicse = countRunningServices(this@MainActivity)
-                Log.d(
-                    "RunningServices",
-                    "SERVICIO ESTABA ACTIVO Y MATO: $seviceActive Cantidad: $contServicse"
-                )
+            else{
+                val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+                if (currentHour in 5..16)//HACER QUE SOLO MATE E INICIE SERVICIO HASTA LAS 11, ESTO HARA QUE NO SE CONECTE CADA RATO AL WEBSOCKET.
+                {
+                    //SI EL SERVICIO ESTA ACTIVO
+                    //  else {
+                    val serviceIntent = Intent(this, ServicioUnderground::class.java)
+                    stopService(serviceIntent)
+                    val seviceActive = isServiceRunning(ServicioUnderground::class.java)
+                    val contServicse = countRunningServices(this@MainActivity)
+                    Log.d(
+                        "RunningServices",
+                        "SERVICIO ESTABA ACTIVO Y MATO: $seviceActive Cantidad: $contServicse"
+                    )
 
-                val servicioUndergroundIntent =
-                    Intent(this@MainActivity, ServicioUnderground::class.java)
-                // El servicio no está en ejecución, iniciarlo
-                servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
-                ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
-                val seviceActiveinit = isServiceRunning(ServicioUnderground::class.java)
-                Log.d(
-                    "RunningServices",
-                    "SERVICIO VOLVIO A ARRANCAR: $seviceActiveinit Cantidad: $contService"
-                )
+                    val servicioUndergroundIntent =
+                        Intent(this@MainActivity, ServicioUnderground::class.java)
+                    // El servicio no está en ejecución, iniciarlo
+                    servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
+                    ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
+                    val seviceActiveinit = isServiceRunning(ServicioUnderground::class.java)
+                    Log.d(
+                        "RunningServices",
+                        "SERVICIO VOLVIO A ARRANCAR: $seviceActiveinit Cantidad: $contService"
+                    )
+                    //   }
+                }
             }
 
             var dialogAvisoInternet by remember { mutableStateOf(true) }
@@ -239,7 +246,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-
         solicitarPermisos()
     }
 
@@ -260,10 +266,15 @@ class MainActivity : ComponentActivity() {
         Pair(
             arrayOf(
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_BASIC_PHONE_STATE
-            ), 333
+                Manifest.permission.READ_BASIC_PHONE_STATE,
+                Manifest.permission.READ_PHONE_NUMBERS,
+                ), 333
         )
     )
+
+
+
+
 
 
     private fun solicitarPermisos() {

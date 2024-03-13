@@ -17,9 +17,12 @@ class CustomerRepository @Inject constructor(
 
     ) {
      val customers: LiveData<List<OCRDEntity>> = customerDao.getCustomers()
+
+
     suspend fun fetchCustomers(): Int {
         return withContext(Dispatchers.IO) {
             val customers = customerService.getCustomers( sharedPreferences.getToken().toString())
+            customerDao.eliminarOcrdTodos()
             customerDao.insertAllCustomers(customers)
             return@withContext getOcrdCount()
         }

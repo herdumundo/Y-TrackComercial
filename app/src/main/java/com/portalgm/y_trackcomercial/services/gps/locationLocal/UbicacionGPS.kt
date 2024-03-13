@@ -4,7 +4,6 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.util.Log
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.services.battery.getBatteryPercentage
 import com.portalgm.y_trackcomercial.util.SharedData
@@ -19,12 +18,9 @@ import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Locale
 
-private const val MIN_TIME_INTERVAL: Long =
-    1000 // Intervalo de tiempo mínimo en milisegundos (ejemplo: 1000ms = 1 segundo)
-private const val MIN_DISTANCE: Float = 10f // Distancia mínima en metros
+private const val MIN_TIME_INTERVAL: Long =  1000 // Intervalo de tiempo mínimo en milisegundos (ejemplo: 1000ms = 1 segundo)
+private const val MIN_DISTANCE: Float = 0f // Distancia mínima en metros
 private var gpsDelay = true
-var latitudInsert = 0.0
-var longitudInsert = 0.0
 var tiempo = 0
 var ejecutarBloque2 = false
 
@@ -65,7 +61,8 @@ suspend fun obtenerUbicacionGPS(
                 LocationManager.GPS_PROVIDER,
                 MIN_TIME_INTERVAL,
                 MIN_DISTANCE,
-                locationListener
+                locationListener,
+
             )
             // Obtener la última ubicación conocida del proveedor de GPS
             val lastKnownLocation =
@@ -81,9 +78,7 @@ suspend fun obtenerUbicacionGPS(
                         it.latitude,
                         it.longitude,
                         sharedData.latitudPV.value ?: 0.0,
-                        sharedData.longitudPV.value ?: 0.0
-                    ).toInt()
-
+                        sharedData.longitudPV.value ?: 0.0).toInt()
                     if (tiempo >= 3) {//SE VA A EJECUTAR CADA 3 MINUTOS
                         a++
                         if (a == 1) {
@@ -100,7 +95,6 @@ suspend fun obtenerUbicacionGPS(
                         sharedData.fechaLongGlobal.value = System.currentTimeMillis()//SE COLOCA EL TIEMPO ACTUAL, CADA 3 PASOS SE VUELVE A ACTUALIZAR
                     }
                     ejecutarBloque2 = true
-
                 }
             }
         } catch (e: SecurityException) {
@@ -151,8 +145,8 @@ fun iniciarCicloObtenerUbicacion(
             gpsDelay = true
            // Log.d("PARAMETRO",timerHilo1.toString())
             delay(timerHilo1.toLong()?:60000) // 1  minutos en milisegundos
-            val locationManager =
-                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager =  context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
             obtenerUbicacionGPS(
                 context,
                 locationViewModel,

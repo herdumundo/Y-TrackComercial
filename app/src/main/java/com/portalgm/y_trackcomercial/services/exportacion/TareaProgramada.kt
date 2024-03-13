@@ -1,6 +1,5 @@
 package com.portalgm.y_trackcomercial.services.exportacion
 
-import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+val batchSize = 5
 
 fun ExportarDatos(
     countAuditTrailUseCase: CountAuditTrailUseCase,
@@ -116,22 +116,28 @@ suspend fun exportarDatos(
    )
 }
 
-if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
-    val auditTrailPendientes =
-       getAuditTrailPendienteUseCase.getAuditTrailPendientes()
-   val enviarAuditTrailRequest =
-       EnviarAuditoriaTrailRequest(auditTrailPendientes)
-   enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(
-       enviarAuditTrailRequest
-   )
-}
-if (countLogPendientesUseCase.CountPendientes() > 0) {
-    val auditLogPendientes =
-       getLogPendienteUseCase.getAuditLogPendientes()
-   val enviarAuditLogRequest =
-       EnviarLotesDeActividadesRequest(auditLogPendientes)
-   enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
-}
+    if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
+        //val auditTrailPendientes = getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+       // val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(auditTrailPendientes)
+       // enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
+        val auditTrailPendientes =  getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+        val registrosPorBatches = auditTrailPendientes.chunked(batchSize)
+        registrosPorBatches.forEach { batch ->
+            // Lógica para enviar el batch al servidor
+            val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(batch)
+            enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
+        }
+    }
+    if (countLogPendientesUseCase.CountPendientes() > 0) {
+        val auditLogPendientes = getLogPendienteUseCase.getAuditLogPendientes()
+        val registrosPorBatches = auditLogPendientes.chunked(batchSize)
+        registrosPorBatches.forEach { batch ->
+            // Lógica para enviar el batch al servidor
+            val enviarAuditLogRequest =EnviarLotesDeActividadesRequest(batch)
+            enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
+        }
+    }
+
     if (countMovimientoUseCase.CountPendientes() > 0) {
         val movimientosPendientes =
             getMovimientoPendientesUseCase.GetPendientes()
@@ -141,11 +147,5 @@ if (countLogPendientesUseCase.CountPendientes() > 0) {
             enviarmovimientosRequest
         )
     }
-
-
-
-
-
-
 //Log.i("Mensaje", "DATOS EXPORTADOS")
 }

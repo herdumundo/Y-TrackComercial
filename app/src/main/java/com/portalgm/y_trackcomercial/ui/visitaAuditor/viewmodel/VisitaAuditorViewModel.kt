@@ -22,6 +22,7 @@ import com.portalgm.y_trackcomercial.services.battery.getBatteryPercentage
 import com.portalgm.y_trackcomercial.services.developerMode.isDeveloperModeEnabled
 import com.portalgm.y_trackcomercial.services.gps.calculoMetrosPuntosGps
  import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.obtenerUbicacionGPSActual
+import com.portalgm.y_trackcomercial.services.gps.locatioGoogleMaps.openGoogleMapsWithMyLocation
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationListenerTest
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.insertRoomLocation
 import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationCallBacks
@@ -41,6 +42,7 @@ import javax.inject.Inject
 import com.portalgm.y_trackcomercial.services.gps.servicioGMS.LocationService
 import com.portalgm.y_trackcomercial.usecases.exportacionVisitas.EnviarVisitasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.exportacionVisitas.GetVisitasPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisitaUseCase
 import com.portalgm.y_trackcomercial.util.SharedData
 
 @HiltViewModel
@@ -56,6 +58,7 @@ class VisitaAuditorViewModel @Inject constructor(
     private val auditTrailRepository: AuditTrailRepository,
     private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
     private val enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
+    private val importarPermisoVisitaUseCase: ImportarPermisoVisitaUseCase,
 
 
     ) : ViewModel() {
@@ -114,6 +117,13 @@ class VisitaAuditorViewModel @Inject constructor(
     private val _longitudUsuario: MutableLiveData<Double> = MutableLiveData()
     val longitudUsuario: MutableLiveData<Double> = _longitudUsuario
 
+    private val _cuadroLoadingMensaje = MutableLiveData<String>()
+    val cuadroLoadingMensaje: LiveData<String> = _cuadroLoadingMensaje
+
+    private val _cuadroLoading = MutableLiveData<Boolean>()
+    val cuadroLoading: LiveData<Boolean> = _cuadroLoading
+
+
     val sharedData = SharedData.getInstance()
 
     fun getAddresses() {
@@ -144,7 +154,8 @@ class VisitaAuditorViewModel @Inject constructor(
     }
 
     fun obtenerUbicacion(){
-        _ubicacionLoading.value=true
+        _cuadroLoading.value=true
+        _cuadroLoadingMensaje.value="Obteniendo ubicacion actual..."
         viewModelScope.launch {
             locationService.startLocationUpdates()
             locationService.setLocationCallback(object : LocationCallBacks {
@@ -156,7 +167,7 @@ class VisitaAuditorViewModel @Inject constructor(
             })
             delay(8000) // 10 minutos en milisegundos
             locationService.stopLocationUpdates()
-            _ubicacionLoading.value=false
+            _cuadroLoading.value=false
         }
 
     }
@@ -657,6 +668,23 @@ class VisitaAuditorViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.i("Mensaje",e.toString())
             }
+        }
+    }
+
+    fun abrirmapaGoogleMaps(context:Context){
+        openGoogleMapsWithMyLocation(context)
+    }
+    fun obtenerPermisos(){
+        _cuadroLoadingMensaje.value="Obteniendo permisos..."
+
+        try {
+            viewModelScope.launch(Dispatchers.Main) {
+                _cuadroLoading.value=true
+                importarPermisoVisitaUseCase.importarPermisoVisita(sharedPreferences.getUserId())
+                _cuadroLoading.value = false
+            }
+        }catch (e : Exception){
+            _cuadroLoading.value = false
         }
     }
 }

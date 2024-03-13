@@ -13,6 +13,7 @@ import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
 import com.portalgm.y_trackcomercial.repository.OcrdUbicacionesRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.util.SharedData
+import com.portalgm.y_trackcomercial.util.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -27,6 +28,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
+import java.util.Calendar
 import java.util.zip.GZIPInputStream
 import javax.inject.Inject
 
@@ -36,8 +38,8 @@ class PieSocketListener @Inject constructor(
     private val ocrdUbicacionesRepository: OcrdUbicacionesRepository,
     private val ocrdOitmRepository: OcrdOitmRepository,
     private val oitmRepository: OitmRepository,
+    private val sharedPreferences: SharedPreferences
 ) : WebSocketListener() {
-    //class PieSocketListener : WebSocketListener() {
     private var webSocket: WebSocket? = null
     private var serverUrl = BuildConfig.BASE_URL_WEB_SOCKET // Reemplaza con la URL de tu WebSocket
     private var reconnectAttempts = 0
@@ -50,7 +52,6 @@ class PieSocketListener @Inject constructor(
     override fun onOpen(webSocket: WebSocket, response: Response) {
         GlobalScope.launch(Dispatchers.Main) {
             sharedData.webSocketConectado.value=true
-
         }
         Log.d("PieSocket", "Connected")
         connected = true // Establece el estado de conexión a verdadero
@@ -60,8 +61,7 @@ class PieSocketListener @Inject constructor(
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         try {
-
-            var ping = calculateSizeInKB(text.toByteArray())
+          //  var ping = calculateSizeInKB(text.toByteArray())
             enviarCoordenadas("")
         } catch (e: Exception) {
             output("Errores: ${e.message}")
@@ -70,16 +70,14 @@ class PieSocketListener @Inject constructor(
     fun calculateSizeInKB(jsonString: ByteArray): Double {
         // Convierte la cadena JSON a bytes usando UTF-8
         //val bytes = jsonString.toByteArray()
-
         // Calcula el tamaño en KB dividiendo la longitud en bytes por 1024
         val sizeInKB = jsonString.size.toDouble() / 1024.0
-
         return sizeInKB
     }
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         // Se ha recibido un mensaje binario
         val byteArray = bytes.toByteArray()
-        var peso=calculateSizeInKB(bytes.toByteArray())
+     //   var peso=calculateSizeInKB(bytes.toByteArray())
         try {
             // Comprueba si los bytes están comprimidos (debes ajustar esto según el formato del mensaje)
             if (isGzipped(byteArray)) {
@@ -89,15 +87,15 @@ class PieSocketListener @Inject constructor(
                 val jsonString = bufferedReader.readText()
                 val jsonObject = JSONObject(jsonString)
 
-                if (jsonObject.has("ocrd")) {
+              /*  if (jsonObject.has("ocrd")) {
                     insertarOcrd(jsonObject.getJSONArray("ocrd"))
-                }
+                }*/
                 if (jsonObject.has("lotesLista")) {
                     insertarLotesListas(jsonObject.getJSONArray("lotesLista"))
                 }
-                if (jsonObject.has("ubicaciones")) {
+              /*  if (jsonObject.has("ubicaciones")) {
                     insertarOcrdUbicacion(jsonObject.getJSONArray("ubicaciones"))
-                }
+                }*/
                 if (jsonObject.has("oitmXocrd")) {
                     insertarOitmXocrd(jsonObject.getJSONArray("oitmXocrd"))
                 }
@@ -113,13 +111,9 @@ class PieSocketListener @Inject constructor(
     }
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         connected = false
-
         GlobalScope.launch(Dispatchers.Main) {
             sharedData.webSocketConectado.value=false
-
         }
-
-
         webSocket.close(NORMAL_CLOSURE_STATUS, null)
         output("Closing: $code / $reason")
     }
@@ -128,15 +122,15 @@ class PieSocketListener @Inject constructor(
         output(errorMessage)
         GlobalScope.launch(Dispatchers.Main) {
             sharedData.webSocketConectado.value=false
-
         }
         connected = false
-
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        if (currentHour in 6..19) {   // Verifica si la hora actual está entre las 6 am y las 7 pm
         if (reconnectAttempts < maxReconnectAttempts) {
             reconnectJob = GlobalScope.launch(Dispatchers.IO) {
                 output("Reconnecting...")
                 // Espera el tiempo especificado antes de intentar la reconexión
-                delay(reconnectIntervalMillis)
+                delay(reconnectIntervalMillis)//SON 5 SEGUNDOS
                 // Cancela la conexión WebSocket actual
                 webSocket.cancel()
                 // Crea una nueva conexión
@@ -145,6 +139,7 @@ class PieSocketListener @Inject constructor(
             }
         } else {
             output("Reached max reconnection attempts. Connection failed.")
+        }
         }
     }
 
@@ -165,6 +160,7 @@ class PieSocketListener @Inject constructor(
         val request = okhttp3.Request.Builder()
             .url(url)
             .addHeader("client-type", "ANDROID") // Agrega la cabecera personalizada aquí
+            .addHeader("user-id", sharedPreferences.getUserId().toString()) // Agrega el ID del usuario como un encabezado personalizado
             .build()
         val client = okhttp3.OkHttpClient.Builder().build()
         return client.newWebSocket(request, this)
@@ -278,7 +274,4 @@ class PieSocketListener @Inject constructor(
             oitmRepository.insertOitm(lista)
         }
     }
-
-
-
 }

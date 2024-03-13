@@ -97,6 +97,7 @@ class ExportacionViewModel @Inject constructor(
 
     private val _loadingNewPass: MutableLiveData<Boolean> = MutableLiveData()
     val loadingNewPass: LiveData<Boolean> = _loadingNewPass
+    val batchSize = 5
 
 
     fun getTablasRegistradas(tipoRegistro: Int) {
@@ -170,28 +171,30 @@ class ExportacionViewModel @Inject constructor(
                         if (!loadingAuditTrail.value!!) {
                             if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
                                 _loadingAuditTrail.value = true
-                                val auditTrailPendientes =
-                                    getAuditTrailPendienteUseCase.getAuditTrailPendientes()
-                                val enviarAuditTrailRequest =
-                                    EnviarAuditoriaTrailRequest(auditTrailPendientes)
-                                enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(
-                                    enviarAuditTrailRequest
-                                )
-                                _loadingAuditTrail.value = false
+                                val auditTrailPendientes =  getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+                                val registrosPorBatches = auditTrailPendientes.chunked(batchSize)
+                                registrosPorBatches.forEach { batch ->
+                                    // Lógica para enviar el batch al servidor
+                                    val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(batch)
+                                    enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
+                                }
 
+                                _loadingAuditTrail.value = false
                             }
                         }
                     }
-
                     3 -> {
                         if (!loadingLog.value!!) {
                             if (countLogPendientesUseCase.CountPendientes() > 0) {
                                 _loadingLog.value = true
-                                val auditLogPendientes =
-                                    getLogPendienteUseCase.getAuditLogPendientes()
-                                val enviarAuditLogRequest =
-                                    EnviarLotesDeActividadesRequest(auditLogPendientes)
-                                enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
+                                val auditLogPendientes =getLogPendienteUseCase.getAuditLogPendientes()
+                                val registrosPorBatches = auditLogPendientes.chunked(batchSize)
+                                registrosPorBatches.forEach { batch ->
+                                    // Lógica para enviar el batch al servidor
+                                    val enviarAuditLogRequest =EnviarLotesDeActividadesRequest(batch)
+                                    enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
+                                }
+
                                 _loadingLog.value = false
                             }
                         }

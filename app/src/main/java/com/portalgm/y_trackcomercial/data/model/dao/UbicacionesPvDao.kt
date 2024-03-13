@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.portalgm.y_trackcomercial.data.model.models.UbicacionPv
 
 @Dao
 interface UbicacionesPvDao {
@@ -17,7 +18,7 @@ interface UbicacionesPvDao {
 
 
     @Query("select  * from UBICACIONES_PV  ")
-    fun getUbicaciones(): List<com.portalgm.y_trackcomercial.data.model.models.UbicacionPv>
+    fun getUbicaciones(): List<UbicacionPv>
 
 
 

@@ -5,11 +5,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.portalgm.y_trackcomercial.data.api.request.lotesDeAuditoriaTrail
+import com.portalgm.y_trackcomercial.data.model.entities.logs.AuditTrailEntity
 
 @Dao
 interface AuditTrailDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAuditTrailDao(auditTrailEntity: com.portalgm.y_trackcomercial.data.model.entities.logs.AuditTrailEntity): Long
+    suspend fun insertAuditTrailDao(auditTrailEntity: AuditTrailEntity): Long
 
 
     @Query("SELECT COUNT(*) FROM AuditTrail where estado='P'")
@@ -28,5 +29,6 @@ interface AuditTrailDao {
     @Query("UPDATE audittrail SET estado='C' where estado='P'")
     suspend fun updateExportadoCerrado(  )
 
-
+    @Query("UPDATE audittrail SET estado='C' WHERE estado='P' AND fechaLong IN (:ids)")
+    suspend fun updateExportadoCerradoPorLotes(ids: List<String>)
 }

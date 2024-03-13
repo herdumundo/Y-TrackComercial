@@ -14,8 +14,8 @@ android {
         applicationId "com.portalgm.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 30
-        versionName "3.9_27102023"
+        versionCode 39
+        versionName "4.8_13032024"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,16 +26,16 @@ android {
     {
         debug
         {
-            buildConfigField "String", "BASE_URL", "\"http://192.168.6.106:8000/\""
-            buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.106:8000/\""
-          debuggable true
+            buildConfigField "String", "BASE_URL", "\"http://192.168.6.112:8000/\""
+            buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.112:8000/\""
+            debuggable false
         }
         release
         {
             buildConfigField "String", "BASE_URL", "\"https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
             buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"wss://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
             minifyEnabled true
-            debuggable true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
             // Habilita la generación del archivo de desofuscación

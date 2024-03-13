@@ -16,7 +16,7 @@ interface CustomerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Transaction
-    suspend fun insertCustomers(customers: List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>)
+    suspend fun insertCustomers(customers: List<OCRDEntity>)
 
     @Query("SELECT t1.id, t1.Address, t2.latitud,t2.longitud " +
             "FROM OCRD t1 " +

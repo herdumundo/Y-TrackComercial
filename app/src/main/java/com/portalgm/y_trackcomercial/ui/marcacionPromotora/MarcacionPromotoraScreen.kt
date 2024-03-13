@@ -48,13 +48,17 @@ import com.portalgm.y_trackcomercial.components.InfoDialogOk
 
 
  import android.widget.Toast
+ import androidx.activity.OnBackPressedCallback
  import androidx.compose.foundation.shape.CircleShape
  import androidx.compose.material.BottomAppBar
  import androidx.compose.material.Scaffold
  import androidx.compose.material.SnackbarHost
+ import androidx.compose.material.icons.filled.Lan
  import androidx.compose.material.icons.filled.PunchClock
  import androidx.compose.material.icons.filled.TrackChanges
  import androidx.compose.material.rememberScaffoldState
+ import androidx.compose.runtime.DisposableEffect
+ import androidx.compose.runtime.rememberUpdatedState
  import androidx.compose.ui.graphics.Color
  import androidx.compose.ui.platform.LocalContext
  import com.portalgm.y_trackcomercial.components.BottomMenuItem
@@ -93,8 +97,13 @@ fun GpsLocationScreen(
                 marcacionPromotoraViewModel.consultaVisitaActiva()
                 marcacionPromotoraViewModel.getAddresses()
                 marcacionPromotoraViewModel.inicializarValores()
-                marcacionPromotoraViewModel.obtenerUbicacion()
-            }
+                marcacionPromotoraViewModel.obtenerUbicacionGms()
+              }
+           /* DisposableEffect(Unit) {
+                onDispose {
+                    marcacionPromotoraViewModel.stopLocationUpdates()
+                }
+            }*/
             MyApp(marcacionPromotoraViewModel, latitudUsuario ?: 0.0, longitudUsuario ?: 0.0)
 
             if (showDialog) {
@@ -185,6 +194,8 @@ fun MyApp(
 ) {
 
     val ocrdList = marcacionPromotoraViewModel.getStoredAddresses()
+    //   val ocrdList by marcacionPromotoraViewModel.addressesList.observeAsState(emptyList())
+
     val ShowButtonPv by marcacionPromotoraViewModel.showButtonPv.observeAsState(false)
     val ShowButtonSelectPv by marcacionPromotoraViewModel.showButtonSelectPv.observeAsState(true)
     val ButtonPvText by marcacionPromotoraViewModel.buttonPvText.observeAsState(false)
@@ -197,8 +208,7 @@ fun MyApp(
     var showDialog by remember { mutableStateOf(false) }
 
     // marcacionPromotoraViewModel.abrirmapaGoogleMaps(context)
-    DialogLoading(cuadroLoadingMensaje, cuadroLoading)
-
+   DialogLoading(cuadroLoadingMensaje, cuadroLoading)
 
     if (showDialog) {
         OcrdSelectionDialog(
@@ -208,7 +218,6 @@ fun MyApp(
             },
             onDismissRequest = { showDialog = false },
             marcacionPromotoraViewModel,
-
         )
     }
   //  Box(Modifier.fillMaxSize()) {
@@ -336,11 +345,11 @@ fun CuadroMapa(marcacionPromotoraViewModel: MarcacionPromotoraViewModel) {
                 LaunchedEffect(markerPosition)
                 {
                     cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPosition))
-                 }
-                LaunchedEffect(markerPositionPV)
+                }
+                /*LaunchedEffect(markerPositionPV)
                 {
                      cameraPositionState.animate(CameraUpdateFactory.newLatLng(markerPositionPV))
-                }
+                }*/
     }
 }
 
@@ -352,8 +361,9 @@ private fun prepareBottomMenu(
     val bottomMenuItemsList = arrayListOf<BottomMenuItem>()
 
     // add menu items
-    bottomMenuItemsList.add( BottomMenuItem(label = "OBTENER PERMISOS",icon = Icons.Filled.PunchClock,{marcacionPromotoraViewModel.obtenerPermisos() }))
-    bottomMenuItemsList.add( BottomMenuItem(label = "OBTENER UBICACIÓN",icon = Icons.Filled.TrackChanges,{marcacionPromotoraViewModel.abrirmapaGoogleMaps(context) }))
+    bottomMenuItemsList.add( BottomMenuItem(label = "PERMISOS",icon = Icons.Filled.PunchClock,{marcacionPromotoraViewModel.obtenerPermisos() }))
+    bottomMenuItemsList.add( BottomMenuItem(label = "PV",icon = Icons.Filled.Lan,{marcacionPromotoraViewModel.importarOcrd() }))
+    bottomMenuItemsList.add( BottomMenuItem(label = "UBICACIÓN",icon = Icons.Filled.TrackChanges,{marcacionPromotoraViewModel.abrirmapaGoogleMaps(context) }))
 
     return bottomMenuItemsList
 }
