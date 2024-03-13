@@ -5,13 +5,10 @@ import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,6 +43,7 @@ import com.portalgm.y_trackcomercial.components.InfoDialogSinBoton
 import com.portalgm.y_trackcomercial.components.InfoDialogUnBoton
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.portalgm.y_trackcomercial.services.bluetooth.servicioBlutu
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.iniciarCicloObtenerUbicacion
@@ -100,7 +98,6 @@ class MainActivity : ComponentActivity() {
     private val cambioPassViewModel: CambioPassViewModel by viewModels()
     private val visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel by viewModels()
 
-
     private val updateType = AppUpdateType.IMMEDIATE
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -109,7 +106,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationViewModel: LocationLocalViewModel
     private lateinit var locationListener: LocationLocalListener
     private lateinit var appUpdateManager: AppUpdateManager
-    @Inject
+
+     @Inject
     lateinit var auditTrailRepository: AuditTrailRepository
     @Inject
     lateinit var logRepository: LogRepository
@@ -125,8 +123,7 @@ class MainActivity : ComponentActivity() {
 
     private var indiceGrupoPermisos = 0
 
-    var cantVecesIntentoServicios=0
-    // Índice del permiso actual en el grupo
+     // Índice del permiso actual en el grupo
     private var indicePermisoEnGrupo = 0
     val sharedData = SharedData.getInstance()
 
@@ -136,6 +133,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         sharedData.sharedBooleanLiveData.observe(this) { isGpsEnabled ->
             locationViewModel.setGpsEnabled(isGpsEnabled)
         }
@@ -161,13 +159,13 @@ class MainActivity : ComponentActivity() {
         }
         checkForAppUpdates()
         // Ejecutar scheduleExportWork aquí
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                 0
             )
-        }
+        //}
 
 
         locationViewModel = ViewModelProvider(this).get(LocationLocalViewModel::class.java)
@@ -247,6 +245,8 @@ class MainActivity : ComponentActivity() {
             }
         }
         solicitarPermisos()
+        /*val bluetoothPrinter = servicioBlutu()
+        bluetoothPrinter.printBluetooth(this)*/
     }
 
     private val gruposDePermisos = listOf(
@@ -269,12 +269,15 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.READ_BASIC_PHONE_STATE,
                 Manifest.permission.READ_PHONE_NUMBERS,
                 ), 333
+        ),
+        Pair(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE
+            ), 444
         )
     )
-
-
-
-
 
 
     private fun solicitarPermisos() {
@@ -310,13 +313,17 @@ class MainActivity : ComponentActivity() {
         if (updateType == AppUpdateType.FLEXIBLE) {
             appUpdateManager.unregisterListener(installStateUpdateListener)
         }
+
         /*   try {
                socket?.close()
            } catch (e: IOException) {
                // Manejar el error de cierre del socket
            }*/
     }
+    // Un método para iniciar la impresión
+    fun printData() {
 
+    }
     private fun redirectToLocationSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         //ACTION_APPLICATION_DETAILS_SETTINGS
@@ -370,6 +377,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
         }
         val permissionsGranted = locationPermissions.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED

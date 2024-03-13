@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import com.portalgm.y_trackcomercial.BuildConfig
@@ -251,7 +252,10 @@ class ServicioUnderground : Service() {
             getNuevasUbicacionesPendientesUseCase,
             countUbicacionesNuevasPendientesUseCase  )
         // Crear el canal de notificación para Android 8.0 (Oreo) y versiones posteriores
-        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.TIRAMISU) {
+       try {
+
+
+        if (android.os.Build.VERSION.SDK_INT <= 34) {
             val channelId = "servicio_channel"
             val channelName = "Servicio Channel"
             val notificationChannel =
@@ -264,7 +268,11 @@ class ServicioUnderground : Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .build()
         startForeground(1, notification)
-       // locationManager.startLocationUpdates()//activa el gps servicio
+
+       }  catch (e: Exception) {
+            Log.i("MensajeError",e.toString())
+        }
+
     }
 
     override fun onBind(intent: Intent?): IBinder? {

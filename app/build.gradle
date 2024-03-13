@@ -14,8 +14,8 @@ android {
         applicationId "com.portalgm.y_trackcomercial"
         minSdk 26
         targetSdk 34
-        versionCode 39
-        versionName "4.8_13032024"
+        versionCode 41
+        versionName "5.0_15032024"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -28,7 +28,7 @@ android {
         {
             buildConfigField "String", "BASE_URL", "\"http://192.168.6.112:8000/\""
             buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.112:8000/\""
-            debuggable false
+            debuggable true
         }
         release
         {
