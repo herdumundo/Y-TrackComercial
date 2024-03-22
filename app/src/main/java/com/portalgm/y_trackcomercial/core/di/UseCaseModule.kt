@@ -10,6 +10,7 @@ import com.portalgm.y_trackcomercial.repository.UbicacionesPvRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.MovimientosRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NewPassRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NuevaUbicacionRepository
+import com.portalgm.y_trackcomercial.repository.registroRepositories.OinvRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.VisitasRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
@@ -42,6 +43,7 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.InsertarNuevaUbicac
 import com.portalgm.y_trackcomercial.usecases.ocrd.GetOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrd.ImportarOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrdUbicaciones.ImportarOcrdUbicacionesUseCase
+import com.portalgm.y_trackcomercial.usecases.oinv.GetOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
@@ -370,6 +372,13 @@ object UseCaseModule {
         return ImportarOcrdUbicacionesUseCase(ocrdUbicacionesRepository)
     }
 
+    @Provides
+    @ViewModelScoped
+    fun provideGetOinvUseCase(
+        oinvRepository: OinvRepository
+    ):  GetOinvUseCase {
+        return GetOinvUseCase(oinvRepository)
+    }
 
 }
 

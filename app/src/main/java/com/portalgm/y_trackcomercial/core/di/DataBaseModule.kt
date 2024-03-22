@@ -9,6 +9,7 @@ import com.portalgm.y_trackcomercial.data.model.entities.database.*
 import com.portalgm.y_trackcomercial.data.model.dao.*
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.MovimientosDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.NewPassDao
+import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.OinvPosDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.UbicacionesNuevasDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.VisitasDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.*
@@ -47,9 +48,12 @@ object DataBaseModule  {
         val migration7to8 =
             Migration7to8()
 
+        val migration8to9 =
+            Migration8to9()
 
-             return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
-            .addMigrations(migration7to8)
+
+        return Room.databaseBuilder(appContext, YtrackDatabase::class.java, "YtrackDatabase")
+            .addMigrations(migration8to9)
             .build()
     }
 
@@ -150,4 +154,11 @@ object DataBaseModule  {
     fun provideParametrosDao(database: YtrackDatabase): ParametrosDao {
         return database.ParametrosDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideOinvDao(database: YtrackDatabase): OinvPosDao {
+        return database.OinvDao()
+    }
+
 }

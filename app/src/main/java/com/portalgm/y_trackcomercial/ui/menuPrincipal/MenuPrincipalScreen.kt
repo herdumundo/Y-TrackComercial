@@ -53,6 +53,8 @@ import com.portalgm.y_trackcomercial.ui.cambioPass.screen.InfoDialogNewPass
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
+import com.portalgm.y_trackcomercial.ui.facturacion.screen.FacturaScreen
+import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
 import com.portalgm.y_trackcomercial.ui.informeInventario.screen.ScreenInformeInventario
 import com.portalgm.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.portalgm.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
@@ -76,7 +78,6 @@ import com.portalgm.y_trackcomercial.ui.visitaSupervisor.screen.VisitaSupervisor
 import com.portalgm.y_trackcomercial.ui.visitaSupervisor.viewmodel.VisitaSupervisorViewModel
 import com.portalgm.y_trackcomercial.ui.visitasSinUbicacion.screen.VisitaSinUbicacionScreen
 import com.portalgm.y_trackcomercial.ui.visitasSinUbicacion.viewmodel.VisitaSinUbicacionViewModel
-import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 //import com.ytrack.y_trackcomercial.ui.registroEntradaPromotoras.cargar
 import kotlinx.coroutines.CoroutineScope
@@ -102,7 +103,8 @@ fun MenuPrincipal(
      nuevaUbicacionViewModel: NuevaUbicacionViewModel,
      cambioPassViewModel: CambioPassViewModel,
      sharedPreferences: SharedPreferences,
-     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel
+     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
+     oinvViewModel: OinvViewModel
  ) {
      //  if (loginViewModel.loggedIn.value == true) {
        if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
@@ -276,8 +278,6 @@ fun MenuPrincipal(
                         marcacionPromotoraViewModel = marcacionPromotoraViewModel
                     )
                 }
-
-
                 composable("marcacionPermisos") {
                     DisposableEffect(Unit) {
                         onDispose {
@@ -287,6 +287,11 @@ fun MenuPrincipal(
                     VisitaSinUbicacionScreen(
                         visitaSinUbicacionViewModel = visitaSinUbicacionViewModel
                     )
+                }
+                //////////////////////////////////////////////FACTURACIONES
+                composable("facturacion") {
+
+                    FacturaScreen(oinvViewModel=oinvViewModel )
                 }
 
             }

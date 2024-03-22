@@ -43,13 +43,13 @@ import com.portalgm.y_trackcomercial.components.InfoDialogSinBoton
 import com.portalgm.y_trackcomercial.components.InfoDialogUnBoton
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
-import com.portalgm.y_trackcomercial.services.bluetooth.servicioBlutu
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalListener
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.iniciarCicloObtenerUbicacion
 import com.portalgm.y_trackcomercial.services.system.ServicioUnderground
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
+import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
 import com.portalgm.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.portalgm.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.portalgm.y_trackcomercial.ui.login2.LoginScreen
@@ -97,6 +97,9 @@ class MainActivity : ComponentActivity() {
     private val nuevaUbicacionViewModel: NuevaUbicacionViewModel by viewModels()
     private val cambioPassViewModel: CambioPassViewModel by viewModels()
     private val visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel by viewModels()
+    private val oinvViewModel: OinvViewModel by viewModels()
+
+
 
     private val updateType = AppUpdateType.IMMEDIATE
     private val locationPermissions = arrayOf(
@@ -222,7 +225,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 GpsAvisoPermisos(locationViewModel, dialogAvisoInternet)
                 val navController = rememberNavController()
-                Router(
+                 Router(
                     navController,
                     loginViewModel,
                     menuPrincipalViewModel,
@@ -240,7 +243,8 @@ class MainActivity : ComponentActivity() {
                     nuevaUbicacionViewModel,
                     cambioPassViewModel,
                     sharedPreferences,
-                    visitaSinUbicacionViewModel
+                    visitaSinUbicacionViewModel,
+                    oinvViewModel
                 )
             }
         }
@@ -496,7 +500,7 @@ fun Router(
     cambioPassViewModel: CambioPassViewModel,
     sharedPreferences: SharedPreferences,
     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
-
+    oinvViewModel:OinvViewModel
     ) {
     NavHost(
         navController = navController,
@@ -522,7 +526,8 @@ fun Router(
                 nuevaUbicacionViewModel,
                 cambioPassViewModel,
                 sharedPreferences,
-                visitaSinUbicacionViewModel
+                visitaSinUbicacionViewModel,
+                oinvViewModel
             )
         }
         composable("login") { LoginScreen(loginViewModel, navController) }

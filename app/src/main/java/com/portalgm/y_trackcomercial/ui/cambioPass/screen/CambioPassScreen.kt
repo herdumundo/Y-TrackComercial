@@ -32,18 +32,15 @@ import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 fun CambioPassScreen(
     cambioPassViewModel: CambioPassViewModel, onDismiss: () -> Unit,
 ) {
-     val newPassword by cambioPassViewModel.newPassword.observeAsState(initial = "")
+    val newPassword by cambioPassViewModel.newPassword.observeAsState(initial = "")
     val confirmNewPassword by cambioPassViewModel.confirmNewPassword.observeAsState(initial = "")
     val mensajeBotonRegistrar by cambioPassViewModel.mensajeBoton.observeAsState(initial = "Cambiar Contraseña")
-
     Column(
         modifier = Modifier
             .padding(16.dp),
         // .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
-
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = newPassword,
@@ -51,7 +48,6 @@ fun CambioPassScreen(
             label = { Text("Nueva contraseña") },
             //  visualTransformation = PasswordVisualTransformation(),
         )
-
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = confirmNewPassword,
@@ -60,7 +56,6 @@ fun CambioPassScreen(
             //  visualTransformation = PasswordVisualTransformation(),
         )
         Spacer(modifier = Modifier.height(24.dp))
-
         Button(
             onClick = {
                 // Aquí debes implementar la lógica para cambiar la contraseña
@@ -95,8 +90,6 @@ fun CambioPassScreen(
             )
         }
     }
-
-
 }
 
 

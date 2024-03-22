@@ -5,13 +5,16 @@ import androidx.room.RoomDatabase
 import com.portalgm.y_trackcomercial.data.model.dao.*
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.MovimientosDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.NewPassDao
+import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.OinvPosDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.UbicacionesNuevasDao
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.logsDaos.*
 import com.portalgm.y_trackcomercial.data.model.dao.registroDaos.VisitasDao
 import com.portalgm.y_trackcomercial.data.model.entities.*
 import com.portalgm.y_trackcomercial.data.model.entities.logs.*
+import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.INV1_POS
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.MovimientosEntity
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.NewPassEntity
+import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.OINV_POS
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.UbicacionesNuevasEntity
 import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 
@@ -33,10 +36,12 @@ import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.Visit
         UbicacionesPvEntity::class,
         PermisosVisitasEntity::class,
         UbicacionesNuevasEntity::class,
-        NewPassEntity::class,
+        NewPassEntity::class ,
+        OINV_POS::class,
+        INV1_POS::class
      ],
 
-    version =8,
+    version =9,
     exportSchema = false
 )
 abstract class YtrackDatabase : RoomDatabase() {
@@ -68,8 +73,6 @@ abstract class YtrackDatabase : RoomDatabase() {
     abstract fun UbicacionesPvDao():  UbicacionesPvDao
     abstract fun UbicacionesNuevasDao():  UbicacionesNuevasDao
     abstract fun NewPassDao(): NewPassDao
-
-
-
+    abstract fun OinvDao(): OinvPosDao
 
 }
