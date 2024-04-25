@@ -4,6 +4,8 @@ import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionMovimientosApiClient
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
 import com.portalgm.y_trackcomercial.data.api.request.lotesDemovimientos
+import com.portalgm.y_trackcomercial.data.model.models.InformeInventario
+import com.portalgm.y_trackcomercial.data.model.models.Lotes
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import javax.inject.Inject
 
@@ -14,7 +16,7 @@ class MovimientosRepository @Inject constructor
     private val exportacionMovimientosApiClient: ExportacionMovimientosApiClient
 ) {
 
-    suspend fun insertLotesInBulk(lotesList: List<com.portalgm.y_trackcomercial.data.model.models.Lotes>) {
+    suspend fun insertLotesInBulk(lotesList: List<Lotes>) {
         //  val createdAtLongVar=System.currentTimeMillis()
         val movimientosList = lotesList.map { lote ->
             com.portalgm.y_trackcomercial.data.model.entities.registro_entities.MovimientosEntity(
@@ -40,7 +42,7 @@ class MovimientosRepository @Inject constructor
         movimientosDao.insertAllMovimiento(movimientosList)
     }
 
-    suspend fun getInformeInventario(fecha: String): MutableList<com.portalgm.y_trackcomercial.data.model.models.InformeInventario> =
+    suspend fun getInformeInventario(fecha: String): MutableList<InformeInventario> =
         movimientosDao.getInformeMovimiento(fecha)
 
     suspend fun getCount(): Int {

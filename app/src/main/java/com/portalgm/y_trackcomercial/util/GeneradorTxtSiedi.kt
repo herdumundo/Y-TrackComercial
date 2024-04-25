@@ -1,0 +1,30 @@
+package com.portalgm.y_trackcomercial.util
+
+fun generateString(): String {
+    return """
+        1;INVOICE;2024-03-27 10:42:33;ORIGINAL;16056231-0010240005340;;80002754-0;RUC;PYG;;;;;;;;;;;;;;3673336-9;RUC;;80002754-0;RUC;
+        2;1;2;80;PCS;2024-03-27;SP;HUEVO TIPO Super X DOCENA;13333.36;PCS;;;;;;;;VALUE_ADDED_TAX;166667;8333;5;STANDARD_RATE;;;
+        2;2;4;60;PCS;2024-03-27;SP;HUEVO TIPO jumbo X DOCENA;11428.57333333;PCS;;;;;;;;VALUE_ADDED_TAX;857143;42857;5;STANDARD_RATE;;;
+        5;1023810;51190;VALUE_ADDED_TAX;1023810;51190;5;STANDARD_RATE;VALUE_ADDED_TAX;0;0;10;STANDARD_RATE;VALUE_ADDED_TAX;0;0;0;STANDARD_RATE;1075000;BASIC_NET;RECEIPT_OF_GOODS;DAYS;0;
+        9;3;545;
+        100;116037378;;;
+        101;2022-12-01;;1;
+        102;1;;;1;;
+        103;1;2;PRY;1;;;ANDRES DUARTE ARNALDO;ANDRES DUARTE ARNALDO;YEGROS Y FULGENCIO R. MORENO;;;clariseorte@gmail.com;C3673336-9;;1;1;;1;
+        104;1;;2024-03-27;
+        112;1;
+        113;1;1;1075000.000000;PYG;;;
+        118;1;2;;;;;;;;;;;;
+        118;2;4;;;;;;;;;;;;
+        119;1;145000.00000000;;
+        119;2;125000.00000000;;
+        120;1;1;100;
+        120;2;1;100;
+        128;1;0;;;
+        128;2;0;;;
+        140;0;0;0;false;
+        970;80002754;0;2;;VIMAR Y COMPAÑÍA S.A.;VIMAR Y COMPAÑÍA S.A.;ASUNCIÓN 227 C/ DEFENSORES DEL CHACO;0;;;12;154;5044;021505725;vimar.fe@yemita.com;VIMAR Y COMPAÑÍA S.A.;
+        980;1;APROBACION_DTE;vimar.fe@yemita.com;
+        999;true;false;
+    """.trimIndent()
+}

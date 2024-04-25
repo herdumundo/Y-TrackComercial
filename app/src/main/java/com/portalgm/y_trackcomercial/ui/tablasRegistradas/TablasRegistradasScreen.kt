@@ -1,11 +1,12 @@
 package com.portalgm.y_trackcomercial.ui.tablasRegistradas
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.LiveData
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.cardViewLoadingTablas
 
@@ -13,107 +14,44 @@ import com.portalgm.y_trackcomercial.components.cardViewLoadingTablas
 fun ScreenTablasRegistradas(
     tablasRegistradasViewModel: TablasRegistradasViewModel,
 ) {
-    val ocrdCount by tablasRegistradasViewModel.ocrdCount.observeAsState()
-    val ubicacionesCount by tablasRegistradasViewModel.ocrdUbicacionesCount.observeAsState()
-    val rutasAccesosCount by tablasRegistradasViewModel.rutasAccesoCount.observeAsState()
-    val lotesListasCount by tablasRegistradasViewModel.lotesListasCount.observeAsState()
-    val horariosUsuarioCount by tablasRegistradasViewModel.horariosUsuarioCount.observeAsState()
-    val auditTrailCount by tablasRegistradasViewModel.auditTrailCount.observeAsState()
-    val oitmCount by tablasRegistradasViewModel.oitmCount.observeAsState()
-    val ocrdOitmCount by tablasRegistradasViewModel.ocrdOitmCount.observeAsState()
-    val ubicacionesPvCount by tablasRegistradasViewModel.ubicacionesPvCount.observeAsState()
-    val permisoVisitaCount by tablasRegistradasViewModel.permisoVisitaCount.observeAsState()
-    val LoadingOcrdCount by tablasRegistradasViewModel.loadingOcrdCount.observeAsState(false)
-    val  LoadingUbicacionesCount by tablasRegistradasViewModel.loadingUbicacionesCount.observeAsState(false)
-    val  LoadingRutasAccesosCount by tablasRegistradasViewModel.loadingRutasAccesosCount.observeAsState(false)
-    val  LoadingLotesListasCount by tablasRegistradasViewModel.loadingLotesListasCount.observeAsState(false)
-    val  LoadingHorariosUsuarioCount by tablasRegistradasViewModel.loadingHorariosUsuarioCount.observeAsState(false)
-    val LoadingOitmCount by tablasRegistradasViewModel.loadingOitmCount.observeAsState(false)
-    val  LoadingOcrdOitmCount by tablasRegistradasViewModel.loadingOcrdOitmCount.observeAsState(false)
-    val  LoadingUbicacionesPvCount by tablasRegistradasViewModel.loadingUbicacionesPvCount.observeAsState(false)
-    val  loadingpermisoVisitaCount by tablasRegistradasViewModel.loadingpermisoVisitaCount.observeAsState(false)
     val colorCard=Color(0xFFB90000)
-
-
+    val tablaInfo = listOf(
+        TablaInfo("Permisos de horarios", tablasRegistradasViewModel.permisoVisitaCount, R.drawable.ic_clock_permiso, tablasRegistradasViewModel.loadingpermisoVisitaCount, 9, "Obteniendo permisos..."),
+        TablaInfo("Clientes cargados", tablasRegistradasViewModel.ocrdCount, R.drawable.ic_clientes, tablasRegistradasViewModel.loadingOcrdCount, 1, "Actualizando Clientes..."),
+        TablaInfo("Ubicaciones cargadas", tablasRegistradasViewModel.ocrdUbicacionesCount, R.drawable.ic_map, tablasRegistradasViewModel.loadingUbicacionesCount, 2, "Actualizando ubicaciones..."),
+        TablaInfo("Permisos otorgados", tablasRegistradasViewModel.rutasAccesoCount, R.drawable.ic_permisos, tablasRegistradasViewModel.loadingRutasAccesosCount, 3, "Actualizando permisos otorgados..."),
+        TablaInfo("Lotes disponibles", tablasRegistradasViewModel.lotesListasCount, R.drawable.ic_lotes, tablasRegistradasViewModel.loadingLotesListasCount, 4, "Actualizando lotes disponibles..."),
+        TablaInfo("Horarios cargados", tablasRegistradasViewModel.horariosUsuarioCount, R.drawable.ic_step, tablasRegistradasViewModel.loadingHorariosUsuarioCount, 5, "Actualizando horarios cargados..."),
+        TablaInfo("Productos disponibles", tablasRegistradasViewModel.oitmCount, R.drawable.ic_products, tablasRegistradasViewModel.loadingOitmCount, 6, "Actualizando productos disponibles..."),
+        TablaInfo("Productos por punto venta", tablasRegistradasViewModel.ocrdOitmCount, R.drawable.ic_products, tablasRegistradasViewModel.loadingOcrdOitmCount, 7, "Actualizando productos por punto venta..."),
+        TablaInfo("Depositos en punto de venta", tablasRegistradasViewModel.ubicacionesPvCount, R.drawable.ic_lugar, tablasRegistradasViewModel.loadingUbicacionesPvCount, 8, "Actualizando depositos ..."),
+        TablaInfo("Vendedores", tablasRegistradasViewModel.vendedorCount, R.drawable.ic_clientes, tablasRegistradasViewModel.loadingVendedorCount, 10, "Actualizando vendedores ..."),
+        TablaInfo("Lista de precios", tablasRegistradasViewModel.listaPrecioCount, R.drawable.ic_egg, tablasRegistradasViewModel.loadingListaPrecioCount, 11, "Actualizando lista de precios ..."),
+        TablaInfo("Stock por almacen", tablasRegistradasViewModel.almacenStockCount, R.drawable.ic_egg, tablasRegistradasViewModel.loadingAlmacenStockCount, 12, "Actualizando stock ..."),
+        TablaInfo("Ordenes de ventas", tablasRegistradasViewModel.ordenVentaCount, R.drawable.ic_products, tablasRegistradasViewModel.loadingordenVenta, 13, "Actualizando ordenes de ventas ..."))
     LaunchedEffect(Unit) {
         tablasRegistradasViewModel.getTablasRegistradas()
     }
-
     LazyColumn {
-        item {
+        items(tablaInfo) { info ->
             cardViewLoadingTablas(
-                textoLoading = "Obteniendo permisos...", title = "Permisos de horarios",color = colorCard, subTitle = permisoVisitaCount.toString(),
-                image = R.drawable.ic_clock_permiso, isLoading = loadingpermisoVisitaCount
-            ) { tablasRegistradasViewModel.actualizarDatos(9)}
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando Clientes...",color = colorCard, title = "Clientes cargados", subTitle = ocrdCount.toString(),
-                image = R.drawable.ic_clientes, isLoading = LoadingOcrdCount
-            ) { tablasRegistradasViewModel.actualizarDatos(1)}
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando ubicaciones...",color = colorCard, title = "Ubicaciones cargadas",
-                subTitle = ubicacionesCount.toString(),
-                image = R.drawable.ic_map,
-                isLoading = LoadingUbicacionesCount
-            ) {  tablasRegistradasViewModel.actualizarDatos(2)}
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando permisos otorgados...",color =  Color(0xFF090808), title = "Permisos otorgados",
-                subTitle = rutasAccesosCount.toString(),
-                image = R.drawable.ic_permisos,
-                isLoading = LoadingRutasAccesosCount
-            ) { tablasRegistradasViewModel.actualizarDatos(3) }
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando lotes disponibles...",color =  colorCard, title = "Lotes disponibles",
-                subTitle = lotesListasCount.toString(),
-                image = R.drawable.ic_lotes, isLoading = LoadingLotesListasCount
-            ) { tablasRegistradasViewModel.actualizarDatos(4) }
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando horarios cargados...",color =  colorCard, title = "Horarios cargados",
-                subTitle = horariosUsuarioCount.toString(),
-                image = R.drawable.ic_step, isLoading = LoadingHorariosUsuarioCount
-            ) {  tablasRegistradasViewModel.actualizarDatos(5)}
-        }
-        item {
-
-            cardViewLoadingTablas(
-                textoLoading = "", title = "Auditoria de camino",color =  colorCard,
-                subTitle = auditTrailCount.toString(),
-                image = R.drawable.ic_step, isLoading = false
-            ) { }
-        }
-
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando productos disponibles...",color =  colorCard, title = "Productos disponibles",
-                subTitle = oitmCount.toString(),
-                image = R.drawable.ic_products, isLoading = LoadingOitmCount
-            ) {  tablasRegistradasViewModel.actualizarDatos(6)}
-        }
-
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando productos por punto venta...",color =colorCard, title = "Productos por punto venta",
-                subTitle = ocrdOitmCount.toString(),
-                image = R.drawable.ic_products, isLoading = LoadingOcrdOitmCount
-            ) { tablasRegistradasViewModel.actualizarDatos(7) }
-        }
-
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Actualizando depositos ...",color = colorCard, title = "Depositos en punto de venta",
-                subTitle = ubicacionesPvCount.toString(),
-                image = R.drawable.ic_lugar, isLoading = LoadingUbicacionesPvCount
-            ) { tablasRegistradasViewModel.actualizarDatos(8) }
+                textoLoading = info.textoLoading,
+                color = colorCard,
+                title = info.title,
+                subTitle = info.count.observeAsState().value.toString(),
+                image = info.image,
+                isLoading = info.isLoading.observeAsState(false).value
+            ) {
+                tablasRegistradasViewModel.actualizarDatos(info.updateId)
+            }
         }
     }
-
 }
+data class TablaInfo(
+    val title: String,
+    val count: LiveData<Int>,
+    val image: Int,
+    val isLoading: LiveData<Boolean>,
+    val updateId: Int,
+    val textoLoading: String = "Cargando..." // Ejemplo de un valor por defecto
+)

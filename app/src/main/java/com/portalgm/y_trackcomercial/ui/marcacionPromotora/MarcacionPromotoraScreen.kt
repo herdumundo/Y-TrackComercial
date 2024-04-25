@@ -359,12 +359,10 @@ private fun prepareBottomMenu(
     marcacionPromotoraViewModel: MarcacionPromotoraViewModel
 ): List<BottomMenuItem> {
     val bottomMenuItemsList = arrayListOf<BottomMenuItem>()
-
     // add menu items
     bottomMenuItemsList.add( BottomMenuItem(label = "PERMISOS",icon = Icons.Filled.PunchClock,{marcacionPromotoraViewModel.obtenerPermisos() }))
     bottomMenuItemsList.add( BottomMenuItem(label = "PV",icon = Icons.Filled.Lan,{marcacionPromotoraViewModel.importarOcrd() }))
     bottomMenuItemsList.add( BottomMenuItem(label = "UBICACIÓN",icon = Icons.Filled.TrackChanges,{marcacionPromotoraViewModel.abrirmapaGoogleMaps(context) }))
-
     return bottomMenuItemsList
 }
 

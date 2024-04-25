@@ -3,8 +3,10 @@ package com.portalgm.y_trackcomercial
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -25,12 +27,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
@@ -47,6 +53,7 @@ import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalLis
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.iniciarCicloObtenerUbicacion
 import com.portalgm.y_trackcomercial.services.system.ServicioUnderground
+import com.portalgm.y_trackcomercial.services.workManager.ExportDataWorker
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
 import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
@@ -58,7 +65,10 @@ import com.portalgm.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraVie
 import com.portalgm.y_trackcomercial.ui.menuPrincipal.MenuPrincipal
 import com.portalgm.y_trackcomercial.ui.menuPrincipal.MenuPrincipalViewModel
 import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel.NuevaUbicacionViewModel
+import com.portalgm.y_trackcomercial.ui.ordenVenta.viewmodel.OrdenVentaViewModel
+import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.OrdenVentaDetalleViewModel
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
+import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.portalgm.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
@@ -76,6 +86,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -98,7 +109,9 @@ class MainActivity : ComponentActivity() {
     private val cambioPassViewModel: CambioPassViewModel by viewModels()
     private val visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel by viewModels()
     private val oinvViewModel: OinvViewModel by viewModels()
-
+    private val ordenVentaViewModel: OrdenVentaViewModel by viewModels()
+    private val ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel by viewModels()
+    private val reimpresionFacturaViewModel: ReimpresionFacturaViewModel by viewModels()
 
 
     private val updateType = AppUpdateType.IMMEDIATE
@@ -110,14 +123,18 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationListener: LocationLocalListener
     private lateinit var appUpdateManager: AppUpdateManager
 
-     @Inject
+    @Inject
     lateinit var auditTrailRepository: AuditTrailRepository
+
     @Inject
     lateinit var logRepository: LogRepository
+
     @Inject
     lateinit var getUltimaHoraRegistroUseCase: GetUltimaHoraRegistroUseCase
+
     @Inject
     lateinit var getDatosVisitaActivaUseCase: GetDatosVisitaActivaUseCase
+
     @Inject
     lateinit var getTimerGpsHilo1UseCase: GetTimerGpsHilo1UseCase
 
@@ -126,16 +143,44 @@ class MainActivity : ComponentActivity() {
 
     private var indiceGrupoPermisos = 0
 
-     // Índice del permiso actual en el grupo
+    // Índice del permiso actual en el grupo
     private var indicePermisoEnGrupo = 0
     val sharedData = SharedData.getInstance()
 
-    var timerGpsHilo1=60000
+    var timerGpsHilo1 = 60000
     private val REQUEST_READ_PHONE_STATE = 1
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Registro del receiver para SEPSA
+        try {
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent?.action == "com.portalgm.y_trackcomercial.DATA_PROCESSED") {
+                        val datosQrCdc = intent.getStringExtra("datosQR_CDC")
+                        val datosXml = intent.getStringExtra("datosXml")
+                         // Usa los datos como necesites, por ejemplo, enviándolos al ViewModel
+                        ordenVentaDetalleViewModel.processReceivedData(datosXml, datosQrCdc)
+                    }
+                }
+            }
+            LocalBroadcastManager.getInstance(this).registerReceiver(
+                receiver,
+                IntentFilter("com.portalgm.y_trackcomercial.DATA_PROCESSED")
+            )
+        } catch (e: Exception) {
+            Log.i("MensajeError", e.toString())
+        }
+        ordenVentaDetalleViewModel.initFacturaEvent.observe(this, Observer { event ->
+            event.getContentIfNotHandled()?.let {
+                // Llamada segura para iniciar FacturaSiedi
+                val intent = Intent(this, FacturaSiedi::class.java)
+                startActivity(intent)
+            }
+        })
+
 
         sharedData.sharedBooleanLiveData.observe(this) { isGpsEnabled ->
             locationViewModel.setGpsEnabled(isGpsEnabled)
@@ -143,15 +188,15 @@ class MainActivity : ComponentActivity() {
         //VER CUANDO DESINSTALO LA APP FALLA
         GlobalScope.launch(Dispatchers.Main) {
 
-            var datosVisita=getDatosVisitaActivaUseCase.getDatosVisitaActivaUseCase()
+            var datosVisita = getDatosVisitaActivaUseCase.getDatosVisitaActivaUseCase()
             sharedData.idVisitaGlobal.value = datosVisita[0].idVisita
             sharedData.latitudPV.value = datosVisita[0].latitudPV
             sharedData.longitudPV.value = datosVisita[0].longitudPV
-            sharedData.fechaLongGlobal.value=getUltimaHoraRegistroUseCase.GetUltimaHoraRegistroUseCase()
-            timerGpsHilo1=getTimerGpsHilo1UseCase.getInt()
+            sharedData.fechaLongGlobal.value =
+                getUltimaHoraRegistroUseCase.GetUltimaHoraRegistroUseCase()
+            timerGpsHilo1 = getTimerGpsHilo1UseCase.getInt()
 
             iniciarObtencionUbicacionGPS()
-
         }
 
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
@@ -163,11 +208,11 @@ class MainActivity : ComponentActivity() {
         checkForAppUpdates()
         // Ejecutar scheduleExportWork aquí
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                0
-            )
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            0
+        )
         //}
 
 
@@ -190,8 +235,7 @@ class MainActivity : ComponentActivity() {
                     "RunningServices",
                     "SERVICIO NO ESTABA ACTIVO Y ARRANCO: $seviceActive Cantidad: $contService"
                 )
-            }
-            else{
+            } else {
                 val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
                 if (currentHour in 5..16)//HACER QUE SOLO MATE E INICIE SERVICIO HASTA LAS 11, ESTO HARA QUE NO SE CONECTE CADA RATO AL WEBSOCKET.
                 {
@@ -210,7 +254,10 @@ class MainActivity : ComponentActivity() {
                         Intent(this@MainActivity, ServicioUnderground::class.java)
                     // El servicio no está en ejecución, iniciarlo
                     servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
-                    ContextCompat.startForegroundService(this@MainActivity, servicioUndergroundIntent)
+                    ContextCompat.startForegroundService(
+                        this@MainActivity,
+                        servicioUndergroundIntent
+                    )
                     val seviceActiveinit = isServiceRunning(ServicioUnderground::class.java)
                     Log.d(
                         "RunningServices",
@@ -225,7 +272,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 GpsAvisoPermisos(locationViewModel, dialogAvisoInternet)
                 val navController = rememberNavController()
-                 Router(
+                Router(
                     navController,
                     loginViewModel,
                     menuPrincipalViewModel,
@@ -244,14 +291,52 @@ class MainActivity : ComponentActivity() {
                     cambioPassViewModel,
                     sharedPreferences,
                     visitaSinUbicacionViewModel,
-                    oinvViewModel
+                    oinvViewModel,
+                    ordenVentaViewModel,
+                    ordenVentaDetalleViewModel,
+                    reimpresionFacturaViewModel
+
                 )
             }
         }
         solicitarPermisos()
         /*val bluetoothPrinter = servicioBlutu()
-        bluetoothPrinter.printBluetooth(this)*/
+       bluetoothPrinter.printBluetooth(this)*/
     }
+
+
+    private fun setupWorkManager(context: Context) {
+        val trabajoPeriodico = PeriodicWorkRequestBuilder<ExportDataWorker>(15, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(context).enqueue(trabajoPeriodico)
+
+
+        // Definir las restricciones para el trabajo
+        /* val constraints = Constraints.Builder()
+             .setRequiredNetworkType(NetworkType.CONNECTED)  // Requiere conexión a la red
+             .build()*/
+        // Crear un PeriodicWorkRequest para ExportDataWorker que se ejecute cada 15 minutos
+        /*try {
+            val exportDataWorkRequest = PeriodicWorkRequestBuilder<ExportDataWorker>(15, TimeUnit.MINUTES)
+                //   .setConstraints(constraints)
+                .setInitialDelay(0, TimeUnit.MILLISECONDS)  // Iniciar inmediatamente
+                .build()
+            // Enqueue el trabajo con WorkManager
+            WorkManager.getInstance(this).enqueue(exportDataWorkRequest)
+        } catch (e:Exception){
+            val err=e.toString()
+        }*/
+
+    }/*
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.portalgm.y_trackcomercial.DATA_PROCESSED") {
+                val data = intent.getStringExtra("processed_data")
+                val data2 = intent.getStringExtra("processed_data2")
+                ordenVentaDetalleViewModel.processReceivedData(data,data2)
+             }
+        }
+    }*/
 
     private val gruposDePermisos = listOf(
         Pair(
@@ -272,7 +357,7 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_BASIC_PHONE_STATE,
                 Manifest.permission.READ_PHONE_NUMBERS,
-                ), 333
+            ), 333
         ),
         Pair(
             arrayOf(
@@ -324,10 +409,12 @@ class MainActivity : ComponentActivity() {
                // Manejar el error de cierre del socket
            }*/
     }
+
     // Un método para iniciar la impresión
     fun printData() {
 
     }
+
     private fun redirectToLocationSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         //ACTION_APPLICATION_DETAILS_SETTINGS
@@ -500,8 +587,11 @@ fun Router(
     cambioPassViewModel: CambioPassViewModel,
     sharedPreferences: SharedPreferences,
     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
-    oinvViewModel:OinvViewModel
-    ) {
+    oinvViewModel: OinvViewModel,
+    ordenVentaViewModel: OrdenVentaViewModel,
+    ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
+    reimpresionFacturaViewModel: ReimpresionFacturaViewModel
+) {
     NavHost(
         navController = navController,
         startDestination = "menu"
@@ -527,7 +617,10 @@ fun Router(
                 cambioPassViewModel,
                 sharedPreferences,
                 visitaSinUbicacionViewModel,
-                oinvViewModel
+                oinvViewModel,
+                ordenVentaViewModel,
+                ordenVentaDetalleViewModel,
+                reimpresionFacturaViewModel
             )
         }
         composable("login") { LoginScreen(loginViewModel, navController) }

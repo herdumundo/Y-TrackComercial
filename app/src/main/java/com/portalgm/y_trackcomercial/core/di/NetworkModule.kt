@@ -4,6 +4,10 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.Keep
 import com.portalgm.y_trackcomercial.BuildConfig
+import com.portalgm.y_trackcomercial.data.api.A0_YTV_LISTA_PRECIOSClient
+import com.portalgm.y_trackcomercial.data.api.A0_YTV_ORDEN_VENTAClient
+import com.portalgm.y_trackcomercial.data.api.A0_YTV_STOCK_ALMACENClient
+import com.portalgm.y_trackcomercial.data.api.A0_YTV_VENDEDORClient
 import com.portalgm.y_trackcomercial.data.api.ApiService
 import com.portalgm.y_trackcomercial.data.api.DownloadUpdateApiClient
 import com.portalgm.y_trackcomercial.data.api.HorariosUsuarioApiClient
@@ -177,6 +181,30 @@ object NetworkModule {
     @Singleton
     fun provideExportacionNewPassApiClient(retrofit: Retrofit): ExportacionNewPassApiClient {
         return retrofit.create(ExportacionNewPassApiClient::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideImportarVendedorApiClient(retrofit: Retrofit): A0_YTV_VENDEDORClient {
+        return retrofit.create(A0_YTV_VENDEDORClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImportarListaPreciosApiClient(retrofit: Retrofit): A0_YTV_LISTA_PRECIOSClient {
+        return retrofit.create(A0_YTV_LISTA_PRECIOSClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImportarAlmacenStockApiClient(retrofit: Retrofit): A0_YTV_STOCK_ALMACENClient {
+        return retrofit.create(A0_YTV_STOCK_ALMACENClient::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideImportarOrdenVentaApiClient(retrofit: Retrofit): A0_YTV_ORDEN_VENTAClient {
+        return retrofit.create(A0_YTV_ORDEN_VENTAClient::class.java)
     }
 
 

@@ -35,6 +35,7 @@ class avisoProminentActivity : ComponentActivity() {
                         sharedPreferences.saveProminent(
                             true
                         )
+                     //   val intent = Intent(this@avisoProminentActivity, MainActivity::class.java)
                         val intent = Intent(this@avisoProminentActivity, MainActivity::class.java)
                         startActivity(intent)
                         finish()

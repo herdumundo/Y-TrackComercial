@@ -1,14 +1,20 @@
 package com.portalgm.y_trackcomercial.data.model.entities.database.migrations
 
 import androidx.room.ColumnInfo
+import androidx.room.PrimaryKey
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-     class Migration8to9 : Migration(8, 9) {
+import com.google.gson.annotations.SerializedName
+
+class Migration8to9 : Migration(8, 9) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Crear la tabla OINV_POS
             database.execSQL("""
             CREATE TABLE IF NOT EXISTS `OINV_POS` (
                 `docEntry`  BIGINT PRIMARY KEY NOT NULL,
+                `idVisita`  BIGINT NOT NULL,
+                `docEntryPedido` TEXT,
+                `licTradNum` TEXT,
                 `cardCode` TEXT,
                 `cardName` TEXT,
                 `docDate` TEXT,
@@ -22,6 +28,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
                 `qr` TEXT,
                  `xmlFact` TEXT,
                 `xmlNombre` TEXT,
+                `iva` TEXT,
+                `vigenciaTimbrado` TEXT,
+                `tipoContribuyente` TEXT,
+                `ci` TEXT,
+                `address` TEXT,
+                `correo` TEXT,
+                `contado` TEXT,
+                `totalIvaIncluido` TEXT,
                 `estado` TEXT
             )
         """)
@@ -38,45 +52,111 @@ import androidx.sqlite.db.SupportSQLiteDatabase
                 `Quantity` INTEGER NOT NULL,
                 `PriceAfterVat` INTEGER NOT NULL,
                 `UoMEntry` INTEGER NOT NULL,
-                `TaxCode` TEXT,
+                `PrecioUnitSinIva` TEXT,
+                `PrecioUnitIvaInclu` TEXT,
+                `TotalSinIva` TEXT,
+                `TotalIva` TEXT,
                 FOREIGN KEY(`docEntry`) REFERENCES `OINV_POS`(`docEntry`) ON DELETE CASCADE
             )
         """)
-        }
-    }
-/*
- qr=Column{name='qr', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- estado=Column{name='estado', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- docEntry=Column{name='docEntry', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='undefined'},
- cdc=Column{name='cdc', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- cardName=Column{name='cardName', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- docDueDate=Column{name='docDueDate', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- slpCode=Column{name='slpCode', type='INTEGER', affinity='3', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- cardCode=Column{name='cardCode', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- docDate=Column{name='docDate', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- numAtCard=Column{name='numAtCard', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- folioNumber=Column{name='folioNumber', type='INTEGER', affinity='3', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- series=Column{name='series', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- timb=Column{name='timb', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- xmlFact=Column{name='xmlFact', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- xmlNombre=Column{name='xmlNombre', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'}}, foreignKeys=[], indices=[]}
-                                                                                                     Found:
- docEntry=Column{name='docEntry', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='undefined'},
- cardCode=Column{name='cardCode', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- cardName=Column{name='cardName', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- docDate=Column{name='docDate', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- docDueDate=Column{name='docDueDate', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- series=Column{name='series', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- folioNumber=Column{name='folioNumber', type='INTEGER', affinity='3', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- numAtCard=Column{name='numAtCard', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- slpCode=Column{name='slpCode', type='INTEGER', affinity='3', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- timb=Column{name='timb', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- cdc=Column{name='cdc', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- qr=Column{name='qr', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
-  xmlFact=Column{name='xmlFact', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- xmlNombre=Column{name='xmlNombre', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'},
- estado=Column{name='estado', type='TEXT', affinity='2', notNull=false, primaryKeyPosition=0, defaultValue='undefined'}}, foreignKeys=[], indices=[]}
+            // Crear la tabla INV1_LOTES_POS
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `INV1_LOTES_POS` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `docEntry` BIGINT NOT NULL,
+                `ItemCode` TEXT NOT NULL,
+                `Lote` TEXT,
+                `Quantity` INTEGER NOT NULL,
+                FOREIGN KEY(`docEntry`) REFERENCES `OINV_POS`(`docEntry`) ON DELETE CASCADE
+            )
+        """)
+            // Crear la tabla A0_YTV_VENDEDOR
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `A0_YTV_VENDEDOR` (
+            `slpcode` INTEGER NOT NULL PRIMARY KEY,
+            `slpname` TEXT NOT NULL,
+            `U_DEPOSITO` TEXT,
+            `IdUsuario` TEXT NOT NULL,
+            `U_SERIEFACT` INTEGER,
+            `seriesname` TEXT NOT NULL,
+            `Remark` TEXT,
+            `u_ci` TEXT,
+            `u_ayudante` TEXT,
+            `nombre_ayudante` TEXT,
+            `u_esta` TEXT NOT NULL,
+            `u_pemi` TEXT NOT NULL,
+            `ult_nro_fact` TEXT NOT NULL,
+            `U_nro_autorizacion` TEXT,
+            `U_TimbradoNro` TEXT,
+            `U_fecha_autoriz_timb` TEXT,  
+            `U_FechaVto` TEXT,
+            `estado` TEXT
+             )
+        """)
 
-*
-*
-* */
+
+
+            // Crear la tabla A0_YTV_VENDEDOR
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `A0_YTV_LISTA_PRECIOS` (
+            `id` TEXT NOT NULL PRIMARY KEY,
+            `ItemCode` TEXT NOT NULL,
+            `PriceList` TEXT,
+            `Listname` TEXT NOT NULL,
+            `Price` TEXT
+            `    
+             )
+        """)
+
+
+            // Crear la tabla A0_YTV_STOCK_ALMACEN
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `A0_YTV_STOCK_ALMACEN` (
+            `id` TEXT NOT NULL PRIMARY KEY,
+            `ItmsGrpCod` TEXT ,
+            `ItmsGrpNam` TEXT,
+            `ItemCode` TEXT,
+            `BatchNum` TEXT,
+            `WhsCode` TEXT,
+            `Quantity` TEXT         
+            `    
+             )
+        """)
+
+
+            // Crear la tabla A0_YTV_ORDEN_VENTA
+            database.execSQL("""
+            CREATE TABLE IF NOT EXISTS `A0_YTV_ORDEN_VENTA` (
+            `id`            TEXT    NOT NULL PRIMARY KEY,
+            `LineNumDet`    INT     NOT NULL            ,
+            `DocEntry`      TEXT    NOT NULL            ,
+            `DocNum`        TEXT                        ,
+            `DocDate`       TEXT    NOT NULL            ,
+            `DocDueDate`    TEXT                        ,
+            `DocTotal`      TEXT    NOT NULL            ,
+            `CardCode`      TEXT                        ,
+            `IdCliente`     TEXT                        ,
+            `CardName`      TEXT                        ,
+            `ShipToCode`    TEXT                        ,
+            `LineNum`       TEXT    NOT NULL            ,
+            `LicTradNum`    TEXT    NOT NULL            ,
+            `ItemCode`      TEXT    NOT NULL            ,
+            `ItemName`      TEXT    NOT NULL            ,
+            `Quantity`      TEXT    NOT NULL            ,
+            `unitMsr`       TEXT                        ,
+            `PriceAfVAT`    TEXT                        ,
+            `TaxCode`       TEXT                        ,
+            `LineTotal`     TEXT                        ,
+            `VatSum`        TEXT                        ,
+            `SlpCode`       TEXT                        ,
+            `SlpName`       TEXT                        ,
+            `GroupNum`      TEXT                        ,
+            `PymntGroup`    TEXT                        ,
+            `DocStatus`     TEXT                        ,
+            `CANCELED`      TEXT                        ,
+            `estado`        TEXT NOT NULL DEFAULT 'P'
+             `    
+             )
+        """)
+        }
+     }

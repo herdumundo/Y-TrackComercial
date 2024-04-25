@@ -1,6 +1,8 @@
 package com.portalgm.y_trackcomercial.util
 
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class SharedData {
     val sharedBooleanLiveData = MutableLiveData<Boolean>()
@@ -16,7 +18,12 @@ class SharedData {
     val tiempo = MutableLiveData<Int>()
     val fechaLongGlobal = MutableLiveData<Long>()
     val webSocketConectado = MutableLiveData<Boolean>()
-
+    val txtSiedi = MutableLiveData<String>()
+    private val _debeContinuar = MutableStateFlow(true)  // Valor inicial
+    val debeContinuar: StateFlow<Boolean> = _debeContinuar
+    fun setDebeContinuar(valor: Boolean) {
+        _debeContinuar.value = valor
+    }
     companion object {
         @Volatile
         private var instance: SharedData? = null

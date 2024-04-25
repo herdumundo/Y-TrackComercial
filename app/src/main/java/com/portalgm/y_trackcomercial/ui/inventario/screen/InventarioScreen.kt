@@ -76,6 +76,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
+import com.portalgm.y_trackcomercial.data.model.models.Lotes
 import com.portalgm.y_trackcomercial.data.model.models.LotesItem
 import com.portalgm.y_trackcomercial.data.model.models.UbicacionPv
 
@@ -161,7 +162,7 @@ fun InventarioBody(
     inventarioViewModel: InventarioViewModel,
     idLote: String,
     txtCantidad: String,
-    lotesList: SnapshotStateList<com.portalgm.y_trackcomercial.data.model.models.Lotes>
+    lotesList: SnapshotStateList<Lotes>
 ) {
     val oitmList = inventarioViewModel.getOitm()
     val ubicacionesList = inventarioViewModel.getUbicaciones()

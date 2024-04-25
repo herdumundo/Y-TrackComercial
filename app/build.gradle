@@ -26,8 +26,8 @@ android {
     {
         debug
         {
-            buildConfigField "String", "BASE_URL", "\"http://192.168.6.112:8000/\""
-            buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.112:8000/\""
+            buildConfigField "String", "BASE_URL", "\"http://192.168.6.123:8000/\""
+            buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.123:8000/\""
             debuggable true
         }
         release
@@ -100,6 +100,8 @@ dependencies {
     //DAGGER HILT
     implementation 'com.google.dagger:hilt-android:2.47'
     kapt 'com.google.dagger:hilt-compiler:2.47'
+    implementation "androidx.hilt:hilt-work:1.0.0"
+    kapt "androidx.hilt:hilt-compiler:1.0.0"
 
     //ROOM
     implementation 'androidx.room:room-ktx:2.5.2'

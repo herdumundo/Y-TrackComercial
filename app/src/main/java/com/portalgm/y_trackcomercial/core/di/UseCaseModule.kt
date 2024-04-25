@@ -10,10 +10,16 @@ import com.portalgm.y_trackcomercial.repository.UbicacionesPvRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.MovimientosRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NewPassRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.NuevaUbicacionRepository
-import com.portalgm.y_trackcomercial.repository.registroRepositories.OinvRepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.OinvRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.VisitasRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.AuditTrailRepository
 import com.portalgm.y_trackcomercial.repository.registroRepositories.logRepositories.LogRepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.A0_YTV_LISTA_PRECIOSRepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.A0_YTV_ORDEN_VENTARepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.A0_YTV_STOCK_ALMACENRepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.A0_YtvVentasRepository
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.INV1_LOTES_REPOSITORY
+import com.portalgm.y_trackcomercial.repository.ventasRepositories.INV1_REPOSITORY
 import com.portalgm.y_trackcomercial.usecases.apiKeyGMS.GetApiKeyGMSUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
@@ -43,7 +49,7 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.InsertarNuevaUbicac
 import com.portalgm.y_trackcomercial.usecases.ocrd.GetOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrd.ImportarOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrdUbicaciones.ImportarOcrdUbicacionesUseCase
-import com.portalgm.y_trackcomercial.usecases.oinv.GetOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
@@ -51,6 +57,25 @@ import com.portalgm.y_trackcomercial.usecases.permisoVisita.ImportarPermisoVisit
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvCountUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.GetUbicacionesPvUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.inv1.InsertInv1UseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.inv1Lotes.InsertInv1LotesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.CountRegistrosListaPreciosUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.ImportarListaPreciosUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertTransactionOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.CountOrdenVentaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabByIdUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDetUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetDatosFacturaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ImportarVendedoresUseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetDatosVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetHorasTranscurridasVisitasUseCase
 import dagger.Module
@@ -376,9 +401,162 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetOinvUseCase(
         oinvRepository: OinvRepository
-    ):  GetOinvUseCase {
+    ): GetOinvUseCase {
         return GetOinvUseCase(oinvRepository)
     }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetCountVendedoresUseCase(
+        repository: A0_YtvVentasRepository
+    ):  CountRegistrosVendedoresUseCase {
+        return CountRegistrosVendedoresUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarVendedoresUseCase(
+        repository: A0_YtvVentasRepository
+    ):  ImportarVendedoresUseCase {
+        return ImportarVendedoresUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarListaPreciosUseCase (
+        repository: A0_YTV_LISTA_PRECIOSRepository
+    ):  ImportarListaPreciosUseCase  {
+        return ImportarListaPreciosUseCase (repository)
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideCountRegistrosListaPreciosUseCase (
+        repository: A0_YTV_LISTA_PRECIOSRepository
+    ):  CountRegistrosListaPreciosUseCase  {
+        return CountRegistrosListaPreciosUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountRegistrosStockAlmacenUseCase (
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ):  CountRegistrosStockAlmacenUseCase  {
+        return CountRegistrosStockAlmacenUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarStockAlmacenUseCase (
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ):  ImportarStockAlmacenUseCase  {
+        return ImportarStockAlmacenUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideImportarOrdenVentaUseCaseUseCase (
+        repository: A0_YTV_ORDEN_VENTARepository
+    ):  ImportarOrdenVentaUseCase  {
+        return ImportarOrdenVentaUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountOrdenVentaUseCase (
+        repository: A0_YTV_ORDEN_VENTARepository
+    ):  CountOrdenVentaUseCase  {
+        return CountOrdenVentaUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetOrdenVentaCabUseCase (
+        repository: A0_YTV_ORDEN_VENTARepository
+    ):  GetOrdenVentaCabUseCase  {
+        return GetOrdenVentaCabUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetOrdenVentaDetUseCase(
+        repository: A0_YTV_ORDEN_VENTARepository
+    ):  GetOrdenVentaDetUseCase  {
+        return GetOrdenVentaDetUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetOrdenVentaCabByIdUseCase(
+        repository: A0_YTV_ORDEN_VENTARepository
+    ):  GetOrdenVentaCabByIdUseCase  {
+        return GetOrdenVentaCabByIdUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetDatosFacturaUseCase(
+        repository: A0_YtvVentasRepository
+    ):  GetDatosFacturaUseCase  {
+        return GetDatosFacturaUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideInsertOinvUseCase(
+        repository: OinvRepository
+    ):  InsertOinvUseCase  {
+        return InsertOinvUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideInsertInv1UseCase(
+        repository: INV1_REPOSITORY
+    ):  InsertInv1UseCase  {
+        return InsertInv1UseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetDatosDetalleLotesUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ):  GetDatosDetalleLotesUseCase  {
+        return GetDatosDetalleLotesUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideInsertInv1LotesUseCase(
+        repository: INV1_LOTES_REPOSITORY
+    ):  InsertInv1LotesUseCase  {
+        return InsertInv1LotesUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideInsertTransactionOinvUseCase(
+        repository: OinvRepository
+    ):  InsertTransactionOinvUseCase  {
+        return InsertTransactionOinvUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideUpdateFirmaOinvUseCase(
+        repository: OinvRepository
+    ):  UpdateFirmaOinvUseCase  {
+        return UpdateFirmaOinvUseCase (repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetOinvByDateUseCase(
+        repository: OinvRepository
+    ):  GetOinvByDateUseCase  {
+        return GetOinvByDateUseCase (repository)
+    }
+
 
 }
 

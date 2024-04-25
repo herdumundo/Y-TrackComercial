@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.services.exportacion
 
+import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.request.EnviarAuditoriaTrailRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
@@ -20,13 +21,16 @@ import com.portalgm.y_trackcomercial.usecases.inventario.GetMovimientoPendientes
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
+import com.portalgm.y_trackcomercial.util.SharedData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 val batchSize = 5
 
 fun ExportarDatos(
@@ -46,38 +50,37 @@ fun ExportarDatos(
     getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase,
     countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase
 ) {
+
 // Lanza una corrutina para la exportación de datos
-   CoroutineScope(Dispatchers.IO).launch {
-   do {
-       val currentTime = Calendar.getInstance().time
-       val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-       val currentTimeString = dateFormat.format(currentTime)
-       // Verificar si la hora actual está entre las 07:00 y las 18:00
-       if (currentTimeString >= "07:00" && currentTimeString <= "19:00") {
-           // Realiza la lógica de exportación aquí
-           exportarDatos(
-               countAuditTrailUseCase,
-               countCantidadPendientes,
-               countLogPendientesUseCase,
-               countMovimientoUseCase,
-               getVisitasPendientesUseCase,
-               getAuditTrailPendienteUseCase,
-               getLogPendienteUseCase,
-               getMovimientoPendientesUseCase,
-               enviarVisitasPendientesUseCase,
-               enviarAuditTrailPendientesUseCase,
-               enviarLogPendientesUseCase,
-               enviarMovimientoPendientesUseCase,
-               enviarNuevasUbicacionesPendientesUseCase,
-               getNuevasUbicacionesPendientesUseCase,
-               countUbicacionesNuevasPendientesUseCase
-           )
-       }
-
-      delay(10 * 60 * 1000) // 10 minutos en milisegundos
-
-   } while (true)
-}
+    CoroutineScope(Dispatchers.IO).launch {
+        do {
+            val currentTime = Calendar.getInstance().time
+            val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val currentTimeString = dateFormat.format(currentTime)
+            // Verificar si la hora actual está entre las 07:00 y las 18:00
+            if (currentTimeString >= "07:00" && currentTimeString <= "19:00") {
+                // Realiza la lógica de exportación aquí
+                exportarDatos(
+                    countAuditTrailUseCase,
+                    countCantidadPendientes,
+                    countLogPendientesUseCase,
+                    countMovimientoUseCase,
+                    getVisitasPendientesUseCase,
+                    getAuditTrailPendienteUseCase,
+                    getLogPendienteUseCase,
+                    getMovimientoPendientesUseCase,
+                    enviarVisitasPendientesUseCase,
+                    enviarAuditTrailPendientesUseCase,
+                    enviarLogPendientesUseCase,
+                    enviarMovimientoPendientesUseCase,
+                    enviarNuevasUbicacionesPendientesUseCase,
+                    getNuevasUbicacionesPendientesUseCase,
+                    countUbicacionesNuevasPendientesUseCase
+                )
+            }
+            delay(10 * 60 * 1000) // 10 minutos en milisegundos
+        } while (true)
+    }
 }
 
 suspend fun exportarDatos(
@@ -108,19 +111,19 @@ suspend fun exportarDatos(
     }
 
     if (countCantidadPendientes.ContarCantidadPendientes() > 0) {
-    val visitasPendientes =
-       getVisitasPendientesUseCase.getVisitasPendientes()
-   val enviarVisitasRequest = EnviarVisitasRequest(visitasPendientes)
-   enviarVisitasPendientesUseCase.enviarVisitasPendientes(
-       enviarVisitasRequest
-   )
-}
+        val visitasPendientes =
+            getVisitasPendientesUseCase.getVisitasPendientes()
+        val enviarVisitasRequest = EnviarVisitasRequest(visitasPendientes)
+        enviarVisitasPendientesUseCase.enviarVisitasPendientes(
+            enviarVisitasRequest
+        )
+    }
 
     if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
         //val auditTrailPendientes = getAuditTrailPendienteUseCase.getAuditTrailPendientes()
-       // val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(auditTrailPendientes)
-       // enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
-        val auditTrailPendientes =  getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+        // val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(auditTrailPendientes)
+        // enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
+        val auditTrailPendientes = getAuditTrailPendienteUseCase.getAuditTrailPendientes()
         val registrosPorBatches = auditTrailPendientes.chunked(batchSize)
         registrosPorBatches.forEach { batch ->
             // Lógica para enviar el batch al servidor
@@ -133,7 +136,7 @@ suspend fun exportarDatos(
         val registrosPorBatches = auditLogPendientes.chunked(batchSize)
         registrosPorBatches.forEach { batch ->
             // Lógica para enviar el batch al servidor
-            val enviarAuditLogRequest =EnviarLotesDeActividadesRequest(batch)
+            val enviarAuditLogRequest = EnviarLotesDeActividadesRequest(batch)
             enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
         }
     }
@@ -147,5 +150,4 @@ suspend fun exportarDatos(
             enviarmovimientosRequest
         )
     }
-//Log.i("Mensaje", "DATOS EXPORTADOS")
 }

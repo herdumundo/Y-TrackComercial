@@ -45,6 +45,7 @@ class SharedPreferences @Inject constructor(private val context: Context) {
         editor.apply()
     }
 
+
     fun saveProminent(
         valor: Boolean) {
         val editor = sharedPreferences.edit()
@@ -100,7 +101,6 @@ class SharedPreferences @Inject constructor(private val context: Context) {
         // Si no hay datos guardados, retornar una lista vacía
         return emptyList()
     }
-
 
 
     fun getToken(): String? {

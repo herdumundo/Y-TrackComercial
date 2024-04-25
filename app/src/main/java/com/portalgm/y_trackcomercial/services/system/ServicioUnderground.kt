@@ -115,8 +115,9 @@ class ServicioUnderground : Service() {
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate()
     {
-        context = applicationContext // Asignación del contexto en onCreate
         super.onCreate()
+       // sharedData.debeContinuar.value=true
+        context = applicationContext // Asignación del contexto en onCreate
         registerReceiver(gpsStateReceiver, filter)
         val filterDataMobile = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         registerReceiver(mobileDataReceiver, filterDataMobile)
@@ -136,76 +137,6 @@ class ServicioUnderground : Service() {
         }
     }
 
-    private val latitudObserver = Observer<Double> { nuevaLatitud ->
-        // Verificar si el WebSocket está abierto
-        if (pieSocketListener.isConnected())
-        {
-          /*  if(nuevaLatitud!=latitudViejaWebSocket)
-            {*/
-                // Crear un objeto JSON con los nuevos datos
-                val data = JSONObject()
-                data.put("id", sharedPreferences.getUserId())
-                data.put("latitud", nuevaLatitud)
-                data.put("longitud", sharedData.longitudUsuarioActual.value ?: 0.0)
-                val message = data.toString()
-                pieSocketListener.enviarCoordenadas(message)
-           // }
-            latitudViejaWebSocket=nuevaLatitud
-        }
-    }
-    private val bateriaObserver = Observer<Int> { cambioPorcentaje ->
-        //val context = applicationContext
-        GlobalScope.launch {
-            if(bateriaEach>1){
-                if(sharedPreferences.getUserId()>0){
-                    insertRoomLocation(
-                        1.0, 1.0,
-                        context, sharedPreferences, auditTrailRepository,"BATERIA"
-                    )
-                }
-            }
-            bateriaEach++
-        }
-    }
-    private val gpsEnabledObserver = Observer<Boolean> { isGpsEnabled ->
-        GlobalScope.launch {
-            if(sharedPreferences.getUserId()>0)
-            {
-                val porceBateria = getBatteryPercentage(this@ServicioUnderground)
-                LogUtils.insertLog(
-                    logRepository,
-                    LocalDateTime.now().toString(),
-                    "GPS $isGpsEnabled",
-                    isGpsEnabled.toString(),
-                    sharedPreferences.getUserId(),
-                    sharedPreferences.getUserName()!!,
-                    "SERVICIO SEGUNDO PLANO",
-                    porceBateria
-                )
-            }
-        }
-    }
-
-    private val mobileDataEnabledObserver = Observer<Boolean> { isDataMobileEnabled ->
-        if (previousDataMobileState != isDataMobileEnabled) {
-            if(sharedPreferences.getUserId()>0){
-                GlobalScope.launch {
-                    val porceBateria = getBatteryPercentage(this@ServicioUnderground)
-                    LogUtils.insertLog(
-                        logRepository,
-                        LocalDateTime.now().toString(),
-                        "Paquete de datos $isDataMobileEnabled",
-                        isDataMobileEnabled.toString(),
-                        sharedPreferences.getUserId(),
-                        sharedPreferences.getUserName()!!,
-                        "SERVICIO SEGUNDO PLANO",
-                        porceBateria
-                    )
-                }
-            }
-            previousDataMobileState = isDataMobileEnabled
-        }
-    }
     override fun onDestroy() {
         super.onDestroy()
         val context = applicationContext
@@ -283,4 +214,73 @@ class ServicioUnderground : Service() {
         START, STOP
     }
 
+    private val latitudObserver = Observer<Double> { nuevaLatitud ->
+        // Verificar si el WebSocket está abierto
+        if (pieSocketListener.isConnected())
+        {
+            /*  if(nuevaLatitud!=latitudViejaWebSocket)
+              {*/
+            // Crear un objeto JSON con los nuevos datos
+            val data = JSONObject()
+            data.put("id", sharedPreferences.getUserId())
+            data.put("latitud", nuevaLatitud)
+            data.put("longitud", sharedData.longitudUsuarioActual.value ?: 0.0)
+            val message = data.toString()
+            pieSocketListener.enviarCoordenadas(message)
+            // }
+            latitudViejaWebSocket=nuevaLatitud
+        }
+    }
+    private val bateriaObserver = Observer<Int> { cambioPorcentaje ->
+        //val context = applicationContext
+        GlobalScope.launch {
+            if(bateriaEach>1){
+                if(sharedPreferences.getUserId()>0){
+                    insertRoomLocation(
+                        1.0, 1.0,
+                        context, sharedPreferences, auditTrailRepository,"BATERIA"
+                    )
+                }
+            }
+            bateriaEach++
+        }
+    }
+    private val gpsEnabledObserver = Observer<Boolean> { isGpsEnabled ->
+        GlobalScope.launch {
+            if(sharedPreferences.getUserId()>0)
+            {
+                val porceBateria = getBatteryPercentage(this@ServicioUnderground)
+                LogUtils.insertLog(
+                    logRepository,
+                    LocalDateTime.now().toString(),
+                    "GPS $isGpsEnabled",
+                    isGpsEnabled.toString(),
+                    sharedPreferences.getUserId(),
+                    sharedPreferences.getUserName()!!,
+                    "SERVICIO SEGUNDO PLANO",
+                    porceBateria
+                )
+            }
+        }
+    }
+    private val mobileDataEnabledObserver = Observer<Boolean> { isDataMobileEnabled ->
+        if (previousDataMobileState != isDataMobileEnabled) {
+            if(sharedPreferences.getUserId()>0){
+                GlobalScope.launch {
+                    val porceBateria = getBatteryPercentage(this@ServicioUnderground)
+                    LogUtils.insertLog(
+                        logRepository,
+                        LocalDateTime.now().toString(),
+                        "Paquete de datos $isDataMobileEnabled",
+                        isDataMobileEnabled.toString(),
+                        sharedPreferences.getUserId(),
+                        sharedPreferences.getUserName()!!,
+                        "SERVICIO SEGUNDO PLANO",
+                        porceBateria
+                    )
+                }
+            }
+            previousDataMobileState = isDataMobileEnabled
+        }
+    }
 }

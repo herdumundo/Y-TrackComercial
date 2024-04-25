@@ -2,6 +2,7 @@ package com.portalgm.y_trackcomercial.ui.splash
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -22,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.portalgm.y_trackcomercial.MainActivity
+ import com.portalgm.y_trackcomercial.MainActivity
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.InfoDialogDosBoton
 import com.portalgm.y_trackcomercial.util.SharedPreferences
@@ -76,15 +77,22 @@ class SplashActivity : ComponentActivity() {
         LaunchedEffect(key1 = true  ){
             alpha.animateTo(1f, animationSpec = tween(1500))
             delay(2000)
-            if(!sharedPreferences.getProminent()!!){
-                val intent = Intent(this@SplashActivity, avisoProminentActivity::class.java)
-                startActivity(intent)
-            }
-            else{
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                startActivity(intent)
-            }
-            finish()
+           try {
+                var promi=sharedPreferences.getProminent();
+               if(!promi!!){
+                   val intent = Intent(this@SplashActivity, avisoProminentActivity::class.java)
+                   startActivity(intent)
+               }
+               else{
+                   val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                   //     val intent = Intent(this@SplashActivity, FacturaSiedis::class.java)
+                   startActivity(intent)
+               }
+               finish()
+           }catch (e:Exception){
+               Log.i("MensajeError",e.toString())
+           }
+
         }
         // Puedes personalizar el diseño de tu splash screen aquí
         Box(

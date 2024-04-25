@@ -37,9 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.portalgm.y_trackcomercial.BuildConfig
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.DialogLoading
@@ -64,8 +66,14 @@ import com.portalgm.y_trackcomercial.ui.marcacionPromotora.GpsLocationScreen
 import com.portalgm.y_trackcomercial.ui.marcacionPromotora.MarcacionPromotoraViewModel
 import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.screen.NuevaUbicacionScreen
 import com.portalgm.y_trackcomercial.ui.nuevaUbicacion.viewmodel.NuevaUbicacionViewModel
+import com.portalgm.y_trackcomercial.ui.ordenVenta.screen.OrdenVentaScreen
+import com.portalgm.y_trackcomercial.ui.ordenVenta.viewmodel.OrdenVentaViewModel
+import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.screen.OrdenVentaDetalleScreen
+import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.OrdenVentaDetalleViewModel
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.screen.RastreoUsuarioMapa
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
+import com.portalgm.y_trackcomercial.ui.reimpresionFactura.screen.ReimpresionFacturaScreen
+import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppScreen
@@ -104,7 +112,10 @@ fun MenuPrincipal(
      cambioPassViewModel: CambioPassViewModel,
      sharedPreferences: SharedPreferences,
      visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
-     oinvViewModel: OinvViewModel
+     oinvViewModel: OinvViewModel,
+     ordenVentaViewModel: OrdenVentaViewModel,
+     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
+     reimpresionFacturaViewModel: ReimpresionFacturaViewModel
  ) {
      //  if (loginViewModel.loggedIn.value == true) {
        if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
@@ -293,6 +304,27 @@ fun MenuPrincipal(
 
                     FacturaScreen(oinvViewModel=oinvViewModel )
                 }
+                composable("ordenVenta") {
+
+                    OrdenVentaScreen(
+                        ordenVentaViewModel=ordenVentaViewModel,
+                        navController )
+                }
+                composable(
+                    "ordenVentaDetalle/{docNum}",
+                    arguments = listOf(navArgument("docNum") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    OrdenVentaDetalleScreen(
+                        ordenVentaDetalleViewModel = ordenVentaDetalleViewModel,
+                        docNum = backStackEntry.arguments?.getInt("docNum") ?: 0,
+                        navController
+                    )
+                }
+                composable("reimpresion") {
+
+                    ReimpresionFacturaScreen(reimpresionFacturaViewModel=reimpresionFacturaViewModel )
+                }
+
 
             }
         }

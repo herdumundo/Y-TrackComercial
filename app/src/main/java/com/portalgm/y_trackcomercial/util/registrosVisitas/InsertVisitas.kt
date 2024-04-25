@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.util.registrosVisitas
 
+import com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity
 import java.time.LocalDateTime
 
   fun crearVisitaEntity(
@@ -24,8 +25,8 @@ import java.time.LocalDateTime
     pendienteSincro: String,
     secuencia:Int,
     id:Long
-): com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity {
-    return com.portalgm.y_trackcomercial.data.model.entities.registro_entities.VisitasEntity(
+):  VisitasEntity {
+    return  VisitasEntity(
         id = id,
         idUsuario = idUsuario,
         idOcrd = idOcrd,
