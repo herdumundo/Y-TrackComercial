@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
 import com.portalgm.y_trackcomercial.util.HoraActualUtils
+import com.portalgm.y_trackcomercial.util.calculosIva
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -79,9 +80,9 @@ class layoutFactura {
                     factura += "[L]$espacios${lote.quantity}        ${lote.lote} \n"
                 }
                 factura +="[C]--------------------------------------------\n"
-            }
+            }//
             val totalInvoice = formatter.format(totalFactura)
-            val fivePercentOfTotal = formatter.format(totalFactura * 0.05)   // Calcular el 5%
+            val fivePercentOfTotal = formatter.format(calculosIva.calcularIva5(totalFactura) )   // Calcular el 5%
 
             factura += "[L]<font size='small'> TOTAL A PAGAR:              [L]<b>Gs. </b>[R]<b>$totalInvoice</b></font>\n" +
                     "[C]-----------------------------------------\n" +

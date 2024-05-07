@@ -19,9 +19,9 @@ class SharedData {
     val fechaLongGlobal = MutableLiveData<Long>()
     val webSocketConectado = MutableLiveData<Boolean>()
     val txtSiedi = MutableLiveData<String>()
+    val clase_a_enviarSiedi = MutableLiveData<String>()
     private val _debeContinuar = MutableStateFlow(true)  // Valor inicial
-    val debeContinuar: StateFlow<Boolean> = _debeContinuar
-    fun setDebeContinuar(valor: Boolean) {
+     fun setDebeContinuar(valor: Boolean) {
         _debeContinuar.value = valor
     }
     companion object {

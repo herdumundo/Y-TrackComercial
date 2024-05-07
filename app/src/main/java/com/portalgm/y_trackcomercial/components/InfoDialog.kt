@@ -437,6 +437,126 @@ fun InfoDialogDosBoton(
 
 
 @Composable
+fun InfoDialogDosBotonBoolean(
+    title: String,
+    titleBottom: String,
+    desc: String,
+    image: Int,
+    isActive: Boolean,
+    funcion: () -> Unit,
+    funcionCancel: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = {  },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Box(
+            modifier = Modifier
+                //    .fillMaxWidth()
+                .width(390.dp)
+                //  .fillMaxHeight()
+                .background(
+                    color = Color.Transparent,
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = Color(0xFFFDF7F7),
+                        shape = RoundedCornerShape(20.dp, 20.dp, 50.dp, 50.dp)
+                    )
+                    .align(Alignment.BottomCenter),
+            ) {
+                Image(
+                    painter = painterResource(image),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(175.dp)
+
+                        .fillMaxWidth(),
+                )
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    //.........................Spacer
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    //.........................Text: title
+                    Text(
+                        text = title,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 130.dp)
+                            .fillMaxWidth(),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.Black,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    //.........................Text : description
+                    Text(
+                        text = desc,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 10.dp, start = 25.dp, end = 25.dp)
+                            .fillMaxWidth(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black,
+                    )
+                    //.........................Spacer
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    //.........................Button : OK button
+
+                    Column() {
+
+                        if(isActive){
+                            Button(
+                                shape = RoundedCornerShape(4.dp),
+
+                                modifier=Modifier.fillMaxWidth(),
+                                onClick = {funcion() },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCE0303)),
+                                //.clip(RoundedCornerShape(25.dp))
+                            ) {
+                                Text(
+                                    text = titleBottom,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color(0xFFFDFDFD),
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+
+
+                    }
+                    //.........................Spacer
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    Button(
+                        shape = RoundedCornerShape(4.dp),
+
+                        modifier=Modifier.fillMaxWidth(),
+                        onClick = {funcionCancel() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000)),
+                        //.clip(RoundedCornerShape(25.dp))
+                    ) {
+                        Text(
+
+                            text = "Cancelar",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color(0xFFFDFDFD),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
 fun InfoDialogSinBoton(
     title: String,
      desc: String,

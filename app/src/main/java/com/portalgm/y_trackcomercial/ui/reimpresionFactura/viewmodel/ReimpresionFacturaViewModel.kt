@@ -9,6 +9,9 @@ import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
 import com.portalgm.y_trackcomercial.services.bluetooth.ImpresionResultado
 import com.portalgm.y_trackcomercial.services.bluetooth.servicioBluetooth
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
+import com.portalgm.y_trackcomercial.util.firmadorFactura.firmarFactura
 import com.portalgm.y_trackcomercial.util.impresion.layoutFactura
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -23,7 +27,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReimpresionFacturaViewModel @Inject constructor(
-    private val getOinvByDateUseCase:GetOinvByDateUseCase
+    private val getOinvByDateUseCase:GetOinvByDateUseCase,
+    private val getOinvUseCase: GetOinvUseCase,
+    private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
+
+
 ): ViewModel() {
     // Fecha seleccionada como MutableStateFlow
     private val _selectedDate = MutableStateFlow(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -39,6 +47,7 @@ class ReimpresionFacturaViewModel @Inject constructor(
     val loadingPantalla: LiveData<Boolean> = _loadingPantalla
     private val _dialogPantalla = MutableLiveData<Boolean>()
     val dialogPantalla: LiveData<Boolean> = _dialogPantalla
+    private val _docEntry = MutableLiveData<Long>()
 
     private val _mensajePantalla = MutableLiveData<String>()
     val mensajePantalla: LiveData<String> = _mensajePantalla
@@ -94,6 +103,48 @@ class ReimpresionFacturaViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun prepararFirma(docEntry: Long){
+        _loadingPantalla.value = true
+        _mensajePantalla.value = "Firmando factura..."
+        _docEntry.value=docEntry
+        viewModelScope.launch {
+             val listaFactura = getOinvUseCase.execute(docEntry)
+            firmarFactura.generarStringSiedi(listaFactura,"2")
+        }
+
+    }
+    fun finalizarFirma(qr: String, xml: String) {
+        viewModelScope.launch {
+            try {
+                val jsonObject = JSONObject(qr)
+                updateFirmaOinvUseCase.Update(
+                    jsonObject.getString("qr"),
+                    xml,
+                    jsonObject.getString("cdc"),
+                    _docEntry.value!!
+
+                )
+                _mensajePantalla.value = "Firmado con exito."
+                _loadingPantalla.value = false
+                _dialogPantalla.value = true
+                searchFacturasByDate()
+            } catch (e: Exception) {
+                Log.e("OinvViewModel", "Error al obtener la lista", e)
+            }
+        }
+    }
+    fun processReceivedData(datosXml: String?, datosQrCdc: String?) {
+
+        if (datosQrCdc.equals("null")) {
+            _mensajePantalla.value = "Ha ocurrido en error al firmar \n$datosXml"
+            _loadingPantalla.value = false
+            _dialogPantalla.value = true
+        } else {
+            finalizarFirma(datosQrCdc!!, datosXml!!)
+
         }
     }
 }

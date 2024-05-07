@@ -14,7 +14,10 @@ class Migration8to9 : Migration(8, 9) {
                 `docEntry`  BIGINT PRIMARY KEY NOT NULL,
                 `idVisita`  BIGINT NOT NULL,
                 `docEntryPedido` TEXT,
+                `condicion` TEXT,
+                
                 `licTradNum` TEXT,
+                `lineNumbCardCode` INTEGER NOT NULL,
                 `cardCode` TEXT,
                 `cardName` TEXT,
                 `docDate` TEXT,
@@ -36,6 +39,7 @@ class Migration8to9 : Migration(8, 9) {
                 `correo` TEXT,
                 `contado` TEXT,
                 `totalIvaIncluido` TEXT,
+                `anulado`        TEXT NOT NULL DEFAULT 'N',
                 `estado` TEXT
             )
         """)

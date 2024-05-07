@@ -51,6 +51,8 @@ import com.portalgm.y_trackcomercial.components.cardViewToolBar
 import com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity
 //import com.ytrack.y_trackcomercial.components.toIcon
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalViewModel
+import com.portalgm.y_trackcomercial.ui.anulacionFactura.screen.AnulacionFacturaScreen
+import com.portalgm.y_trackcomercial.ui.anulacionFactura.viewmodel.AnulacionFacturaViewModel
 import com.portalgm.y_trackcomercial.ui.cambioPass.screen.InfoDialogNewPass
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
@@ -115,7 +117,8 @@ fun MenuPrincipal(
      oinvViewModel: OinvViewModel,
      ordenVentaViewModel: OrdenVentaViewModel,
      ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
-     reimpresionFacturaViewModel: ReimpresionFacturaViewModel
+     reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
+     anulacionFacturaViewModel: AnulacionFacturaViewModel
  ) {
      //  if (loginViewModel.loggedIn.value == true) {
        if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
@@ -321,9 +324,12 @@ fun MenuPrincipal(
                     )
                 }
                 composable("reimpresion") {
-
                     ReimpresionFacturaScreen(reimpresionFacturaViewModel=reimpresionFacturaViewModel )
                 }
+                composable("cancelacionFactura") {
+                    AnulacionFacturaScreen(anulacionFacturaViewModel=anulacionFacturaViewModel )
+                }
+
 
 
             }

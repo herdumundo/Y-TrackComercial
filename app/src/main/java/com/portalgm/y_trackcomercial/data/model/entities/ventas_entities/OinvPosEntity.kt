@@ -12,6 +12,7 @@ data class OINV_POS(
     val docEntry: Long,
     @ColumnInfo(name = "docEntryPedido")    var docEntryPedido: String?,
     @ColumnInfo(name = "idVisita")          var idVisita: Long,
+    @ColumnInfo(name = "lineNumbCardCode")  var lineNumbCardCode: Int,
     @ColumnInfo(name = "cardCode")          var cardCode: String?,
     @ColumnInfo(name = "licTradNum")        var licTradNum: String?,
     @ColumnInfo(name = "cardName")          var cardName: String?,
@@ -33,8 +34,9 @@ data class OINV_POS(
     @ColumnInfo(name = "address")           var address: String?,
     @ColumnInfo(name = "correo")            var correo: String?,
     @ColumnInfo(name = "contado")           var contado: String?,// 1= SI, 2= NO
+    @ColumnInfo(name = "condicion")         var condicion: String?,
     @ColumnInfo(name = "totalIvaIncluido")  var totalIvaIncluido: String?,
-
+    @ColumnInfo(name = "anulado")           var anulado: String= "N",
     @ColumnInfo(name = "estado")            var estado: String?
 
 )

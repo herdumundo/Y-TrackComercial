@@ -1,14 +1,17 @@
 package com.portalgm.y_trackcomercial.ui.exportaciones.screen
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.LiveData
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.cardViewLoadingTablas
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
+import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablaInfo
 
 @Composable
 fun ScreenExportaciones(
@@ -25,6 +28,7 @@ fun ScreenExportaciones(
     val movimientosCount by exportacionViewModel.movimientosCount.observeAsState()
     val ubicacionesNuevasCount by exportacionViewModel.ubicacionesNuevasCount.observeAsState()
     val newPassCount by exportacionViewModel.newPassCount.observeAsState()
+    val pendientesOinvCount by exportacionViewModel.pendientesOinvCount.observeAsState()
 
     val loadingVisitas by exportacionViewModel.loadingVisitas.observeAsState(false)
     val loadingAuditTrail by exportacionViewModel.loadingAuditTrail.observeAsState(false)
@@ -32,6 +36,7 @@ fun ScreenExportaciones(
     val loadingMovimientos by exportacionViewModel.loadingMovimientos.observeAsState(false)
     val loadingNuevasUbicaciones by exportacionViewModel.loadingNuevasUbicaciones.observeAsState(false)
     val loadingNewPass by exportacionViewModel.loadingNewPass.observeAsState(false)
+    val loadingOinv by exportacionViewModel.loadingOinv.observeAsState(false)
 
     val colorCard = if (visitasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCard = if (visitasCount == 0) "Visitas sin pendientes" else "Exportar visitas"
@@ -45,78 +50,45 @@ fun ScreenExportaciones(
     val colorCardMovimientos = if (movimientosCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCardMovimientos = if (movimientosCount == 0) "Movimientos sin pendientes" else "Exportar Movimientos"
 
-
     val colorCardNuevasUbicaciones = if (ubicacionesNuevasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCardNuevasUbicaciones= if (ubicacionesNuevasCount == 0) "Ubicaciones nuevas sin pendientes" else "Exportar Ubicaciones Nuevas"
 
     val colorCardNuevaContraseña = if (newPassCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCardNuevoPass= if (newPassCount == 0) "Nueva contraseña sin pendientes" else "Exportar Nueva Contraseña"
 
+    val colorCardOinv = if (pendientesOinvCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeCardOinv= if (pendientesOinvCount == 0) "Facturas sin pendientes" else "Exportar Facturas"
 
-
+    val tablaInfo = listOf(
+        TablaInfo(colorCard,mensajeCard, visitasCount, R.drawable.ic_clock_permiso, loadingVisitas, 1, "Enviando visitas..."),
+        TablaInfo(colorCardAuditTrail,mensajeCardAuditTrail, auditTrailCount, R.drawable.ic_step, loadingAuditTrail, 2, "Enviando Auditoria Trail..."),
+        TablaInfo(colorCardLog,mensajeCardLog, logCount, R.drawable.ic_log_activity, loadingLog, 3, "Enviando Log de actividades..."),
+        TablaInfo(colorCardMovimientos,mensajeCardMovimientos, movimientosCount, R.drawable.ic_moving, loadingMovimientos, 4, "Enviando Movimientos..."),
+        TablaInfo(colorCardNuevasUbicaciones,mensajeCardNuevasUbicaciones, ubicacionesNuevasCount, R.drawable.ic_permisos, loadingNuevasUbicaciones, 5, "Enviando Nuevas Ubicaciones..."),
+        TablaInfo(colorCardNuevaContraseña,mensajeCardNuevoPass, newPassCount, R.drawable.ic_permisos, loadingNewPass, 6, "Enviando Nueva Clave..."),
+        TablaInfo(colorCardOinv,mensajeCardOinv, pendientesOinvCount, R.drawable.ic_lotes, loadingOinv, 7, "Enviando Facturas..."),
+        )
     LazyColumn {
-        item {
+        items(tablaInfo) { info ->
             cardViewLoadingTablas(
-                textoLoading = "Enviando visitas...",
-                title = mensajeCard,
-                color = colorCard,
-                subTitle = visitasCount.toString(),
-                image = R.drawable.ic_clock_permiso,
-                isLoading = loadingVisitas
-            ) { exportacionViewModel.enviarPendientes(1) }
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Enviando Auditoria Trail...",
-                title = mensajeCardAuditTrail,
-                color = colorCardAuditTrail,
-                subTitle = auditTrailCount.toString(),
-                image = R.drawable.ic_step,
-                isLoading = loadingAuditTrail
-            ) { exportacionViewModel.enviarPendientes(2) }
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Enviando Log de actividades...",
-                title = mensajeCardLog,
-                color = colorCardLog,
-                subTitle = logCount.toString(),
-                image = R.drawable.ic_log_activity,
-                isLoading = loadingLog
-            ) { exportacionViewModel.enviarPendientes(3) }
-        }
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Enviando Movimientos...",
-                title = mensajeCardMovimientos,
-                color = colorCardMovimientos,
-                subTitle = movimientosCount.toString(),
-                image = R.drawable.ic_moving,
-                isLoading = loadingMovimientos
-            ) { exportacionViewModel.enviarPendientes(4) }
-        }
-
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Enviando Nuevas Ubicaciones...",
-                title = mensajeCardNuevasUbicaciones,
-                color = colorCardNuevasUbicaciones,
-                subTitle = ubicacionesNuevasCount.toString(),
-                image = R.drawable.ic_permisos,
-                isLoading = loadingNuevasUbicaciones
-            ) { exportacionViewModel.enviarPendientes(5) }
-        }
-
-
-        item {
-            cardViewLoadingTablas(
-                textoLoading = "Enviando Nueva Clave...",
-                title = mensajeCardNuevoPass,
-                color = colorCardNuevaContraseña,
-                subTitle = newPassCount.toString(),
-                image = R.drawable.ic_permisos,
-                isLoading = loadingNewPass
-            ) { exportacionViewModel.enviarPendientes(6) }
+                textoLoading = info.textoLoading,
+                color = info.color,
+                title = info.title,
+                subTitle = info.count.toString(),
+                image = info.image,
+                isLoading = info.isLoading
+            ) {
+                exportacionViewModel.enviarPendientes(info.updateId)
+            }
         }
     }
 }
+data class TablaInfo(
+    val color : Color,
+    val title: String,
+    val count:  Int? ,
+    val image: Int,
+    val isLoading: Boolean,
+    val updateId: Int,
+    val textoLoading: String = "Cargando..." // Ejemplo de un valor por defecto
+)

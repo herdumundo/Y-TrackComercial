@@ -56,8 +56,7 @@ class AuditTrailRepository @Inject constructor
             if (apiResponse.tipo == 0) {
               // auditTrailDao.updateExportadoCerrado()
                 val idsLoteActual = lotesAuditTrail.lotesDeAuditoriaTrail.map { it.id!! }
-              //  val idsString = idsLoteActual.joinToString(",")
-                auditTrailDao.updateExportadoCerradoPorLotes(idsLoteActual)
+                 auditTrailDao.updateExportadoCerradoPorLotes(idsLoteActual)
             }
            // Log.i("MensajeTest",apiResponse.msg)
         } catch (e: Exception) {

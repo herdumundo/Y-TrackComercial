@@ -18,9 +18,8 @@ import androidx.room.PrimaryKey
 )
 data class INV1_LOTES_POS(
     @PrimaryKey(autoGenerate = true)        var id: Int = 0,
-    @ColumnInfo(name = "docEntry") var docEntry: Long,
+    @ColumnInfo(name = "docEntry")          var docEntry: Long,
     @ColumnInfo(name = "ItemCode")          var itemCode: String,
     @ColumnInfo(name = "Lote")              var lote: String?,
     @ColumnInfo(name = "Quantity")          var quantity: String,
-
-    )
+)

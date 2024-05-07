@@ -3,7 +3,6 @@ package com.portalgm.y_trackcomercial.ui.reimpresionFactura.screen
 import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,8 +15,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.EditAttributes
 import androidx.compose.material.icons.filled.Print
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
@@ -102,9 +101,18 @@ fun FacturaDetails(
                 title1 = item.oinvPos.address!!,
                 title2 = item.oinvPos.licTradNum!!,
                 title3 = item.oinvPos.numAtCard.toString(),
-                buttonText = "Imprimir",
-                icono=Icons.Filled.Print,
-                onClick = {  reimpresionFacturaViewModel.imprimir(item.oinvPos.docEntry)  }
+                buttonText = if(item.oinvPos.estado=="S") {"Firmar factura"} else {"Imprimir"}  ,
+                icono= if(item.oinvPos.estado=="S") {Icons.Filled.EditAttributes} else {Icons.Filled.Print}  ,
+                isAnulado = item.oinvPos.anulado != "N",
+                isImpresion = item.oinvPos.estado !in setOf("S") && item.oinvPos.qr!="" ,
+                fondoColor =if(item.oinvPos.estado=="S") {Color(0xFFFF6963)
+                } else if(item.oinvPos.anulado=="N") { Color(0xFFFFF5A1)
+                } else { Color(
+                    0xFFA7A4A4
+                )
+                },
+                onClick ={if(item.oinvPos.estado=="S") {reimpresionFacturaViewModel.prepararFirma(item.oinvPos.docEntry)} else {reimpresionFacturaViewModel.imprimir(item.oinvPos.docEntry)}
+                }
             )
 
 

@@ -10,6 +10,9 @@ import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRe
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeUbicacionesNuevasRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarVisitasRequest
+import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinv
+import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinvNew
+import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
@@ -28,6 +31,9 @@ import com.portalgm.y_trackcomercial.usecases.newPass.GetNewPassPendientesUseCas
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.CountUseOinvPendientesCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.ExportarOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvPendientesExportarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +48,7 @@ class ExportacionViewModel @Inject constructor(
     private val countMovimientoUseCase: CountMovimientoUseCase,
     private val countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase,
     private val countNewPassPendienteUseCase: CountNewPassPendienteUseCase,
+    private val countUseOinvPendientesCase: CountUseOinvPendientesCase,
 
     private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
     private val getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
@@ -49,6 +56,7 @@ class ExportacionViewModel @Inject constructor(
     private val getMovimientoPendientesUseCase: GetMovimientoPendientesUseCase,
     private val getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase,
     private val getNewPassPendientesUseCase: GetNewPassPendientesUseCase,
+    private val getOinvPendientesExportarUseCase: GetOinvPendientesExportarUseCase,
 
 
     private val enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
@@ -57,6 +65,7 @@ class ExportacionViewModel @Inject constructor(
     private val enviarMovimientoPendientesUseCase: EnviarMovimientoPendientesUseCase,
     private val enviarNuevasUbicacionesPendientesUseCase: ExportarNuevasUbicacionesPendientesUseCase,
     private val enviarNewPassPendientesUseCase: ExportarNewPassPendientesUseCase,
+    private val exportarOinvPendientesUseCase: ExportarOinvPendientesUseCase,
 
 
     ) : ViewModel() {
@@ -79,6 +88,9 @@ class ExportacionViewModel @Inject constructor(
     private val _newPassCount: MutableLiveData<Int> = MutableLiveData()
     val newPassCount: LiveData<Int> = _newPassCount
 
+    private val _pendientesOinvCount: MutableLiveData<Int> = MutableLiveData()
+    val pendientesOinvCount: LiveData<Int> = _pendientesOinvCount
+
 
     private val _loadingVisitas: MutableLiveData<Boolean> = MutableLiveData()
     val loadingVisitas: LiveData<Boolean> = _loadingVisitas
@@ -97,6 +109,9 @@ class ExportacionViewModel @Inject constructor(
 
     private val _loadingNewPass: MutableLiveData<Boolean> = MutableLiveData()
     val loadingNewPass: LiveData<Boolean> = _loadingNewPass
+
+    private val _loadingOinv: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingOinv: LiveData<Boolean> = _loadingOinv
     val batchSize = 5
 
 
@@ -110,17 +125,19 @@ class ExportacionViewModel @Inject constructor(
                 4 -> countMovimientoUseCase.CountPendientes()
                 5 -> countUbicacionesNuevasPendientesUseCase.CountPendientes()
                 6 -> countNewPassPendienteUseCase.CountPendientes()
+                7 -> countUseOinvPendientesCase.CountPendientes()
 
                 else -> 0 // O cualquier valor predeterminado si tipoRegistro no es 1 ni 2
             }
             withContext(Dispatchers.Main) {
                 when (tipoRegistro) {
-                    1 -> _visitasCount.value            = cantPendientes
-                    2 -> _auditTrailCount.value         = cantPendientes
-                    3 -> _logCount.value                = cantPendientes
-                    4 -> _movimientosCount.value        = cantPendientes
-                    5 -> _ubicacionesNuevasCount.value  = cantPendientes
-                    6 -> _newPassCount.value            =cantPendientes
+                    1 -> _visitasCount.value = cantPendientes
+                    2 -> _auditTrailCount.value = cantPendientes
+                    3 -> _logCount.value = cantPendientes
+                    4 -> _movimientosCount.value = cantPendientes
+                    5 -> _ubicacionesNuevasCount.value = cantPendientes
+                    6 -> _newPassCount.value = cantPendientes
+                    7 -> _pendientesOinvCount.value = cantPendientes
 
                 }
             }
@@ -133,16 +150,19 @@ class ExportacionViewModel @Inject constructor(
             val cantPendientesAuditTrail = countAuditTrailUseCase.CountPendientesExportacion()
             val cantPendientesLog = countLogPendientesUseCase.CountPendientes()
             val cantPendientesMovimientos = countMovimientoUseCase.CountPendientes()
-            val cantUbicacionesNuevasPendientesUseCase = countUbicacionesNuevasPendientesUseCase.CountPendientes()
+            val cantUbicacionesNuevasPendientesUseCase =
+                countUbicacionesNuevasPendientesUseCase.CountPendientes()
             val cantNuevoPassPendientesUseCase = countNewPassPendienteUseCase.CountPendientes()
+            val countUseOinvPendientesCase = countUseOinvPendientesCase.CountPendientes()
 
             withContext(Dispatchers.Main) {
                 _visitasCount.value = cantPendientesVisitas
                 _auditTrailCount.value = cantPendientesAuditTrail
                 _logCount.value = cantPendientesLog
                 _movimientosCount.value = cantPendientesMovimientos
-                _ubicacionesNuevasCount.value=cantUbicacionesNuevasPendientesUseCase
-                _newPassCount.value=cantNuevoPassPendientesUseCase
+                _ubicacionesNuevasCount.value = cantUbicacionesNuevasPendientesUseCase
+                _newPassCount.value = cantNuevoPassPendientesUseCase
+                _pendientesOinvCount.value = countUseOinvPendientesCase
 
             }
         }
@@ -171,28 +191,36 @@ class ExportacionViewModel @Inject constructor(
                         if (!loadingAuditTrail.value!!) {
                             if (countAuditTrailUseCase.CountPendientesExportacion() > 0) {
                                 _loadingAuditTrail.value = true
-                                val auditTrailPendientes =  getAuditTrailPendienteUseCase.getAuditTrailPendientes()
+                                val auditTrailPendientes =
+                                    getAuditTrailPendienteUseCase.getAuditTrailPendientes()
                                 val registrosPorBatches = auditTrailPendientes.chunked(batchSize)
                                 registrosPorBatches.forEach { batch ->
                                     // Lógica para enviar el batch al servidor
                                     val enviarAuditTrailRequest = EnviarAuditoriaTrailRequest(batch)
-                                    enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(enviarAuditTrailRequest)
+                                    enviarAuditTrailPendientesUseCase.enviarAuditTrailPendientes(
+                                        enviarAuditTrailRequest
+                                    )
                                 }
 
                                 _loadingAuditTrail.value = false
                             }
                         }
                     }
+
                     3 -> {
                         if (!loadingLog.value!!) {
                             if (countLogPendientesUseCase.CountPendientes() > 0) {
                                 _loadingLog.value = true
-                                val auditLogPendientes =getLogPendienteUseCase.getAuditLogPendientes()
+                                val auditLogPendientes =
+                                    getLogPendienteUseCase.getAuditLogPendientes()
                                 val registrosPorBatches = auditLogPendientes.chunked(batchSize)
                                 registrosPorBatches.forEach { batch ->
                                     // Lógica para enviar el batch al servidor
-                                    val enviarAuditLogRequest =EnviarLotesDeActividadesRequest(batch)
-                                    enviarLogPendientesUseCase.enviarLogPendientes(enviarAuditLogRequest)
+                                    val enviarAuditLogRequest =
+                                        EnviarLotesDeActividadesRequest(batch)
+                                    enviarLogPendientesUseCase.enviarLogPendientes(
+                                        enviarAuditLogRequest
+                                    )
                                 }
 
                                 _loadingLog.value = false
@@ -204,13 +232,18 @@ class ExportacionViewModel @Inject constructor(
                         if (!loadingMovimientos.value!!) {
                             if (countMovimientoUseCase.CountPendientes() > 0) {
                                 _loadingMovimientos.value = true
-                                val movimientosPendientes =  getMovimientoPendientesUseCase.GetPendientes()
-                                val enviarmovimientosRequest = EnviarLotesDeMovimientosRequest(movimientosPendientes)
-                                enviarMovimientoPendientesUseCase.enviarPendientes(enviarmovimientosRequest)
+                                val movimientosPendientes =
+                                    getMovimientoPendientesUseCase.GetPendientes()
+                                val enviarmovimientosRequest =
+                                    EnviarLotesDeMovimientosRequest(movimientosPendientes)
+                                enviarMovimientoPendientesUseCase.enviarPendientes(
+                                    enviarmovimientosRequest
+                                )
                                 _loadingMovimientos.value = false
                             }
                         }
                     }
+
                     5 -> {
                         if (!loadingNuevasUbicaciones.value!!) {
                             if (countUbicacionesNuevasPendientesUseCase.CountPendientes() > 0) {
@@ -226,12 +259,12 @@ class ExportacionViewModel @Inject constructor(
                             }
                         }
                     }
+
                     6 -> {
                         if (!loadingNewPass.value!!) {
                             if (countNewPassPendienteUseCase.CountPendientes() > 0) {
                                 _loadingNewPass.value = true
-                                val lotesPendientes =
-                                    getNewPassPendientesUseCase.getPendientes()
+                                val lotesPendientes = getNewPassPendientesUseCase.getPendientes()
 
                                 enviarNewPassPendientesUseCase.enviarPendientes(
                                     lotesPendientes
@@ -241,21 +274,37 @@ class ExportacionViewModel @Inject constructor(
                         }
                     }
 
+                    7 -> {
+                        if (!loadingOinv.value!!) {
+                            if (countUseOinvPendientesCase.CountPendientes() > 0) {
+                                _loadingOinv.value = true
+                                val lotesPendientes =  getOinvPendientesExportarUseCase.getPendientes()
+                                //val enviarmovimientosRequest =  LotesMovimientosOinv(lotesPendientes)
+                                 // val enviarmovimientosRequest =  DatosMovimientosOinv(lotesPendientes)
+
+                            //    exportarOinvPendientesUseCase.exportarDatos(enviarmovimientosRequest)
+                                exportarOinvPendientesUseCase.exportarDatos(lotesPendientes)
+                                _loadingOinv.value = false
+                            }
+                        }
+                    }
 
                 }
                 getTablasRegistradas(tipoRegistro)
             } catch (e: Exception) {
-              Log.i("Mensaje",e.toString())
+                Log.i("Mensaje", e.toString())
             }
         }
     }
 
     fun setFalseLoading() {
-        _loadingAuditTrail.value        = false
-        _loadingVisitas.value           = false
-        _loadingLog.value               = false
-        _loadingMovimientos.value       = false
+        _loadingAuditTrail.value = false
+        _loadingVisitas.value = false
+        _loadingLog.value = false
+        _loadingMovimientos.value = false
         _loadingNuevasUbicaciones.value = false
-        _loadingNewPass.value           = false
+        _loadingNewPass.value = false
+        _loadingOinv.value = false
+
     }
 }

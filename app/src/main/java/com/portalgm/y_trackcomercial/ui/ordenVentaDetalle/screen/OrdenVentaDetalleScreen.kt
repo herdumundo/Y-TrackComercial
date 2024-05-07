@@ -38,8 +38,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavHostController
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.DialogLoading
+import com.portalgm.y_trackcomercial.components.InfoDialogDosBoton
+import com.portalgm.y_trackcomercial.components.InfoDialogDosBotonBoolean
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosDetalleLotes
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -90,6 +94,9 @@ fun MenuScreen(
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
     mostrarBotonRegistrar: Boolean,
 ) {
+    val nroFactura              by ordenVentaDetalleViewModel.nroFactura.observeAsState("")
+    val pantallaConfirmacion    by ordenVentaDetalleViewModel.pantallaConfirmacion.observeAsState(false)
+
     // Estados de cantidades y selección
     val quantities = remember { articulosMenu.associateWith { mutableStateOf(it.initialQuantity) } }
     val selections = remember { articulosMenu.associateWith { mutableStateOf(true) } }
@@ -98,11 +105,27 @@ fun MenuScreen(
         if (selections[articulo]?.value == true) articulo.price * (quantities[articulo]?.value
             ?: 0) else 0
     }
-    val formattedTotalCost = NumberFormat.getNumberInstance(Locale.US).format(totalCost)
+    val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+    decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
+    val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
+    val totalInvoice = formatter.format(totalCost)
+
     // Obtener los productos seleccionados
     val productosSeleccionados by remember {
         derivedStateOf {
             ordenVentaDetalleViewModel.getProductosSeleccionados(articulosMenu, selections, quantities)
+        }
+    }
+
+    if ((pantallaConfirmacion)) {
+        InfoDialogDosBotonBoolean(
+            title ="Creacion de factura",
+            titleBottom = "Procesar",
+            desc = "Desea crear el documento?",
+            image = R.drawable.icono_exit,
+            isActive = mostrarBotonRegistrar,
+            funcion = {  ordenVentaDetalleViewModel.registrar(productosSeleccionados) })
+        {ordenVentaDetalleViewModel.cancelar()
         }
     }
     // Llamada inicial para calcular y comprobar el estado del botón
@@ -115,13 +138,18 @@ fun MenuScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Total: Gs. $formattedTotalCost", style = MaterialTheme.typography.headlineSmall)
-           if(mostrarBotonRegistrar){ Button(
+            Column {
+                Text("Total: Gs. $totalInvoice", style = MaterialTheme.typography.headlineSmall)
+                Text("Nro. Factura: $nroFactura ", style = MaterialTheme.typography.headlineSmall)
+            }
+
+           if(mostrarBotonRegistrar){
+               Button(
                 modifier = Modifier,
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
                 onClick = {
-                        ordenVentaDetalleViewModel.registrar(productosSeleccionados)
+                    ordenVentaDetalleViewModel.mostrarConfirmacion()
                  }
             ) {
                 Text(text = "Registrar", color = Color.White)
@@ -147,11 +175,7 @@ fun MenuScreen(
                         }
                     )
                 }
-
          }
-
-
-
     }
 }
 
@@ -168,9 +192,9 @@ fun ProductosItemRow(
     ) {
     var expanded by remember { mutableStateOf(false) }
     val cantidadCargada = ordenVentaDetalleViewModel.getCantidadCargadaPorItemCode(productosItem.itemCode)
-    val textColor = if (cantidadCargada == quantity) Color(0xFFA3FF81) else if(cantidadCargada > quantity) Color(
-        0xFFFF3F3F
-    ) else Color(0xFFFFF5A1)
+    val textColor = if (cantidadCargada == quantity && isSelected) Color(0xFFA3FF81) else if(cantidadCargada > quantity && isSelected) Color(0xFFFF3F3F)else if(isSelected) Color(
+        0xFFF5E556
+    ) else Color(0xFFFFFFFF)
     var searchText by remember { mutableStateOf("") } // Definir searchText aquí
 
     Card(
@@ -204,8 +228,10 @@ fun ProductosItemRow(
                     Text(productosItem.itemCode, style = MaterialTheme.typography.bodySmall)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    val formattedCost =
-                        NumberFormat.getNumberInstance(Locale.US).format(productosItem.price)
+                     val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+                    decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
+                    val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
+                    val formattedCost = formatter.format(productosItem.price)
                     Text("Gs. $formattedCost", style = MaterialTheme.typography.bodyLarge)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = { if (quantity > 0) onQuantityChange(-1) }) {

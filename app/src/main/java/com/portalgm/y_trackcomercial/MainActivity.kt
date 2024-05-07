@@ -54,6 +54,7 @@ import com.portalgm.y_trackcomercial.services.gps.locationLocal.LocationLocalVie
 import com.portalgm.y_trackcomercial.services.gps.locationLocal.iniciarCicloObtenerUbicacion
 import com.portalgm.y_trackcomercial.services.system.ServicioUnderground
 import com.portalgm.y_trackcomercial.services.workManager.ExportDataWorker
+import com.portalgm.y_trackcomercial.ui.anulacionFactura.viewmodel.AnulacionFacturaViewModel
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
 import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
@@ -80,6 +81,7 @@ import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetDatosVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.util.firmadorFactura.firmarFactura
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -112,6 +114,7 @@ class MainActivity : ComponentActivity() {
     private val ordenVentaViewModel: OrdenVentaViewModel by viewModels()
     private val ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel by viewModels()
     private val reimpresionFacturaViewModel: ReimpresionFacturaViewModel by viewModels()
+    private val anulacionFacturaViewModel: AnulacionFacturaViewModel by viewModels()
 
 
     private val updateType = AppUpdateType.IMMEDIATE
@@ -161,8 +164,14 @@ class MainActivity : ComponentActivity() {
                     if (intent?.action == "com.portalgm.y_trackcomercial.DATA_PROCESSED") {
                         val datosQrCdc = intent.getStringExtra("datosQR_CDC")
                         val datosXml = intent.getStringExtra("datosXml")
-                         // Usa los datos como necesites, por ejemplo, enviándolos al ViewModel
-                        ordenVentaDetalleViewModel.processReceivedData(datosXml, datosQrCdc)
+                          // Usa los datos como necesites, por ejemplo, enviándolos al ViewModel
+
+                        if(firmarFactura.sharedData.clase_a_enviarSiedi.value.equals("1")){
+                            ordenVentaDetalleViewModel.processReceivedData(datosXml, datosQrCdc)
+                        }
+                        else {
+                            reimpresionFacturaViewModel.processReceivedData(datosXml, datosQrCdc)
+                        }
                     }
                 }
             }
@@ -173,7 +182,7 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.i("MensajeError", e.toString())
         }
-        ordenVentaDetalleViewModel.initFacturaEvent.observe(this, Observer { event ->
+        firmarFactura.initFacturaEvent.observe(this, Observer { event ->
             event.getContentIfNotHandled()?.let {
                 // Llamada segura para iniciar FacturaSiedi
                 val intent = Intent(this, FacturaSiedi::class.java)
@@ -294,7 +303,8 @@ class MainActivity : ComponentActivity() {
                     oinvViewModel,
                     ordenVentaViewModel,
                     ordenVentaDetalleViewModel,
-                    reimpresionFacturaViewModel
+                    reimpresionFacturaViewModel,
+                    anulacionFacturaViewModel
 
                 )
             }
@@ -590,7 +600,8 @@ fun Router(
     oinvViewModel: OinvViewModel,
     ordenVentaViewModel: OrdenVentaViewModel,
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
-    reimpresionFacturaViewModel: ReimpresionFacturaViewModel
+    reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
+    anulacionFacturaViewModel: AnulacionFacturaViewModel
 ) {
     NavHost(
         navController = navController,
@@ -620,7 +631,8 @@ fun Router(
                 oinvViewModel,
                 ordenVentaViewModel,
                 ordenVentaDetalleViewModel,
-                reimpresionFacturaViewModel
+                reimpresionFacturaViewModel,
+                anulacionFacturaViewModel
             )
         }
         composable("login") { LoginScreen(loginViewModel, navController) }

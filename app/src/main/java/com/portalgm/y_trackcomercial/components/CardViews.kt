@@ -29,7 +29,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -119,7 +123,7 @@ fun cardViewToolBar(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-             .padding(5.dp)
+            .padding(5.dp)
             .clickable { onClick() },
         backgroundColor = color,
         contentColor = Color(0xFFFFF8F8),
@@ -130,14 +134,14 @@ fun cardViewToolBar(
                 Column(
                     modifier = Modifier
                         .weight(2f)
-                        .padding(end =1.dp),
+                        .padding(end = 1.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                        Text(
-                            title,
-                            style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
-                        )
-                 }
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     modifier = Modifier
@@ -166,7 +170,7 @@ fun cardView2Title(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
-            .clickable {   },
+            .clickable { },
         backgroundColor = color,
         contentColor = Color(0xFFFFF8F8),
         content = {
@@ -176,7 +180,7 @@ fun cardView2Title(
                 Column(
                     modifier = Modifier
                         .weight(2f)
-                        .padding(end =1.dp),
+                        .padding(end = 1.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -211,74 +215,83 @@ fun cardView2Title(
 }
 
 
-
 @Composable
 fun CardOrdenVenta(
     title1: String,
     title2: String,
     title3: String,
     buttonText: String,
-    icono:ImageVector,
+    icono: ImageVector,
+    isAnulado: Boolean ,// Agrega un parámetro para controlar si se muestra el ribbon de "Anulado"
+    isImpresion: Boolean ,// Agrega un parámetro para controlar si se muestra el ribbon de "Anulado"
+    fondoColor:Color,
     onClick: () -> Unit
-) { Box {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = 5.dp,
-        color = androidx.compose.material3.MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = title1,
-                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title2,
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.Gray
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
+) {
+    Box {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = 5.dp,
 
-                Button(
-                    shape = RoundedCornerShape(4.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
-                    onClick = { onClick() }
+            color = fondoColor//
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = title1,
+                    style = androidx.compose.material3.MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = title2,
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.Black
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Row {
-                        Icon(
-                            imageVector = icono,
-                            contentDescription = "Print",
-                            tint = Color.White
-                        )
-                        Text(
-                            text = buttonText,
-                            color = Color.White,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontSize = 16.sp
-                        )
+                    if (!isAnulado||isImpresion) {
+
+                        Button(
+                            shape = RoundedCornerShape(4.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
+                            onClick = { onClick() }
+                        ) {
+                            Row {
+                                Icon(
+                                    imageVector = icono,
+                                    contentDescription = "Print",
+                                    tint = Color.White
+                                )
+                                Text(
+                                    text = buttonText,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+        Ribbon(ribbonNumber = title3)
+        if (isAnulado) {
+            AnuladoRibbon(Modifier.align(Alignment.TopEnd))
+        }
     }
-    Ribbon(ribbonNumber = title3)
+}
 
-}
-}
 @Composable
 fun Ribbon(ribbonNumber: String) {
     Box(
@@ -286,15 +299,58 @@ fun Ribbon(ribbonNumber: String) {
             .wrapContentSize()
             .background(
                 color = Color(0xFF9E0400),
-                shape = RoundedCornerShape(topStart = 0.dp, bottomEnd = 12.dp, topEnd = 12.dp, bottomStart = 12.dp)
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    bottomEnd = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 12.dp
+                )
             )
-            .padding(PaddingValues(horizontal = 8.dp, vertical = 2.dp)) // Ajusta el padding para el tamaño del texto
+            .padding(
+                PaddingValues(
+                    horizontal = 8.dp,
+                    vertical = 2.dp
+                )
+            ) // Ajusta el padding para el tamaño del texto
     ) {
         Text(
             text = ribbonNumber,
             color = Color.White,
             fontSize = 12.sp, // Ajusta el tamaño del texto si es necesario
             modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun AnuladoRibbon(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                // Establecer la rotación y el punto de pivote para rotar el contenedor completo
+                rotationZ = 30f
+                transformOrigin = TransformOrigin(
+                    pivotFractionX = 0.1f,
+                    pivotFractionY = 0.1f
+                ) // Ajustar el punto de pivote según sea necesario
+            }
+            .clip(
+                RoundedCornerShape(
+                    topStart = 0.dp,
+                    bottomEnd = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 12.dp
+                )
+            )
+            .background(Color.Red)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .width(80.dp) // Establece un ancho fijo para el ribbon
+    ) {
+        Text(
+            text = "ANULADO",
+            color = Color.White,
+            fontSize = 12.sp,
+            modifier = Modifier.align(Alignment.Center) // Alinea el texto en el centro del ribbon rotado
         )
     }
 }

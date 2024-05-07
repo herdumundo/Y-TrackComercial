@@ -64,7 +64,10 @@ import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.ImportarListaP
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertTransactionOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateAnularFacturaOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.CountUseOinvPendientesCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.ExportarOinvPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.CountOrdenVentaUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabByIdUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabUseCase
@@ -203,6 +206,7 @@ object UseCaseModule {
     ): CountAuditTrailUseCase {
         return CountAuditTrailUseCase(auditTrailRepository)
     }
+
     @Provides
     @ViewModelScoped
     fun provideEnviarAuditTrailPendientesUseCase(
@@ -263,7 +267,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetHorasTranscurridasVisitasUseCase(
         visitasRepository: VisitasRepository
-    ):  GetHorasTranscurridasVisitasUseCase {
+    ): GetHorasTranscurridasVisitasUseCase {
         return GetHorasTranscurridasVisitasUseCase(visitasRepository)
     }
 
@@ -271,7 +275,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetApiKeyGMSUseCase(
         apiKeyGMSRepository: ApiKeyGMSRepository
-    ):  GetApiKeyGMSUseCase {
+    ): GetApiKeyGMSUseCase {
         return GetApiKeyGMSUseCase(apiKeyGMSRepository)
     }
 
@@ -279,7 +283,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideInsertarNuevaUbicacionUseCase(
         nuevaUbicacionRepository: NuevaUbicacionRepository
-    ):  InsertarNuevaUbicacionUseCase {
+    ): InsertarNuevaUbicacionUseCase {
         return InsertarNuevaUbicacionUseCase(nuevaUbicacionRepository)
     }
 
@@ -287,7 +291,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideCountUbicacionesNuevasPendientesUseCase(
         nuevaUbicacionRepository: NuevaUbicacionRepository
-    ):  CountUbicacionesNuevasPendientesUseCase {
+    ): CountUbicacionesNuevasPendientesUseCase {
         return CountUbicacionesNuevasPendientesUseCase(nuevaUbicacionRepository)
     }
 
@@ -296,7 +300,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetNuevasUbicacionesPendientesUseCase(
         nuevaUbicacionRepository: NuevaUbicacionRepository
-    ):  GetNuevasUbicacionesPendientesUseCase {
+    ): GetNuevasUbicacionesPendientesUseCase {
         return GetNuevasUbicacionesPendientesUseCase(nuevaUbicacionRepository)
     }
 
@@ -304,7 +308,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideExportarNuevasUbicacionesPendientesUseCase(
         nuevaUbicacionRepository: NuevaUbicacionRepository
-    ):  ExportarNuevasUbicacionesPendientesUseCase {
+    ): ExportarNuevasUbicacionesPendientesUseCase {
         return ExportarNuevasUbicacionesPendientesUseCase(nuevaUbicacionRepository)
     }
 
@@ -312,7 +316,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideInsertarNewPassUseCase(
         newPassRepository: NewPassRepository
-    ):  InsertarNewPassUseCase {
+    ): InsertarNewPassUseCase {
         return InsertarNewPassUseCase(newPassRepository)
     }
 
@@ -320,7 +324,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideCountNewPassPendienteUseCase(
         newPassRepository: NewPassRepository
-    ):  CountNewPassPendienteUseCase {
+    ): CountNewPassPendienteUseCase {
         return CountNewPassPendienteUseCase(newPassRepository)
     }
 
@@ -329,7 +333,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetNewPassPendientesUseCase(
         newPassRepository: NewPassRepository
-    ):  GetNewPassPendientesUseCase {
+    ): GetNewPassPendientesUseCase {
         return GetNewPassPendientesUseCase(newPassRepository)
     }
 
@@ -337,14 +341,15 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideExportarNewPassPendientesUseCase(
         newPassRepository: NewPassRepository
-    ):  ExportarNewPassPendientesUseCase {
+    ): ExportarNewPassPendientesUseCase {
         return ExportarNewPassPendientesUseCase(newPassRepository)
     }
+
     @Provides
     @ViewModelScoped
     fun provideGetDatosVisitaActivaUseCase(
         visitasRepository: VisitasRepository
-    ):  GetDatosVisitaActivaUseCase {
+    ): GetDatosVisitaActivaUseCase {
         return GetDatosVisitaActivaUseCase(visitasRepository)
     }
 
@@ -352,7 +357,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetUltimaHoraRegistroUseCase(
         auditTrailRepository: AuditTrailRepository
-    ):  GetUltimaHoraRegistroUseCase {
+    ): GetUltimaHoraRegistroUseCase {
         return GetUltimaHoraRegistroUseCase(auditTrailRepository)
     }
 
@@ -360,7 +365,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideImportarParametrosUseCase(
         parametrosRepository: ParametrosRepository
-    ):  ImportarParametrosUseCase {
+    ): ImportarParametrosUseCase {
         return ImportarParametrosUseCase(parametrosRepository)
     }
 
@@ -369,7 +374,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetTimerGpsHilo1UseCase(
         parametrosRepository: ParametrosRepository
-    ):  GetTimerGpsHilo1UseCase {
+    ): GetTimerGpsHilo1UseCase {
         return GetTimerGpsHilo1UseCase(parametrosRepository)
     }
 
@@ -377,7 +382,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideImportarOcrdUseCase(
         OcrdRepository: CustomerRepository
-    ):  ImportarOcrdUseCase {
+    ): ImportarOcrdUseCase {
         return ImportarOcrdUseCase(OcrdRepository)
     }
 
@@ -385,7 +390,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetOcrdUseCase(
         OcrdRepository: CustomerRepository
-    ):  GetOcrdUseCase {
+    ): GetOcrdUseCase {
         return GetOcrdUseCase(OcrdRepository)
     }
 
@@ -393,7 +398,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideImportarOcrdUbicacionesUseCase(
         ocrdUbicacionesRepository: OcrdUbicacionesRepository
-    ):  ImportarOcrdUbicacionesUseCase {
+    ): ImportarOcrdUbicacionesUseCase {
         return ImportarOcrdUbicacionesUseCase(ocrdUbicacionesRepository)
     }
 
@@ -410,7 +415,7 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideGetCountVendedoresUseCase(
         repository: A0_YtvVentasRepository
-    ):  CountRegistrosVendedoresUseCase {
+    ): CountRegistrosVendedoresUseCase {
         return CountRegistrosVendedoresUseCase(repository)
     }
 
@@ -418,145 +423,169 @@ object UseCaseModule {
     @ViewModelScoped
     fun provideImportarVendedoresUseCase(
         repository: A0_YtvVentasRepository
-    ):  ImportarVendedoresUseCase {
+    ): ImportarVendedoresUseCase {
         return ImportarVendedoresUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideImportarListaPreciosUseCase (
+    fun provideImportarListaPreciosUseCase(
         repository: A0_YTV_LISTA_PRECIOSRepository
-    ):  ImportarListaPreciosUseCase  {
-        return ImportarListaPreciosUseCase (repository)
+    ): ImportarListaPreciosUseCase {
+        return ImportarListaPreciosUseCase(repository)
     }
+
     @Provides
     @ViewModelScoped
-    fun provideCountRegistrosListaPreciosUseCase (
+    fun provideCountRegistrosListaPreciosUseCase(
         repository: A0_YTV_LISTA_PRECIOSRepository
-    ):  CountRegistrosListaPreciosUseCase  {
-        return CountRegistrosListaPreciosUseCase (repository)
+    ): CountRegistrosListaPreciosUseCase {
+        return CountRegistrosListaPreciosUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideCountRegistrosStockAlmacenUseCase (
+    fun provideCountRegistrosStockAlmacenUseCase(
         repository: A0_YTV_STOCK_ALMACENRepository
-    ):  CountRegistrosStockAlmacenUseCase  {
-        return CountRegistrosStockAlmacenUseCase (repository)
+    ): CountRegistrosStockAlmacenUseCase {
+        return CountRegistrosStockAlmacenUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideImportarStockAlmacenUseCase (
+    fun provideImportarStockAlmacenUseCase(
         repository: A0_YTV_STOCK_ALMACENRepository
-    ):  ImportarStockAlmacenUseCase  {
-        return ImportarStockAlmacenUseCase (repository)
+    ): ImportarStockAlmacenUseCase {
+        return ImportarStockAlmacenUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideImportarOrdenVentaUseCaseUseCase (
+    fun provideImportarOrdenVentaUseCaseUseCase(
         repository: A0_YTV_ORDEN_VENTARepository
-    ):  ImportarOrdenVentaUseCase  {
-        return ImportarOrdenVentaUseCase (repository)
+    ): ImportarOrdenVentaUseCase {
+        return ImportarOrdenVentaUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideCountOrdenVentaUseCase (
+    fun provideCountOrdenVentaUseCase(
         repository: A0_YTV_ORDEN_VENTARepository
-    ):  CountOrdenVentaUseCase  {
-        return CountOrdenVentaUseCase (repository)
+    ): CountOrdenVentaUseCase {
+        return CountOrdenVentaUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
-    fun provideGetOrdenVentaCabUseCase (
+    fun provideGetOrdenVentaCabUseCase(
         repository: A0_YTV_ORDEN_VENTARepository
-    ):  GetOrdenVentaCabUseCase  {
-        return GetOrdenVentaCabUseCase (repository)
+    ): GetOrdenVentaCabUseCase {
+        return GetOrdenVentaCabUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideGetOrdenVentaDetUseCase(
         repository: A0_YTV_ORDEN_VENTARepository
-    ):  GetOrdenVentaDetUseCase  {
-        return GetOrdenVentaDetUseCase (repository)
+    ): GetOrdenVentaDetUseCase {
+        return GetOrdenVentaDetUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideGetOrdenVentaCabByIdUseCase(
         repository: A0_YTV_ORDEN_VENTARepository
-    ):  GetOrdenVentaCabByIdUseCase  {
-        return GetOrdenVentaCabByIdUseCase (repository)
+    ): GetOrdenVentaCabByIdUseCase {
+        return GetOrdenVentaCabByIdUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideGetDatosFacturaUseCase(
         repository: A0_YtvVentasRepository
-    ):  GetDatosFacturaUseCase  {
-        return GetDatosFacturaUseCase (repository)
+    ): GetDatosFacturaUseCase {
+        return GetDatosFacturaUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideInsertOinvUseCase(
         repository: OinvRepository
-    ):  InsertOinvUseCase  {
-        return InsertOinvUseCase (repository)
+    ): InsertOinvUseCase {
+        return InsertOinvUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideInsertInv1UseCase(
         repository: INV1_REPOSITORY
-    ):  InsertInv1UseCase  {
-        return InsertInv1UseCase (repository)
+    ): InsertInv1UseCase {
+        return InsertInv1UseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideGetDatosDetalleLotesUseCase(
         repository: A0_YTV_STOCK_ALMACENRepository
-    ):  GetDatosDetalleLotesUseCase  {
-        return GetDatosDetalleLotesUseCase (repository)
+    ): GetDatosDetalleLotesUseCase {
+        return GetDatosDetalleLotesUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideInsertInv1LotesUseCase(
         repository: INV1_LOTES_REPOSITORY
-    ):  InsertInv1LotesUseCase  {
-        return InsertInv1LotesUseCase (repository)
+    ): InsertInv1LotesUseCase {
+        return InsertInv1LotesUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideInsertTransactionOinvUseCase(
         repository: OinvRepository
-    ):  InsertTransactionOinvUseCase  {
-        return InsertTransactionOinvUseCase (repository)
+    ): InsertTransactionOinvUseCase {
+        return InsertTransactionOinvUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideUpdateFirmaOinvUseCase(
         repository: OinvRepository
-    ):  UpdateFirmaOinvUseCase  {
-        return UpdateFirmaOinvUseCase (repository)
+    ): UpdateFirmaOinvUseCase {
+        return UpdateFirmaOinvUseCase(repository)
     }
 
     @Provides
     @ViewModelScoped
     fun provideGetOinvByDateUseCase(
         repository: OinvRepository
-    ):  GetOinvByDateUseCase  {
-        return GetOinvByDateUseCase (repository)
+    ): GetOinvByDateUseCase {
+        return GetOinvByDateUseCase(repository)
     }
 
+    @Provides
+    @ViewModelScoped
+    fun provideUpdateAnularFacturaOinvUseCase(
+        repository: OinvRepository
+    ): UpdateAnularFacturaOinvUseCase {
+        return UpdateAnularFacturaOinvUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun providegetOinvPendientesCountUseCase(
+        repository: OinvRepository
+    ): CountUseOinvPendientesCase {
+        return CountUseOinvPendientesCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideExportarOinvPendientesUseCase(
+        repository: OinvRepository
+    ): ExportarOinvPendientesUseCase {
+        return ExportarOinvPendientesUseCase(repository)
+    }
 
 }
 

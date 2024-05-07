@@ -3,6 +3,7 @@ package com.portalgm.y_trackcomercial.data.model.entities.ventas_entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.OINV_POS
 
@@ -15,7 +16,8 @@ import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.OINV_PO
             childColumns = ["docEntry"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["docEntry"])]
 )
 data class INV1_POS(
     @PrimaryKey(autoGenerate = true)        var id: Int = 0,

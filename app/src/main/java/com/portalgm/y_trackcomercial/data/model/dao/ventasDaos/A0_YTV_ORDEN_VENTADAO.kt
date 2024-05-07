@@ -19,9 +19,9 @@ interface A0_YTV_ORDEN_VENTADAO {
     @Query("SELECT COUNT(*) FROM A0_YTV_ORDEN_VENTA")
     fun getCount(): Int
 
-    @Query("select  distinct docNum,docDate,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where estado='P' /*idCliente in (select idOcrd from visitas where pendienteSincro='N')*/")
+    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where estado='P' /*idCliente in (select idOcrd from visitas where pendienteSincro='N')*/")
     suspend fun getOrdenVentaCab(): List<OrdenVentaCabItem>
-    @Query("select  distinct docNum,docDate,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where docNum=:docNum")
+    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaCabById(docNum: Int): List<OrdenVentaCabItem>
 
     @Query(" select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT from a0_ytv_orden_venta where docNum=:docNum")

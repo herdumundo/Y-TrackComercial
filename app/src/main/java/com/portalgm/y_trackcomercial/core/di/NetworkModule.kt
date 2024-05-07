@@ -26,6 +26,7 @@ import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionAuditTrai
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionMovimientosApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionNewPassApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionNuevasUbicacionesApiClient
+import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionOinvApiClient
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionVisitasApiClient
 import dagger.Module
 import dagger.Provides
@@ -142,6 +143,12 @@ object NetworkModule {
     @Singleton
     fun provideExportacionAuditTrail(retrofit: Retrofit): ExportacionAuditTrailApiClient {
         return retrofit.create(ExportacionAuditTrailApiClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExportacionOinvApiClient(retrofit: Retrofit): ExportacionOinvApiClient {
+        return retrofit.create(ExportacionOinvApiClient::class.java)
     }
 
 
