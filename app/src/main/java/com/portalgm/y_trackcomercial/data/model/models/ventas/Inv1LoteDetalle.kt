@@ -4,5 +4,7 @@ data class Inv1LoteDetalle(
     val docEntry: Long,
     val ItemCode: String,
     val Lote: String,
-    val Quantity: Int
+    val Quantity: Int,
+    val QuantityCalculado: String,
+
 )

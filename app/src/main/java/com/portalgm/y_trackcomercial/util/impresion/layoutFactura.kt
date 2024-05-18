@@ -14,16 +14,20 @@ class layoutFactura {
         //val gson = Gson()
         //val listType = object : TypeToken<List<OinvPosWithDetails>>(){}.type
        // val oinvList: List<OinvPosWithDetails> = gson.fromJson(json, listType)
+        var factura="";
+
+        try {
+
+
         val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
         decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
         val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
         // Iterar sobre la lista y acceder a los campos oinvPos y details
-        var factura="";
         json.forEach { oinvDetails ->
             val details = oinvDetails.details
             val detailsLotes = oinvDetails.detailsLotes // Obtener los detalles de los lotes
 
-            var totalFactura = 0
+            var totalFactura = 0.0
                factura = "[L]\n" +
                     "[C]<u><font size='small'>VIMAR y CIA S.A</font></u>\n" +
                     "[C]<u><font size='small'>RUC: 80002754-0</font></u>\n" +
@@ -48,10 +52,13 @@ class layoutFactura {
                     "[L]------------------------------------------------\n"
             // Añadir cada detalle al texto
             for (detail in details) {
-                totalFactura +=  detail.quantity.toInt() * detail.priceAfterVat.toInt();
-                val totalPrice = detail.quantity .toInt()* detail.priceAfterVat.toInt()
+                totalFactura +=  detail.quantity.toDouble() * detail.priceAfterVat.toDouble();
+                val totalPrice = detail.quantity .toDouble()* detail.priceAfterVat.toInt()
                 val formattedTotalPrice = formatter.format(totalPrice)
                 val formattedprice = formatter.format(detail.priceAfterVat.toInt())
+                val cantidadFormateada = calculosIva.formatearCantidad(detail.quantity.toDouble())
+
+
                 val espCab1 ="         " //
                 val espCab2 ="       " //
                 val esCab3  ="      "
@@ -67,22 +74,24 @@ class layoutFactura {
                 }
 
                 factura +="[L]<b>${detail.itemCode}-${detail.itemName}</b>        \n" +
-                        "[L]<b>${detail.taxCode}</b>$espaciosCab<b>${detail.quantity}</b>        <b>${formattedprice}</b>  [R]<b>$formattedTotalPrice</b>\n"
+                        "[L]<b>${detail.taxCode}</b>$espaciosCab<b>${cantidadFormateada}</b>        <b>${formattedprice}</b>  [R]<b>$formattedTotalPrice</b>\n"
 
                 // Iterar sobre los detalles de los lotes para este item
                 val lotesParaItem = detailsLotes.filter { it.itemCode == detail.itemCode }
                 for (lote in lotesParaItem) {
-                    val espacios = when (lote.quantity.length) {
+                    val espacios = when (lote.quantityCalculado.length) {
                         1 -> esp1
                         2 -> esp2
                         else -> es3
                     }
-                    factura += "[L]$espacios${lote.quantity}        ${lote.lote} \n"
+                    if(lote.itemCode.length>1){
+                        factura += "[L]$espacios${lote.quantityCalculado}        ${lote.lote} \n"
+                    }
                 }
                 factura +="[C]--------------------------------------------\n"
             }//
             val totalInvoice = formatter.format(totalFactura)
-            val fivePercentOfTotal = formatter.format(calculosIva.calcularIva5(totalFactura) )   // Calcular el 5%
+            val fivePercentOfTotal = formatter.format(calculosIva.calcularIva5(totalFactura.toInt()) )   // Calcular el 5%
 
             factura += "[L]<font size='small'> TOTAL A PAGAR:              [L]<b>Gs. </b>[R]<b>$totalInvoice</b></font>\n" +
                     "[C]-----------------------------------------\n" +
@@ -116,6 +125,12 @@ class layoutFactura {
                     "[C]<qrcode size='40'>" + qr + "</qrcode>";
 
         }
-        return factura
+        }catch (e:Exception){
+            factura=e.message.toString()
+        }
+        finally {
+            return factura
+
+        }
     }
 }

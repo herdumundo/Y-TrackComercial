@@ -9,5 +9,9 @@ data class OCRDEntity(
     val id: String,
     val Address: String,
     val CardCode: String,
-    val CardName: String?
+    val CardName: String?,
+    val CreditDisp: String?,
+    val CreditLine: String?,
+    val Balance: String?,
+
 )

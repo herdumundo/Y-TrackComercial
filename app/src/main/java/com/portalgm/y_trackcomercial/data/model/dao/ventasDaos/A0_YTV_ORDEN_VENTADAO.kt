@@ -24,7 +24,9 @@ interface A0_YTV_ORDEN_VENTADAO {
     @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaCabById(docNum: Int): List<OrdenVentaCabItem>
 
-    @Query(" select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT from a0_ytv_orden_venta where docNum=:docNum")
+    @Query(" select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT," +
+            "case unitMsr when  'Unidad'then quantity  when  'Docena' then  quantity*12  when  'Plancha' then  quantity*30   else quantity end as quantityUnidad," +
+            "case when  unitMsr='Unidad'then 'Paquete' else unitMsr end as unitMsr from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaDet(docNum:Int): List<OrdenVentaDetItem>
 
     @Transaction

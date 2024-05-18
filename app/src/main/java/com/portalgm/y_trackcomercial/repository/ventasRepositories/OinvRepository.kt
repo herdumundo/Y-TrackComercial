@@ -178,8 +178,9 @@ class OinvRepository @Inject constructor
             )
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
-                /* val idsLoteActual = lotes.lotesDemovimientos[0]..map { it.docEntry!! }
-                  oinvPosDao.updateExportadoCerradoPorLotes(idsLoteActual)*/
+                Log.i("MensajeFactura", apiResponse.docEntries.toString())
+
+                   oinvPosDao.updateExportadoCerradoPorLotes(apiResponse.docEntries)
             }
         } catch (e: Exception) {
             Log.i("Mensaje", e.toString())

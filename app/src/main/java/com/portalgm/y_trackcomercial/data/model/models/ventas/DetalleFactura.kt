@@ -35,6 +35,7 @@ data class DetalleLote(
     val itemCode: String,
     val lote: String?,
     val quantity: String?,
+    val quantityCalculado: String?,
     val estado: String?
 )
 
@@ -81,8 +82,8 @@ fun extraerLotes(datos: List<OinvPosWithDetails>): List<DetalleLote> {
                 itemCode = lote.itemCode,
                 lote = lote.lote,
                 quantity = lote.quantity ,
-                estado = "P"
-            )
+                quantityCalculado = lote.quantityCalculado ,
+                estado = "P")
         }
     }
 }

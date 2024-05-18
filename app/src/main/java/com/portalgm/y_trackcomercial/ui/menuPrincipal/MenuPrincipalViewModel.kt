@@ -27,27 +27,39 @@ import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.CountRegistrosListaPreciosUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.ImportarListaPreciosUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.CountOrdenVentaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ImportarVendedoresUseCase
 import com.portalgm.y_trackcomercial.util.SharedData
 
 @HiltViewModel
 class MenuPrincipalViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val customerRepository: CustomerRepository,
-    private val usuarioRepository: UsuarioRepository,
-    private val lotesListasRepository: LotesListasRepository,
     private val ocrdUbicacionesRepository: OcrdUbicacionesRepository,
     private val rutasAccesosRepository: RutasAccesosRepository,
-    private val permisosVisitasRepository: PermisosVisitasRepository,
     private val authUseCase: AuthUseCase,
     private val horariosUsuarioRepository: HorariosUsuarioRepository,
     private val ocrdOitmRepository: OcrdOitmRepository,
     private val oitmRepository: OitmRepository,
     private val importarUbicacionesPvUseCase: ImportarUbicacionesPvUseCase,
     private val importarParametrosUseCase: ImportarParametrosUseCase,
-    private val context: Context
 
+    private val countRegistrosVendedoresUseCase: CountRegistrosVendedoresUseCase,
+    private val importarVendedoresUseCase: ImportarVendedoresUseCase,
+    private val importarListaPreciosUseCase: ImportarListaPreciosUseCase,
+    private val countRegistrosListaPreciosUseCase: CountRegistrosListaPreciosUseCase,
+    private val countRegistrosStockAlmacenUseCase: CountRegistrosStockAlmacenUseCase,
+    private val importarStockAlmacenUseCase: ImportarStockAlmacenUseCase,
+    private val importarOrdenVentaUseCase: ImportarOrdenVentaUseCase,
+    private val countOrdenVentaUseCase: CountOrdenVentaUseCase,
 
-) : ViewModel() {
+    ) : ViewModel() {
 
 
     private val _rol = mutableStateOf("")
@@ -55,8 +67,8 @@ class MenuPrincipalViewModel @Inject constructor(
 
 
     private val _customers = MutableLiveData<List<OCRD>>()
-    val customers: LiveData<List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>> = customerRepository.customers
-
+    val customers: LiveData<List<com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity>> =
+        customerRepository.customers
 
 
     private val _progress: MutableLiveData<Float> = MutableLiveData()
@@ -76,19 +88,20 @@ class MenuPrincipalViewModel @Inject constructor(
     val mensajeDialog: LiveData<String> = _mensajeDialog
 
     private val _permisosUsuarios: MutableLiveData<List<RutasAccesosEntity>> = MutableLiveData()
-    val permisosUsuarios: LiveData<List< RutasAccesosEntity>> = _permisosUsuarios
+    val permisosUsuarios: LiveData<List<RutasAccesosEntity>> = _permisosUsuarios
 
     fun getUserName(): String = sharedPreferences.getUserName().toString()
     fun getRol(): String = sharedPreferences.getRol().toString()
     fun getPasswordUserName(): String = sharedPreferences.getPasswordUserName().toString()
     fun getUserLogin(): String = sharedPreferences.getUserLogin().toString()
     fun getUserId(): Int = sharedPreferences.getUserId()
+
     //  fun getRutasAccesos(): List<RutasAccesos> = sharedPreferences.getRutasAccesos()
     val sharedData = SharedData.getInstance()
 
     val webSocketConectado: LiveData<Boolean> = sharedData.webSocketConectado
 
-        init {
+    init {
         obtenerRutasAccesosDesdeRoom()
     }
 
@@ -97,48 +110,52 @@ class MenuPrincipalViewModel @Inject constructor(
         _showLoading.value = true
         viewModelScope.launch(Dispatchers.Main) {
             try {
-        /*    _mensajeDialog.value = "Cargando Lotes..."
 
-            lotesListasRepository.fetchLotesListas()
-*/
-            _mensajeDialog.value = "Cargando Clientes..."
-            customerRepository.fetchCustomers()
+                _mensajeDialog.value = "Cargando Clientes..."
+                customerRepository.fetchCustomers()
 
+                _mensajeDialog.value = "Cargando Ubicaciones..."
+                ocrdUbicacionesRepository.fetchOcrdUbicaciones()
 
-            _mensajeDialog.value = "Cargando Ubicaciones..."
-            ocrdUbicacionesRepository.fetchOcrdUbicaciones()
+                _mensajeDialog.value = "Cargando Permisos ..."
 
-            _mensajeDialog.value = "Cargando Permisos ..."
+                val result = authUseCase(getUserLogin(), getPasswordUserName())
+                rutasAccesosRepository.deleteAndInsertAllRutasAccesos(result!!.RutasAccesos)
+                obtenerRutasAccesosDesdeRoom()
 
-            val result = authUseCase(getUserLogin(), getPasswordUserName())
-            rutasAccesosRepository.deleteAndInsertAllRutasAccesos(result!!.RutasAccesos)
-            obtenerRutasAccesosDesdeRoom()
-
-
-         /*   _mensajeDialog.value = "Cargando Permisos de visitas ..."
-            permisosVisitasRepository.fetchPermisosVisitas(getUserId())
-         */
                 _mensajeDialog.value = "Cargando Parametros ..."
                 importarParametrosUseCase.importarParametros()
 
-            _mensajeDialog.value = "Cargando horarios ..."
-            horariosUsuarioRepository.fetchHorariosUsuario(getUserId())
+                _mensajeDialog.value = "Cargando horarios ..."
+                horariosUsuarioRepository.fetchHorariosUsuario(getUserId())
 
-            _mensajeDialog.value = "Cargando productos ..."
-            oitmRepository.fetchOitm()
+                _mensajeDialog.value = "Cargando productos ..."
+                oitmRepository.fetchOitm()
 
-            _mensajeDialog.value = "Cargando productos por punto venta ..."
-            ocrdOitmRepository.fetchOcrdOitm()
+                _mensajeDialog.value = "Cargando productos por punto venta ..."
+                ocrdOitmRepository.fetchOcrdOitm()
 
-            _mensajeDialog.value = "Cargando depositos ..."
-            importarUbicacionesPvUseCase.fetchUbicacionesPv()
+                _mensajeDialog.value = "Cargando depositos ..."
+                importarUbicacionesPvUseCase.fetchUbicacionesPv()
 
-            _mensajeDialog.value = "Datos importados correctamente."
-            _showLoading.value = false
-            _showLoadingOk.value = true
-            }
-            catch (e :Exception){
-                _mensajeDialog.value = "Ha ocurrido un error al obtener los datos, verifique internet."
+                _mensajeDialog.value = "Cargando vendedores ..."
+                importarVendedoresUseCase.Importar()
+
+                _mensajeDialog.value = "Cargando lista de precios ..."
+                importarListaPreciosUseCase.Importar()
+
+                _mensajeDialog.value = "Cargando stock por almacen ..."
+                importarStockAlmacenUseCase.Importar()
+
+                _mensajeDialog.value = "Cargando ordenes de ventas ..."
+                importarOrdenVentaUseCase.Importar()
+
+                _mensajeDialog.value = "Datos importados correctamente."
+                _showLoading.value = false
+                _showLoadingOk.value = true
+            } catch (e: Exception) {
+                _mensajeDialog.value =
+                    "Ha ocurrido un error al obtener los datos, verifique internet."
                 _showLoading.value = false
                 _showLoadingOk.value = true
             }

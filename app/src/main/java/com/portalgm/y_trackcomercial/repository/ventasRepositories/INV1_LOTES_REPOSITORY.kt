@@ -14,8 +14,8 @@ class INV1_LOTES_REPOSITORY @Inject constructor
             itemCode = lote.ItemCode,
             docEntry= lote.docEntry,
             quantity= lote.Quantity.toString(),
-            lote =  lote.Lote
-            )
+            lote =  lote.Lote,
+            quantityCalculado =  lote.QuantityCalculado)
         }
         INV1_LOTES_DAO.insertAll(movimientosList)
     }

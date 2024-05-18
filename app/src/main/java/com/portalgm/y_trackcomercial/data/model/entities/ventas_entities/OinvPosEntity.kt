@@ -37,6 +37,9 @@ data class OINV_POS(
     @ColumnInfo(name = "condicion")         var condicion: String?,
     @ColumnInfo(name = "totalIvaIncluido")  var totalIvaIncluido: String?,
     @ColumnInfo(name = "anulado")           var anulado: String= "N",
-    @ColumnInfo(name = "estado")            var estado: String?
+    @ColumnInfo(name = "estado")            var estado: String?,
+    @ColumnInfo(name = "pymntGroup")        var pymntGroup: String?,
+    @ColumnInfo(name = "docEntrySap")       var docEntrySap: String?
+
 
 )

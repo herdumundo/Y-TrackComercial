@@ -7,7 +7,12 @@ data class OrdenVentaDetItem(
     val itemCode: String ,
     val itemName: String ,
     val quantity: String ,
-    val priceAfVAT: String)
+    val quantityUnidad: Int,
+    val priceAfVAT: String,
+    val unitMsr: String,
+
+
+    )
 
 
 

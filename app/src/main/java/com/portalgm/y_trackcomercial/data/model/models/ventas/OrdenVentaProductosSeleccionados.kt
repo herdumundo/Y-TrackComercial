@@ -4,8 +4,12 @@ data class OrdenVentaProductosSeleccionados(
     val lineNumDet: Int,
     val itemCode: String ,
     val itemName: String ,
-    val quantity: Int ,
-    val priceAfVAT: Int)
+    val quantity: Number ,
+    val quantityUnidad: Int ,
+    val priceAfVAT: Double,
+    val unitMsr: String
+
+)
 
 
 

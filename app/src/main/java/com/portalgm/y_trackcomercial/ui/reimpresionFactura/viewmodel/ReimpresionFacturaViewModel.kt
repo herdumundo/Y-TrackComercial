@@ -30,8 +30,6 @@ class ReimpresionFacturaViewModel @Inject constructor(
     private val getOinvByDateUseCase:GetOinvByDateUseCase,
     private val getOinvUseCase: GetOinvUseCase,
     private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
-
-
 ): ViewModel() {
     // Fecha seleccionada como MutableStateFlow
     private val _selectedDate = MutableStateFlow(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -68,8 +66,6 @@ class ReimpresionFacturaViewModel @Inject constructor(
     fun imprimir(docEntry: Long) {
         _loadingPantalla.value = true
         _mensajePantalla.value = "Imprimiendo..."
-
-
         viewModelScope.launch {
             // Filtrar la lista de facturas para encontrar aquellas con docEntry específico
             val resultado = _facturas.value.filter { factura ->
@@ -114,7 +110,6 @@ class ReimpresionFacturaViewModel @Inject constructor(
              val listaFactura = getOinvUseCase.execute(docEntry)
             firmarFactura.generarStringSiedi(listaFactura,"2")
         }
-
     }
     fun finalizarFirma(qr: String, xml: String) {
         viewModelScope.launch {
@@ -125,7 +120,6 @@ class ReimpresionFacturaViewModel @Inject constructor(
                     xml,
                     jsonObject.getString("cdc"),
                     _docEntry.value!!
-
                 )
                 _mensajePantalla.value = "Firmado con exito."
                 _loadingPantalla.value = false
@@ -137,14 +131,12 @@ class ReimpresionFacturaViewModel @Inject constructor(
         }
     }
     fun processReceivedData(datosXml: String?, datosQrCdc: String?) {
-
         if (datosQrCdc.equals("null")) {
             _mensajePantalla.value = "Ha ocurrido en error al firmar \n$datosXml"
             _loadingPantalla.value = false
             _dialogPantalla.value = true
         } else {
             finalizarFirma(datosQrCdc!!, datosXml!!)
-
         }
     }
 }

@@ -40,7 +40,9 @@ class Migration8to9 : Migration(8, 9) {
                 `contado` TEXT,
                 `totalIvaIncluido` TEXT,
                 `anulado`        TEXT NOT NULL DEFAULT 'N',
-                `estado` TEXT
+                `pymntGroup` TEXT,
+                `estado` TEXT,
+                `docEntrySap` TEXT
             )
         """)
 
@@ -71,6 +73,7 @@ class Migration8to9 : Migration(8, 9) {
                 `ItemCode` TEXT NOT NULL,
                 `Lote` TEXT,
                 `Quantity` INTEGER NOT NULL,
+                `QuantityCalculado` TEXT NOT NULL,
                 FOREIGN KEY(`docEntry`) REFERENCES `OINV_POS`(`docEntry`) ON DELETE CASCADE
             )
         """)
@@ -162,5 +165,8 @@ class Migration8to9 : Migration(8, 9) {
              `    
              )
         """)
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN CreditDisp TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN CreditLine TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN Balance TEXT")
         }
      }

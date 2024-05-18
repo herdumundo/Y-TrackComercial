@@ -176,6 +176,8 @@ class PieSocketListener @Inject constructor(
     fun output(text: String?) {
         Log.d("PieSocket", text!!)
     }
+
+/*
     fun insertarOcrd(ocrdArray: JSONArray) {
         val ocrdList = mutableListOf<OCRDEntity>()
 
@@ -193,6 +195,9 @@ class PieSocketListener @Inject constructor(
             ocrdRepository.insertOcrd(ocrdList)
         }
     }
+*/
+
+
     fun insertarLotesListas(array: JSONArray) {
         val lista = mutableListOf<LotesListasEntity>()
 

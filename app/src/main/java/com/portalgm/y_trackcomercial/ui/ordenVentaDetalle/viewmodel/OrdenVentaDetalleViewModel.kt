@@ -9,8 +9,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.A0_YTV_VENDEDOR_Entity
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_LOTES_POS
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_POS
@@ -18,24 +16,19 @@ import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.OINV_PO
 import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosDetalleLotes
 import com.portalgm.y_trackcomercial.data.model.models.ventas.Inv1Detalle
-import com.portalgm.y_trackcomercial.data.model.models.ventas.Inv1LoteDetalle
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaCabItem
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaDetItem
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaProductosSeleccionados
 import com.portalgm.y_trackcomercial.services.bluetooth.ImpresionResultado
 import com.portalgm.y_trackcomercial.services.bluetooth.servicioBluetooth
-import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.screen.ProductoItem
-import com.portalgm.y_trackcomercial.usecases.ventas.inv1.InsertInv1UseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.inv1Lotes.InsertInv1LotesUseCase
+//import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.screen.ProductoItem
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertTransactionOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabByIdUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDetUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetDatosFacturaUseCase
-import com.portalgm.y_trackcomercial.util.Event
 import com.portalgm.y_trackcomercial.util.HoraActualUtils
 import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.calculosIva
@@ -46,13 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.math.BigDecimal
-import java.math.RoundingMode
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.Locale
 import javax.inject.Inject
-import kotlin.random.Random
 
 
 @HiltViewModel
@@ -88,10 +75,12 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     private val _cantidadCargadaTotal = MutableLiveData<Int>()
     private val _mostrarBotonRegistrar = MutableLiveData<Boolean>()
     val mostrarBotonRegistrar: LiveData<Boolean> = _mostrarBotonRegistrar
-    private val _totalIngresadoPorProducto = mutableStateOf<Map<String, Int>>(emptyMap())
+    private val _totalIngresadoPorProducto = mutableStateOf<Map<String, Double>>(emptyMap())
 
     // Mapa para almacenar las cantidades ingresadas por lote
-    private val _cantidadesIngresadasPorLote = mutableStateMapOf<String, Int>()
+    private val _cantidadesIngresadasPorLote = mutableStateMapOf<String, Number>()
+    // private val _cantidadesIngresadasPorLote = mutableStateMapOf<String, Cantidades>()
+
     private val _loadingPantalla = MutableLiveData<Boolean>()
     val loadingPantalla: LiveData<Boolean> = _loadingPantalla
     private val _dialogPantalla = MutableLiveData<Boolean>()
@@ -131,50 +120,20 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     }
 
     fun registrar(productos: List<OrdenVentaProductosSeleccionados>) {
+        val INV1_POS_LIST = mutableListOf<INV1_POS>()
+        val INV1_LOTES_POS_LIST = mutableListOf<INV1_LOTES_POS>()
+        var lineNumInv1=0
         _mensajePantalla.value = "Procesando factura..."
         _loadingPantalla.value = true
         // Aquí puedes agregar lógica para procesar los productos seleccionados
         _productosSeleccionados.value = productos
         val itemCodesSeleccionados = productos.map { it.itemCode }
 
-        /*   val itemCodesPedido = _itemCodes.value ?: emptyList()
-         val itemCodesSeleccionados = productos.map { it.itemCode }
-         Log.d("MensajeYtrackTotalIngresadoPorProducto", _totalIngresadoPorProducto.value.toString())
-         val productosSeleccionados = _productosSeleccionados.value ?: emptyList()
-         productosSeleccionados.forEach { producto ->
-             Log.d("MensajeYtrackCantidadesPorProducto", producto.itemCode +" Cantidad:"+ producto.quantity )
-         }
-          val sonIguales = if (itemCodesSeleccionados.isNullOrEmpty()) {
-              Log.d("MensajeYtrack", "Esta vacio")
-             false
-         } else {
-              _mostrarBotonRegistrar.value=true
 
-              // Si itemCodesSeleccionados tiene elementos
-             itemCodesPedido == itemCodesSeleccionados
-         }
-         if (sonIguales) {
-             Log.d("MensajeYtrack", "Son iguales")
-         } else {
-             Log.d("MensajeYtrack", "NO son iguales")
-         }
-          _cantidadesIngresadasPorLote.forEach { (batchNum, cantidad) ->
-             if(cantidad>0) {
-                 Log.d("MensajeYtrackItemCodeSeleccionados", "ItemCode: $itemCodesSeleccionados")
-
-                 val lote = lotesIncializados.value?.find { it.batchNum == batchNum  && it.itemCode in itemCodesSeleccionados  }
-                 val itemCode = lote?.itemCode ?: ""
-                 if (cantidad > 0 && lote != null) {
-                     Log.d("MensajeYtrackCantidadPorLotes", "ItemCode: $itemCode - Lote: $batchNum - Cantidad: $cantidad")
-                 }
-             }
-         }*/
-        val INV1_POS_LIST = mutableListOf<INV1_POS>()
-        val INV1_LOTES_POS_LIST = mutableListOf<INV1_LOTES_POS>()
-
-        var totalFactura = 0
+        var totalFactura = 0.0
         _productosSeleccionados.value!!.forEach { producto ->
-            totalFactura += producto.quantity * producto.priceAfVAT
+            if(producto.itemCode.length==1)totalFactura += producto.quantity.toDouble() * producto.priceAfVAT
+            else totalFactura += producto.quantity.toInt() * producto.priceAfVAT.toInt()
         }
 
         viewModelScope.launch {
@@ -211,41 +170,59 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 }, // 1 si es contado 2 si es credito
                 totalIvaIncluido = totalFactura.toString(),
                 estado = "S",
-                condicion =  _datosOrdenVenta.value!![0].groupNum
+                condicion =  _datosOrdenVenta.value!![0].groupNum,
+                pymntGroup=_datosOrdenVenta.value!![0].pymntGroup,
+                docEntrySap = "-"
             )
             /**PREPARA DETALLE DE LA FACTURA*/
             _productosSeleccionados.value!!.forEach { producto ->
                 val newDet = INV1_POS(
                     docEntry = 0,
-                    lineNum = producto.lineNumDet,
+                    lineNum = lineNumInv1,
                     itemCode = producto.itemCode,
                     itemName = producto.itemName,
                     whsCode = _datosFactura.value!![0].U_DEPOSITO!!,
                     quantity = producto.quantity.toString(),
-                    priceAfterVat = producto.priceAfVAT.toString(),
-                    precioUnitSinIva =  calculosIva.redondeoPersonalizado(calculosIva.calcularPrecioSinIva(producto.priceAfVAT)).toString(),
-                    precioUnitIvaInclu = producto.priceAfVAT.toString(),
+                    priceAfterVat = producto.priceAfVAT.toInt().toString(),
+                    precioUnitSinIva =  calculosIva.redondeoPersonalizado(calculosIva.calcularPrecioSinIva(producto.priceAfVAT)).toInt().toString(),
+                    precioUnitIvaInclu = producto.priceAfVAT.toInt().toString(),
                     totalSinIva = calculosIva.calcularTotalSinIva(
-                        producto.quantity,
+                        producto.quantity.toDouble(),
                         producto.priceAfVAT
                     ).toInt().toString(),
-                    totalIva = calculosIva.calcularIva(producto.quantity, producto.priceAfVAT).toInt().toString(),
+                    totalIva = calculosIva.calcularIva(producto.quantity.toDouble(), producto.priceAfVAT).toInt().toString(),
                     uomEntry = 1,
                     taxCode = "5"
                 )
                 INV1_POS_LIST.add(newDet)
+                lineNumInv1 += 1
             }
             /**PREPARA DETALLE DE LOS LOTES*/
             _cantidadesIngresadasPorLote.forEach { (batchNum, cantidad) ->
-                if (cantidad > 0) {
-                    val lote =
-                        lotesIncializados.value?.find { it.batchNum == batchNum && it.itemCode in itemCodesSeleccionados }
+                if (cantidad.toDouble() > 0) {
+                    val lote = lotesIncializados.value?.find { it.batchNum == batchNum && it.itemCode in itemCodesSeleccionados }
+
                     val itemCode = lote?.itemCode ?: ""
+                   // var unitMsr =  ""
+                    val unitMsr = _productosSeleccionados.value?.find { it.itemCode == itemCode }?.unitMsr ?: ""
+                 /*   productos.forEach {
+                        if(it.itemCode==lote!!.itemCode){
+                            unitMsr=it.unitMsr
+                        }
+                    }*/
+
+                    val quantityCalculado = when (unitMsr) {
+                        "Docena" -> cantidad.toDouble() / 12
+                        "Plancha" -> cantidad.toDouble() / 30
+                        else -> cantidad.toDouble()
+                    }
+
                     if (lote != null) {
                         val newDet = INV1_LOTES_POS(
                             docEntry = 0,
                             itemCode = itemCode,
                             quantity = cantidad.toString(),
+                            quantityCalculado = calculosIva.formatearCantidad(quantityCalculado),
                             lote = batchNum,
                         )
                         INV1_LOTES_POS_LIST.add(newDet)
@@ -272,16 +249,19 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     fun getProductosSeleccionados(
         articulosMenu: List<ProductoItem>,
         selections: Map<ProductoItem, MutableState<Boolean>>,
-        quantities: Map<ProductoItem, MutableState<Int>>
-    ): List<OrdenVentaProductosSeleccionados> {
+        quantities: Map<ProductoItem, MutableState<Number>>,
+        quantitiesUnidad: Map<ProductoItem, MutableState<Int>>,
+     ): List<OrdenVentaProductosSeleccionados> {
         val selectedItems = articulosMenu.filter { selections[it]?.value == true }
         return selectedItems.map { item ->
             OrdenVentaProductosSeleccionados(
                 itemName = item.name,
-                quantity = quantities[item]?.value ?: 0,
+                quantity = if(item.itemCode.length==1) quantities[item]?.value?.toDouble() ?: 0.0 else quantities[item]?.value?.toInt() ?: 0  ,//quantities[item]?.value ?: 0.0,
                 itemCode = item.itemCode,
                 lineNumDet = item.lineNum,
-                priceAfVAT = item.price
+                priceAfVAT = item.price,
+                unitMsr = item.unitMsr,
+                quantityUnidad= (quantitiesUnidad[item]?.value?.toDouble()?: 0.0).toInt()
             )
         }
     }
@@ -295,25 +275,69 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         } else {
             // Verificar si la cantidad sugerida es igual a la cantidad ingresada para todos los productos seleccionados
             val cantidadSugeridaIgualCantidadIngresada = productos.all { producto ->
-                _totalIngresadoPorProducto.value[producto.itemCode] == producto.quantity
+                _totalIngresadoPorProducto.value[producto.itemCode] == producto.quantityUnidad.toDouble()
             }
             _mostrarBotonRegistrar.value = cantidadSugeridaIgualCantidadIngresada
             _pantallaConfirmacion.value = false
         }
     }
+    fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Number) {
+        // Convertir la cantidad previa y nueva a Double para cálculos consistentes
+        val cantidadPrevia = _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0.0).toDouble()
+        val nuevaCantidadDouble = nuevaCantidad.toInt()
+        // Actualizar con la nueva cantidad ingresada
+        _cantidadesIngresadasPorLote[batchNum] = nuevaCantidadDouble
+        // Calcular la diferencia de cantidades
+        val diferencia = nuevaCantidadDouble - cantidadPrevia
+        // Actualizar el total de cantidades por producto basado en la diferencia calculada
+        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
+        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
+        val cantidadActualizada = (cantidadActual + diferencia).coerceAtLeast(0.0)  // Asegura que la cantidad no sea negativa
 
-    fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Int) {
+        // Guardar la cantidad actualizada
+        cantidadesActuales[itemCode] = cantidadActualizada
+        _totalIngresadoPorProducto.value = cantidadesActuales
+        // Llamar a la función para comprobar el estado del botón
+        comprobarEstadoBoton(_productosSeleccionados.value!!)
+    }
+ /*   fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Double) {
+        val esDouble = itemCode.length == 1 // Determinar si necesita manejarlo como Double
+        val cantidadPrevia: Double = if (esDouble) {
+            _cantidadesIngresadasPorLoteDouble.getOrDefault(batchNum, 0.0)
+        } else {
+            _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0).toDouble()
+        }
+        val nuevaCantidadDouble = nuevaCantidad.toDouble()
+        val diferencia = nuevaCantidadDouble - cantidadPrevia
+
+        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
+        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
+        val cantidadActualizada = (cantidadActual + diferencia).coerceAtLeast(0.0)
+
+        cantidadesActuales[itemCode] = cantidadActualizada
+        _totalIngresadoPorProducto.value = cantidadesActuales
+
+      /*  if (esDouble) {
+            _cantidadesIngresadasPorLoteDouble[batchNum] = nuevaCantidadDouble
+        } else {*/
+            _cantidadesIngresadasPorLote[batchNum] = nuevaCantidad
+       // }
+        comprobarEstadoBoton(_productosSeleccionados.value!!)
+    }
+
+
+    fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Double) {
         // Obtener la cantidad previamente ingresada para este lote, si no hay ninguna, asume cero
-        val cantidadPrevia = _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0)
+        val cantidadPrevia = _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0.0)
         // Actualizar con la nueva cantidad ingresada
         _cantidadesIngresadasPorLote[batchNum] = nuevaCantidad
         // Calcular la diferencia de cantidades
         val diferencia = nuevaCantidad - cantidadPrevia
         // Actualizar el total de cantidades por producto basado en la diferencia calculada
         val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
-        val cantidadActual = cantidadesActuales[itemCode] ?: 0
+        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
         val cantidadActualizada =
-            (cantidadActual + diferencia).coerceAtLeast(0) // Asegura que la cantidad no sea negativa
+            (cantidadActual + diferencia).coerceAtLeast(0.0) // Asegura que la cantidad no sea negativa
 
         // Guardar la cantidad actualizada
         cantidadesActuales[itemCode] = cantidadActualizada
@@ -321,17 +345,35 @@ class OrdenVentaDetalleViewModel @Inject constructor(
 
         // Llamar a la función para comprobar el estado del botón
         comprobarEstadoBoton(_productosSeleccionados.value!!)
-    }
+    }*//*
+    fun actualizarCantidadIngresadaDouble(batchNum: String, itemCode: String, nuevaCantidad: Int) {
+        // Obtener la cantidad previamente ingresada para este lote, si no hay ninguna, asume cero
+        val cantidadPrevia = _cantidadesIngresadasPorLoteDouble.getOrDefault(batchNum, 0.0)
+        // Actualizar con la nueva cantidad ingresada
+        _cantidadesIngresadasPorLoteDouble[batchNum] = nuevaCantidad.toDouble()
+        // Calcular la diferencia de cantidades
+        val diferencia = nuevaCantidad - cantidadPrevia
+        // Actualizar el total de cantidades por producto basado en la diferencia calculada
+        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
+        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
+        val cantidadActualizada =
+            (cantidadActual + diferencia).coerceAtLeast(0.0) // Asegura que la cantidad no sea negativa
 
+        // Guardar la cantidad actualizada
+        cantidadesActuales[itemCode] = cantidadActualizada
+        _totalIngresadoPorProducto.value = cantidadesActuales
+
+        // Llamar a la función para comprobar el estado del botón
+        comprobarEstadoBoton(_productosSeleccionados.value!!)
+    }*/
     fun inicializarProductosSeleccionados(productos: List<OrdenVentaProductosSeleccionados>) {
         _productosSeleccionados.value = productos
     }
 
     // Obtener la suma de cantidades cargadas por itemCode
-    fun getCantidadCargadaPorItemCode(itemCode: String): Int {
-        val suma = _totalIngresadoPorProducto.value.getOrDefault(itemCode, 0)
-        Log.d("OrdenVentaDetalleViewModel", "Suma de cantidades para $itemCode: $suma")
-        return suma
+    fun getCantidadCargadaPorItemCode(itemCode: String): Double {
+        val suma = _totalIngresadoPorProducto.value.getOrDefault(itemCode, 0.0)
+         return suma
     }
 
     // Función para obtener la cantidad ingresada para un lote específico
@@ -365,8 +407,10 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 lineNum = it.lineNumDet,
                 name = it.itemName,
                 itemCode = it.itemCode, // Usando itemCode como descripción por ejemplo
-                price = it.priceAfVAT.toInt(),
-                initialQuantity = it.quantity.toInt()
+                price = it.priceAfVAT.toDouble(),
+                initialQuantity = it.quantity.toDouble(),
+                unitMsr = it.unitMsr,
+                quantityUnidad=it.quantityUnidad
             )
         }
     }
@@ -453,3 +497,13 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     }
 
 }
+data class ProductoItem(
+    val lineNum: Int,
+    val name: String,
+    val itemCode: String,
+    val price: Double,
+    val initialQuantity: Number,
+    val quantityUnidad: Int,
+    val unitMsr: String
+)
+

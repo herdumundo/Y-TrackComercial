@@ -171,13 +171,24 @@ object firmarFactura {
             stringBuilder.append("112;")
             stringBuilder.appendLine(/*112.1*/"${oinvDetails.oinvPos.contado};")
             /**113*/
-            stringBuilder.append("113;")
-            stringBuilder.append(/*113.1*/"1;")
-            stringBuilder.append(/*113.2*/"1;")
-            stringBuilder.append(/*113.3*/"${oinvDetails.oinvPos.totalIvaIncluido/*113.3*/};")
-            stringBuilder.append(/*113.4*/"PYG;")
-            stringBuilder.append(/*113.5*/";")
-            stringBuilder.appendLine(/*113.6*/";")
+            if(oinvDetails.oinvPos.contado.equals("1")){
+                stringBuilder.append("113;")
+                stringBuilder.append(/*113.1*/"1;")
+                stringBuilder.append(/*113.2*/"1;")
+                stringBuilder.append(/*113.3*/"${oinvDetails.oinvPos.totalIvaIncluido/*113.3*/};")
+                stringBuilder.append(/*113.4*/"PYG;")
+                stringBuilder.append(/*113.5*/";")
+                stringBuilder.appendLine(/*113.6*/";")
+            }
+            else{
+                /**116*/
+                stringBuilder.append("116;")
+                stringBuilder.append(/*116.1*/"1;")
+                stringBuilder.append(/*116.2*/"${oinvDetails.oinvPos.pymntGroup};")
+                stringBuilder.append(/*116.3*/";")
+                stringBuilder.appendLine(/*116.4*/";")
+            }
+
             line = 1
             /**118,
              * 119,

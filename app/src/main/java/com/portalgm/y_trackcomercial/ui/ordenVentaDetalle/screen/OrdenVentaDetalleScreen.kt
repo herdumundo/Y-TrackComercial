@@ -38,15 +38,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavHostController
 import com.portalgm.y_trackcomercial.R
 import com.portalgm.y_trackcomercial.components.DialogLoading
-import com.portalgm.y_trackcomercial.components.InfoDialogDosBoton
 import com.portalgm.y_trackcomercial.components.InfoDialogDosBotonBoolean
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosDetalleLotes
+import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.ProductoItem
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.text.NumberFormat
 import java.util.Locale
-
 @Composable
 fun OrdenVentaDetalleScreen(
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
@@ -55,7 +53,9 @@ fun OrdenVentaDetalleScreen(
 ) {
     val articulosMenu by ordenVentaDetalleViewModel.productos.observeAsState(initial = emptyList())
     val lotes by ordenVentaDetalleViewModel.lotesIncializados.observeAsState(initial = emptyList())
-    val mostrarBotonRegistrar by ordenVentaDetalleViewModel.mostrarBotonRegistrar.observeAsState(false)
+    val mostrarBotonRegistrar by ordenVentaDetalleViewModel.mostrarBotonRegistrar.observeAsState(
+        false
+    )
     val dialogPantalla by ordenVentaDetalleViewModel.dialogPantalla.observeAsState(false)
     val cuadroLoading by ordenVentaDetalleViewModel.loadingPantalla.observeAsState(false)
     val cuadroLoadingMensaje by ordenVentaDetalleViewModel.mensajePantalla.observeAsState("")
@@ -83,7 +83,7 @@ fun OrdenVentaDetalleScreen(
         CircularProgressIndicator()
     } else {
         // Cuando los datos están cargados, muestra la pantalla de menú con los datos.
-        MenuScreen(articulosMenu, lotes, ordenVentaDetalleViewModel,mostrarBotonRegistrar)
+        MenuScreen(articulosMenu, lotes, ordenVentaDetalleViewModel, mostrarBotonRegistrar)
     }
 }
 
@@ -94,38 +94,55 @@ fun MenuScreen(
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
     mostrarBotonRegistrar: Boolean,
 ) {
-    val nroFactura              by ordenVentaDetalleViewModel.nroFactura.observeAsState("")
-    val pantallaConfirmacion    by ordenVentaDetalleViewModel.pantallaConfirmacion.observeAsState(false)
 
-    // Estados de cantidades y selección
-    val quantities = remember { articulosMenu.associateWith { mutableStateOf(it.initialQuantity) } }
-    val selections = remember { articulosMenu.associateWith { mutableStateOf(true) } }
-    // Cálculo del costo total basado en los ítems seleccionados
-    val totalCost = articulosMenu.sumOf { articulo ->
-        if (selections[articulo]?.value == true) articulo.price * (quantities[articulo]?.value
-            ?: 0) else 0
-    }
     val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
     decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
     val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
+
+    val nroFactura by ordenVentaDetalleViewModel.nroFactura.observeAsState("")
+    val pantallaConfirmacion by ordenVentaDetalleViewModel.pantallaConfirmacion.observeAsState(false)
+
+    // Estados de cantidades y selección
+    val quantities = remember { articulosMenu.associateWith { mutableStateOf(it.initialQuantity) } }
+    val quantitiesUnidad = remember { articulosMenu.associateWith { mutableStateOf(it.quantityUnidad) } }
+     val selections = remember { articulosMenu.associateWith { mutableStateOf(true) } }
+    // Cálculo del costo total basado en los ítems seleccionados
+
+    val totalCost = articulosMenu.sumOf { articulo ->
+        if (selections[articulo]?.value == true) {
+            // Asegura que ambos, price y la cantidad, sean tratados como Double
+            val price = articulo.price   // Asumiendo que articulo.price puede ser tratado como Double
+            val quantity = quantities[articulo]?.value?.toDouble() ?: 0.0
+            price * quantity
+        } else {
+            0.0
+        }
+    }
+
     val totalInvoice = formatter.format(totalCost)
 
     // Obtener los productos seleccionados
     val productosSeleccionados by remember {
         derivedStateOf {
-            ordenVentaDetalleViewModel.getProductosSeleccionados(articulosMenu, selections, quantities)
+            ordenVentaDetalleViewModel.getProductosSeleccionados(
+                articulosMenu,
+                selections,
+                quantities,
+                quantitiesUnidad
+             )
         }
     }
 
     if ((pantallaConfirmacion)) {
         InfoDialogDosBotonBoolean(
-            title ="Creacion de factura",
+            title = "Creacion de factura",
             titleBottom = "Procesar",
             desc = "Desea crear el documento?",
             image = R.drawable.icono_exit,
             isActive = mostrarBotonRegistrar,
-            funcion = {  ordenVentaDetalleViewModel.registrar(productosSeleccionados) })
-        {ordenVentaDetalleViewModel.cancelar()
+            funcion = { ordenVentaDetalleViewModel.registrar(productosSeleccionados) })
+        {
+            ordenVentaDetalleViewModel.cancelar()
         }
     }
     // Llamada inicial para calcular y comprobar el estado del botón
@@ -143,39 +160,48 @@ fun MenuScreen(
                 Text("Nro. Factura: $nroFactura ", style = MaterialTheme.typography.headlineSmall)
             }
 
-           if(mostrarBotonRegistrar){
-               Button(
-                modifier = Modifier,
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
-                onClick = {
-                    ordenVentaDetalleViewModel.mostrarConfirmacion()
-                 }
-            ) {
-                Text(text = "Registrar", color = Color.White)
-            }}
+            if (mostrarBotonRegistrar) {
+                Button(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
+                    onClick = {
+                        ordenVentaDetalleViewModel.mostrarConfirmacion()
+                    }
+                ) {
+                    Text(text = "Registrar", color = Color.White)
+                }
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(articulosMenu) { articulo ->
-                    ProductosItemRow(
-                        productosItem = articulo,
-                        lotes = lotes,
-                        quantity = quantities[articulo]?.value ?: 0,
-                        isSelected = selections[articulo]?.value == true,
-                        ordenVentaDetalleViewModel,
-                        onQuantityChange = { change ->
-                            quantities[articulo]?.value =
-                                (quantities[articulo]?.value ?: 0) + change
-                            ordenVentaDetalleViewModel.comprobarEstadoBoton(productosSeleccionados)
-                        },
-                        onSelectionChange = { selected ->
-                            selections[articulo]?.value = selected
-                            ordenVentaDetalleViewModel.comprobarEstadoBoton(productosSeleccionados)
-                        }
-                    )
-                }
-         }
+            items(articulosMenu) { articulo ->
+                ProductosItemRow(
+                    productosItem = articulo,
+                    lotes = lotes,
+                    quantity = quantities[articulo]?.value ?: 0.0,
+                    quantitiesUnidad = quantitiesUnidad[articulo]?.value ?: 0,
+
+                    isSelected = selections[articulo]?.value == true,
+                    ordenVentaDetalleViewModel,
+                    onQuantityChange = { change ->
+                        // Asumiendo que change es un Double, y que quantities almacena valores de tipo Number que necesitan ser convertidos a Double
+                        val currentQuantity = quantities[articulo]?.value?.toDouble() ?: 0.0
+                        val newQuantity = currentQuantity + change.toDouble()
+                        // Actualizar el valor en el mapa de quantities
+                        quantities[articulo]?.value = newQuantity
+                        quantitiesUnidad[articulo]?.value = (newQuantity* if(articulo.unitMsr=="Docena")12 else if(articulo.unitMsr=="Plancha")30 else 1 ).toInt()
+                        // Notificar al ViewModel para que revise el estado del botón
+                        ordenVentaDetalleViewModel.comprobarEstadoBoton(productosSeleccionados)
+                    },
+
+                    onSelectionChange = { selected ->
+                        selections[articulo]?.value = selected
+                        ordenVentaDetalleViewModel.comprobarEstadoBoton(productosSeleccionados)
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -184,17 +210,24 @@ fun MenuScreen(
 fun ProductosItemRow(
     productosItem: ProductoItem,
     lotes: List<DatosDetalleLotes>,  // La lista completa de lotes
-    quantity: Int,
+    quantity: Number,
+    quantitiesUnidad:Int,
     isSelected: Boolean,
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
-    onQuantityChange: (Int) -> Unit,
+    onQuantityChange: (Number) -> Unit,
     onSelectionChange: (Boolean) -> Unit,
-    ) {
+) {
+  //  var cantidadConvertida =  if (productosItem.unitMsr == "Docena") (quantity.toDouble() * 12).toInt() else if (productosItem.unitMsr == "Plancha") quantity.toDouble() * 30 else quantity
+   // var cantidadConvertida = productosItem.quantityUnidad // if (productosItem.unitMsr == "Docena") (quantity.toDouble() * 12).toInt() else if (productosItem.unitMsr == "Plancha") quantity.toDouble() * 30 else quantity
     var expanded by remember { mutableStateOf(false) }
     val cantidadCargada = ordenVentaDetalleViewModel.getCantidadCargadaPorItemCode(productosItem.itemCode)
-    val textColor = if (cantidadCargada == quantity && isSelected) Color(0xFFA3FF81) else if(cantidadCargada > quantity && isSelected) Color(0xFFFF3F3F)else if(isSelected) Color(
-        0xFFF5E556
-    ) else Color(0xFFFFFFFF)
+
+    val textColor =
+        if (cantidadCargada.toInt() == quantitiesUnidad  && isSelected) Color(0xFFA3FF81) else if (cantidadCargada.toInt() > quantitiesUnidad && isSelected) Color(
+            0xFFFF3F3F
+        ) else if (isSelected) Color(
+            0xFFF5E556
+        ) else Color(0xFFFFFFFF)
     var searchText by remember { mutableStateOf("") } // Definir searchText aquí
 
     Card(
@@ -204,7 +237,10 @@ fun ProductosItemRow(
             .padding(8.dp),
         colors = CardDefaults.cardColors(containerColor = textColor) // Usa el color que prefieras aquí
     ) {
-        Text("Cantidad cargada:$cantidadCargada ", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            "Cantidad cargada:${cantidadCargada.toInt()} ",
+            style = MaterialTheme.typography.titleSmall
+        )
         Column {
             Row(
                 modifier = Modifier
@@ -226,19 +262,29 @@ fun ProductosItemRow(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(productosItem.name, style = MaterialTheme.typography.bodySmall)
                     Text(productosItem.itemCode, style = MaterialTheme.typography.bodySmall)
+
+                    if (productosItem.unitMsr != "Paquete") Text(
+                        "Unidades: $quantitiesUnidad",
+                        style = MaterialTheme.typography.titleSmall
+                    )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                     val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+                    val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
                     decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
                     val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
                     val formattedCost = formatter.format(productosItem.price)
                     Text("Gs. $formattedCost", style = MaterialTheme.typography.bodyLarge)
+                    Text(productosItem.unitMsr, style = MaterialTheme.typography.bodyLarge)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { if (quantity > 0) onQuantityChange(-1) }) {
+                        val increment = if (productosItem.itemCode.length == 1) 0.5 else 1.0
+                        IconButton(onClick = { if (quantity.toDouble() > 0) onQuantityChange(-increment) }) {
                             Icon(Icons.Default.Remove, contentDescription = "Remove")
                         }
-                        Text("$quantity", style = MaterialTheme.typography.bodyLarge)
-                        IconButton(onClick = { if (isSelected) onQuantityChange(1) }) {
+                        Text(
+                            "${if (productosItem.itemCode.length == 1) quantity else quantity.toInt()}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        IconButton(onClick = { if (isSelected) onQuantityChange(increment) }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                     }
@@ -246,7 +292,7 @@ fun ProductosItemRow(
             }
             // Contenido expandible del acordeón
             AnimatedVisibility(visible = expanded) {
-              //  val lotesFiltrados = lotes.filter { it.itemCode == productosItem.itemCode }
+                //  val lotesFiltrados = lotes.filter { it.itemCode == productosItem.itemCode }
                 Column {
                     // Agregar un TextField para buscar lotes
                     OutlinedTextField(
@@ -265,83 +311,84 @@ fun ProductosItemRow(
                                 ignoreCase = true
                             ) == true
                         }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 200.dp)
-                ) {
-                    items(lotesFiltrados) { lote ->
-                         var cantidadIngresada by rememberSaveable {
-                            mutableStateOf(
-                                ordenVentaDetalleViewModel.getCantidadIngresadaParaLote(lote.batchNum!!)
-                            )
-                        }
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 200.dp)
+                    ) {
+                        items(lotesFiltrados) { lote ->
+                            var cantidadIngresada by rememberSaveable {
+                                mutableStateOf(
+                                    ordenVentaDetalleViewModel.getCantidadIngresadaParaLote(lote.batchNum!!)
+                                )
+                            }
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Column(modifier = Modifier.weight(2f)) { // Aumenta el peso si necesitas más espacio para los textos
-                                        Text(
-                                            "Lote: ${lote.batchNum}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                        Text(
-                                            "Stock: ${lote.quantity}",
-                                            style = MaterialTheme.typography.bodySmall
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Column(modifier = Modifier.weight(2f)) { // Aumenta el peso si necesitas más espacio para los textos
+                                            Text(
+                                                "Lote: ${lote.batchNum}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            Text(
+                                                "Stock: ${lote.quantity}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        // Ajusta el tamaño del TextField, por ejemplo usando fillMaxWidth con un factor menor
+                                        TextField(
+                                            value = cantidadIngresada,
+                                            onValueChange = { newValue ->
+
+                                                newValue.let { nuevaCantidad ->
+
+                                                    if (newValue.toIntOrNull() != null) {
+                                                        val nuevaCantidad = newValue.toInt()
+                                                        if (nuevaCantidad <= lote.quantity!!.toInt()) {
+                                                            cantidadIngresada =
+                                                                nuevaCantidad.toString()
+                                                            ordenVentaDetalleViewModel.actualizarCantidadIngresada(
+                                                                lote.batchNum!!,
+                                                                lote.itemCode!!,
+                                                                nuevaCantidad
+                                                            )
+                                                        }
+                                                    } else {
+                                                        // Si newValue no es un número, dejar el campo vacío
+                                                        cantidadIngresada = ""
+                                                        ordenVentaDetalleViewModel.actualizarCantidadIngresada(
+                                                            lote.batchNum!!,
+                                                            lote.itemCode!!,
+                                                            0
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            singleLine = true,
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                            label = { Text("Ingrese") },
+                                            modifier = Modifier.fillMaxWidth(0.5f) // Usa un factor como 0.5 para reducir el ancho del TextField
                                         )
                                     }
-                                    // Ajusta el tamaño del TextField, por ejemplo usando fillMaxWidth con un factor menor
-                                    TextField(
-                                        value = cantidadIngresada,
-                                        onValueChange = { newValue ->
-
-                                            newValue.let { nuevaCantidad ->
-                                                if (newValue.toIntOrNull() != null) {
-                                                    val nuevaCantidad = newValue.toInt()
-                                                    if (nuevaCantidad <= lote.quantity!!.toInt()) {
-                                                        cantidadIngresada = nuevaCantidad.toString()
-                                                        ordenVentaDetalleViewModel.actualizarCantidadIngresada(lote.batchNum!!, lote.itemCode!!, nuevaCantidad)
-                                                    }
-                                                } else {
-                                                    // Si newValue no es un número, dejar el campo vacío
-                                                    cantidadIngresada = ""
-                                                    ordenVentaDetalleViewModel.actualizarCantidadIngresada(lote.batchNum!!, lote.itemCode!!, 0)
-                                                }
-
-                                            }
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        label = { Text("Ingrese") },
-                                        modifier = Modifier.fillMaxWidth(0.5f) // Usa un factor como 0.5 para reducir el ancho del TextField
-                                    )
                                 }
+
+
                             }
-
-
                         }
                     }
                 }
-            }
             }
         }
     }
     Divider()
 }
 
-
-data class ProductoItem(
-    val lineNum: Int,
-    val name: String,
-    val itemCode: String,
-    val price: Int,
-    val initialQuantity: Int
-)
 
