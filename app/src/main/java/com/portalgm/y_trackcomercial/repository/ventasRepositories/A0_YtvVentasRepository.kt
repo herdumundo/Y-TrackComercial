@@ -28,7 +28,7 @@ class A0_YtvVentasRepository @Inject constructor(
             return@withContext getTotalCount()
         }
     }
-//
+//GHHHHHH
     fun getTotalCount():  Int  {
         return A0_YTV_VENDEDORDao.getCount()
     }
