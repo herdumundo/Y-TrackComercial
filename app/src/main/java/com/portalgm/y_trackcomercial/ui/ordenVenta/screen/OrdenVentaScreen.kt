@@ -43,7 +43,7 @@ fun OrdenVentaScreen(
             items(listaOrdenVenta, key = { item -> item.docNum }) { item ->
                 CardOrdenVenta(
                     title1 = item.shipToCode,
-                    title2 = "Fecha de entrega: "+ HoraActualUtils.formatIsoDateToReadableDate(item.docDueDate),
+                    title2 = "Fecha de entrega: "+  item.docDueDate ,
                     title3 = item.docNum,
                     buttonText="Ir",
                     icono= Icons.Filled.ReceiptLong,

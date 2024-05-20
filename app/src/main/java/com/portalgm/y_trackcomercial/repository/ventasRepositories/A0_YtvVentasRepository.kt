@@ -2,9 +2,11 @@ package com.portalgm.y_trackcomercial.repository.ventasRepositories
 
 import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.A0_YTV_VENDEDORClient
+import com.portalgm.y_trackcomercial.data.api.request.nroFacturaPendiente
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.A0_YTV_VENDEDORDAO
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.A0_YTV_VENDEDOR_Entity
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosFactura
+import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaCabItem
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import kotlinx.coroutines.Dispatchers
@@ -32,5 +34,17 @@ class A0_YtvVentasRepository @Inject constructor(
     }
     suspend fun getDatosFactura(): List<A0_YTV_VENDEDOR_Entity> = A0_YTV_VENDEDORDao.getDatosFactura()
 
-
+    suspend fun exportarDatos(lotes: nroFacturaPendiente) {
+        try {
+            val apiResponse = exportacionOinvApiClient.uploadData(
+                lotes,
+                sharedPreferences.getToken().toString()
+            )
+            // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
+            if (apiResponse.tipo == 0) {
+            }
+        } catch (e: Exception) {
+            Log.i("Mensaje", e.toString())
+        }
+    }
 }

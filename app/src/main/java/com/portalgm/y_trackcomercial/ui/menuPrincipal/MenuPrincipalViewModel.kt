@@ -1,14 +1,11 @@
 package com.portalgm.y_trackcomercial.ui.menuPrincipal
 
-import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.portalgm.y_trackcomercial.repository.LotesListasRepository
-import com.portalgm.y_trackcomercial.repository.UsuarioRepository
 import com.portalgm.y_trackcomercial.repository.CustomerRepository
 import com.portalgm.y_trackcomercial.data.api.response.OCRD
 import com.portalgm.y_trackcomercial.data.model.entities.RutasAccesosEntity
@@ -19,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.portalgm.y_trackcomercial.repository.OcrdUbicacionesRepository
-import com.portalgm.y_trackcomercial.repository.PermisosVisitasRepository
 import com.portalgm.y_trackcomercial.repository.RutasAccesosRepository
 import com.portalgm.y_trackcomercial.usecases.login.AuthUseCase
 import kotlinx.coroutines.withContext
@@ -27,13 +23,9 @@ import com.portalgm.y_trackcomercial.repository.OcrdOitmRepository
 import com.portalgm.y_trackcomercial.repository.OitmRepository
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.ubicacionesPv.ImportarUbicacionesPvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.CountRegistrosListaPreciosUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.ImportarListaPreciosUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.CountOrdenVentaUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ImportarVendedoresUseCase
 import com.portalgm.y_trackcomercial.util.SharedData
 
@@ -49,16 +41,10 @@ class MenuPrincipalViewModel @Inject constructor(
     private val oitmRepository: OitmRepository,
     private val importarUbicacionesPvUseCase: ImportarUbicacionesPvUseCase,
     private val importarParametrosUseCase: ImportarParametrosUseCase,
-
-    private val countRegistrosVendedoresUseCase: CountRegistrosVendedoresUseCase,
     private val importarVendedoresUseCase: ImportarVendedoresUseCase,
     private val importarListaPreciosUseCase: ImportarListaPreciosUseCase,
-    private val countRegistrosListaPreciosUseCase: CountRegistrosListaPreciosUseCase,
-    private val countRegistrosStockAlmacenUseCase: CountRegistrosStockAlmacenUseCase,
     private val importarStockAlmacenUseCase: ImportarStockAlmacenUseCase,
     private val importarOrdenVentaUseCase: ImportarOrdenVentaUseCase,
-    private val countOrdenVentaUseCase: CountOrdenVentaUseCase,
-
     ) : ViewModel() {
 
 

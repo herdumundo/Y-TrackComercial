@@ -11,15 +11,19 @@ import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaDetItem
 
 @Dao
 interface A0_YTV_ORDEN_VENTADAO {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     @Transaction
     suspend fun insertAll(ytv: List<A0_YTV_ORDEN_VENTA_Entity>)
-    @Query("delete from A0_YTV_ORDEN_VENTA")
+    @Query("delete from A0_YTV_ORDEN_VENTA WHERE estado='P'")
     suspend fun eliminarTodos()
     @Query("SELECT COUNT(*) FROM A0_YTV_ORDEN_VENTA")
     fun getCount(): Int
 
-    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where estado='P' /*idCliente in (select idOcrd from visitas where pendienteSincro='N')*/")
+    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode," +
+            "substr(datetime(substr(docDueDate, 1, 19)), 9, 2) || '/' ||\n" +
+            "    substr(datetime(substr(docDueDate, 1, 19)), 6, 2) || '/' ||\n" +
+            "    substr(datetime(substr(docDueDate, 1, 19)), 1, 4) AS   docDueDate,pymntGroup,A0_YTV_ORDEN_VENTA.slpName,licTradNum " +
+            "   from a0_ytv_orden_venta INNER JOIN A0_YTV_VENDEDOR ON A0_YTV_ORDEN_VENTA.slpCode=A0_YTV_VENDEDOR.slpcode where A0_YTV_ORDEN_VENTA.estado='P' order by  datetime(substr(docDueDate, 1, 19)) desc/*idCliente in (select idOcrd from visitas where pendienteSincro='N')*/")
     suspend fun getOrdenVentaCab(): List<OrdenVentaCabItem>
     @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaCabById(docNum: Int): List<OrdenVentaCabItem>

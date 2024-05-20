@@ -103,7 +103,7 @@ class SplashActivity : ComponentActivity() {
 
                 Image(
 
-                    painter = painterResource(R.drawable.ytrack2),
+                    painter = painterResource(R.drawable.launcher),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(200.dp).alpha(alpha.value),

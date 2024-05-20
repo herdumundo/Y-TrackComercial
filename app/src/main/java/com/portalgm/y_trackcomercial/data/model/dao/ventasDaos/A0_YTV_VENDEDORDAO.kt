@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.google.gson.annotations.SerializedName
+import com.portalgm.y_trackcomercial.data.api.request.nroFacturaPendiente
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.A0_YTV_VENDEDOR_Entity
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosFactura
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaDetItem
@@ -14,11 +15,11 @@ import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaDetItem
 @Dao
 interface A0_YTV_VENDEDORDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     @Transaction
     suspend fun insertAll(ytvVendor: List<A0_YTV_VENDEDOR_Entity>)
 
-    @Query("delete from A0_YTV_VENDEDOR")
+    @Query("delete from A0_YTV_VENDEDOR where estado='C'")
     suspend fun eliminarTodos()
 
     @Query("SELECT COUNT(*) FROM A0_YTV_VENDEDOR")
@@ -37,5 +38,8 @@ interface A0_YTV_VENDEDORDAO {
     @Query("UPDATE A0_YTV_VENDEDOR SET estado='P'  " )
     suspend fun  updateEstadoPendiente()
 
+    @Query("select slpCode,ult_nro_fact from A0_YTV_VENDEDOR where estado='P' ")
+    suspend fun  nroFacturaPendiente():List<nroFacturaPendiente>
 
- }
+
+}

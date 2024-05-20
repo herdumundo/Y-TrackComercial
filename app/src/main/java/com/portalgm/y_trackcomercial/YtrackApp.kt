@@ -19,18 +19,6 @@ class YtrackApp:Application(){
             val notificacionManager= getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificacionManager.createNotificationChannel(channel)
         }
-
-    /*    val runningServicesCount = countRunningServices(this)
-        Log.d("RunningServices", "Number of running services: $runningServicesCount")
-
-      //  if (!isServiceRunning(ServicioUnderground::class.java)) {
-            val servicioUndergroundIntent = Intent(this@YtrackApp, ServicioUnderground::class.java)
-             servicioUndergroundIntent.action = ServicioUnderground.Actions.START.toString()
-            ContextCompat.startForegroundService(this@YtrackApp, servicioUndergroundIntent)
-       // }
-        val runningServicesCount2 = countRunningServices(this)
-
-        Log.d("RunningServices", "Number of running services: $runningServicesCount2")*/
     }
     fun countRunningServices(context: Context): Int {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

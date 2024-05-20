@@ -506,9 +506,9 @@ fun MyDrawer(
         // user's image
         Image(
             modifier = Modifier
-                .size(size = 120.dp)
-                .clip(shape = CircleShape),
-            painter = painterResource(id = R.drawable.ytrack2),
+                .size(size = 120.dp),
+             //   .clip(shape = CircleShape),
+            painter = painterResource(id = R.drawable.launcher),
             contentDescription = "Profile Image"
         )
 
@@ -579,7 +579,7 @@ fun DrawerItem2(
 fun HomeScreen() {
 
     Image(
-        painter = painterResource(R.drawable.ytrack2), // Ruta de la imagen
+        painter = painterResource(R.drawable.launcher), // Ruta de la imagen
         contentDescription = "My Image",
         modifier = Modifier
             .fillMaxWidth()
