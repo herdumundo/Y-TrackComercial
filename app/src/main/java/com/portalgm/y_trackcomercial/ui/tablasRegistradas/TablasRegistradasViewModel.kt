@@ -54,9 +54,9 @@ class TablasRegistradasViewModel @Inject constructor(
     private val countRegistrosStockAlmacenUseCase: CountRegistrosStockAlmacenUseCase,
     private val importarStockAlmacenUseCase: ImportarStockAlmacenUseCase,
     private val importarOrdenVentaUseCase: ImportarOrdenVentaUseCase,
-    private val countOrdenVentaUseCase: CountOrdenVentaUseCase,
+    private val countOrdenVentaUseCase: CountOrdenVentaUseCase
 
-) : ViewModel() {
+    ) : ViewModel() {
 
     private val _ocrdCount: MutableLiveData<Int> = MutableLiveData()
     val ocrdCount: LiveData<Int> = _ocrdCount
@@ -135,6 +135,8 @@ class TablasRegistradasViewModel @Inject constructor(
     private val _loadingpermisoVisitaCount: MutableLiveData<Boolean> = MutableLiveData()
     val loadingpermisoVisitaCount: LiveData<Boolean> = _loadingpermisoVisitaCount
 
+
+
     private val _listaPrecioCount: MutableLiveData<Int> = MutableLiveData()
     val listaPrecioCount: LiveData<Int> = _listaPrecioCount
 
@@ -160,11 +162,12 @@ class TablasRegistradasViewModel @Inject constructor(
                 1 -> {
                     _loadingOcrdCount.value = true
                     _ocrdCount.value = ocrdRepository.fetchCustomers()
+                    _ocrdUbicacionesCount.value = ocrdUbicacionesRepository.getOcrdUbicacionesCount()
                     _loadingOcrdCount.value = false
                 }
                 2 -> {
                     _loadingUbicacionesCount.value = true
-                    _ocrdUbicacionesCount.value = ocrdUbicacionesRepository.fetchOcrdUbicaciones()
+
                     _loadingUbicacionesCount.value = false
                 }
                 3 -> {
@@ -223,6 +226,7 @@ class TablasRegistradasViewModel @Inject constructor(
                     _ordenVentaCount.value =importarOrdenVentaUseCase.Importar()
                     _loadingordenVenta.value = false
                 }
+
 
             }
         }

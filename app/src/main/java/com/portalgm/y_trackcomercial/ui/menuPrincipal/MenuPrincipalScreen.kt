@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
@@ -28,7 +27,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -74,6 +72,8 @@ import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.screen.RastreoUsuarioMap
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.screen.ReimpresionFacturaScreen
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
+import com.portalgm.y_trackcomercial.ui.repartoLibre.screen.RepartoLibreScreen
+import com.portalgm.y_trackcomercial.ui.repartoLibre.viewmodel.RepartoLibreViewModel
 import com.portalgm.y_trackcomercial.ui.stockAlmacen.screen.StockAlmacenScreen
 import com.portalgm.y_trackcomercial.ui.stockAlmacen.viewmodel.StockAlmacenViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
@@ -118,7 +118,8 @@ fun MenuPrincipal(
      ordenVentaViewModel: OrdenVentaViewModel,
      ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
      reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
-     anulacionFacturaViewModel: AnulacionFacturaViewModel
+     anulacionFacturaViewModel: AnulacionFacturaViewModel,
+     repartoLibreViewModel: RepartoLibreViewModel
  ) {
      //  if (loginViewModel.loggedIn.value == true) {
        if (sharedPreferences.getUserId()>0) {//SI YA SE INICIO SESION PARA QUE NO REQUIERA NUEVAMENTE AL CERRAR LA APP.
@@ -328,6 +329,9 @@ fun MenuPrincipal(
                 }
                 composable("cancelacionFactura") {
                     AnulacionFacturaScreen(anulacionFacturaViewModel=anulacionFacturaViewModel )
+                }
+                composable("facturacionRepartoLibre") {
+                    RepartoLibreScreen(repartoLibreViewModel=repartoLibreViewModel,navController )
                 }
 
 

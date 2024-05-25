@@ -1,4 +1,4 @@
-package com.portalgm.y_trackcomercial.usecases.ventas.oinv
+package com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries
 
  import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
  import com.portalgm.y_trackcomercial.repository.ventasRepositories.OinvRepository

@@ -34,9 +34,13 @@ interface CustomerDao {
 
     @Query("delete from OCRD")
     suspend fun eliminarOcrdTodos()
-    @Query("SELECT id,Address,CardCode,CardName FROM ocrd   ")
+    @Query("SELECT id,Address,CardCode,CardName,ListNum FROM ocrd   ")
     fun getAllCustomers():  List<OCRDEntity>
 
     @Query("update ocrd set balance=:balance,creditLine=:creditLine,creditDisp=:creditDisp where cardCode=:cardCode")
     suspend fun  updateBalanceOcrd(cardCode:String,balance:Long,creditLine:Long,creditDisp:Long)
+
+    @Query("SELECT * FROM ocrd   where id in  ( select idOcrd from visitas where pendienteSincro='N')")
+    suspend fun getDatosCliente():  List<OCRDEntity>
+
 }

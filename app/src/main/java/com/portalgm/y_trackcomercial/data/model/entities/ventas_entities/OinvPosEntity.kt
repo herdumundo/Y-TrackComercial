@@ -29,6 +29,7 @@ data class OINV_POS(
     @ColumnInfo(name = "xmlNombre")         var xmlNombre: String?,
     @ColumnInfo(name = "iva")               var iva: String?,
     @ColumnInfo(name = "vigenciaTimbrado")  var vigenciaTimbrado: String?,
+    @ColumnInfo(name = "naturalezaReceptor")  var naturalezaReceptor: String?, /*1 si es contribuyente 2 si es no contribuyente  */
     @ColumnInfo(name = "tipoContribuyente")  var tipoContribuyente: String?, /*1 si es persona fisica y 2 si es persona juridica  */
     @ColumnInfo(name = "ci")                var ci: String?, /* si es persona fisica informar  y  persona juridica no informar */
     @ColumnInfo(name = "address")           var address: String?,
@@ -36,10 +37,18 @@ data class OINV_POS(
     @ColumnInfo(name = "contado")           var contado: String?,// 1= SI, 2= NO
     @ColumnInfo(name = "condicion")         var condicion: String?,
     @ColumnInfo(name = "totalIvaIncluido")  var totalIvaIncluido: String?,
+    @ColumnInfo(name = "totalIva")          var totalIva: String?,
+    @ColumnInfo(name = "totalSinIva")       var totalSinIva: String?,
     @ColumnInfo(name = "anulado")           var anulado: String= "N",
     @ColumnInfo(name = "estado")            var estado: String?,
     @ColumnInfo(name = "pymntGroup")        var pymntGroup: String?,
-    @ColumnInfo(name = "docEntrySap")       var docEntrySap: String?
+    @ColumnInfo(name = "docEntrySap")       var docEntrySap: String?,
+    @ColumnInfo(name = "U_SIFENCIUDAD")     var u_sifenciudad: String?,
+    @ColumnInfo(name = "U_DEPTOCOD")        var u_deptocod: String?,
+    @ColumnInfo(name = "U_SIFENNCASA")      var u_sifenncasa: String?,
+    @ColumnInfo(name = "txtSifen")          var txtSifen: String?,
+     @ColumnInfo(name = "STREET")           var STREET: String?
 
 
 )
+

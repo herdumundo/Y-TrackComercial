@@ -1,7 +1,4 @@
-package com.portalgm.y_trackcomercial.usecases.ventas.oinv
-
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinv
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinvNew
+package com.portalgm.y_trackcomercial.usecases.ventas.oinv.exports
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DetalleCompleto
 import com.portalgm.y_trackcomercial.repository.ventasRepositories.OinvRepository

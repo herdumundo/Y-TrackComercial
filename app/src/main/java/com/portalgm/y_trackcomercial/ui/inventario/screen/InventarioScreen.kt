@@ -76,6 +76,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
+import com.portalgm.y_trackcomercial.components.cuadroAvisoDenegado
 import com.portalgm.y_trackcomercial.data.model.models.Lotes
 import com.portalgm.y_trackcomercial.data.model.models.LotesItem
 import com.portalgm.y_trackcomercial.data.model.models.UbicacionPv
@@ -87,7 +88,7 @@ fun ScreenInventario(inventarioViewModel: InventarioViewModel) {
     val registrosConPendiente by inventarioViewModel.registrosConPendiente.observeAsState(0)
 
     if(registrosConPendiente==0){
-        cuadroAvisoInventario()
+        cuadroAvisoDenegado("Debes iniciar visita para realizar el inventario")
     }
     else{
         val snackbarMessage by inventarioViewModel.snackbarMessage.observeAsState()
@@ -109,30 +110,7 @@ fun ScreenInventario(inventarioViewModel: InventarioViewModel) {
                     SnackAlerta(snackbarMessage,Color(colorSnack!!))
                 }
             },
-          /*  bottomBar = {
-                // Agregar un ícono para el menú desplegable
-                BottomAppBar(
-                    backgroundColor = Color(0xFF000000),
-                    cutoutShape = CircleShape, // Cambiar a CircleShape si quieres un botón flotante
-                    content = { MyBottomBar(  prepareBottomMenuInventario(inventarioViewModel))
-                    })
-            },*/
-       /*     floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        inventarioViewModel.obtenerLotesNuevos()
-                    },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .size(56.dp),
-                    backgroundColor = Color.Black // Color de fondo negro
 
-                ) {
-                    Icon(imageVector = Icons.Default.PunchClock, contentDescription = "Agregar",tint=Color.White)
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Start , // Posición del botón flotante
-      */
             floatingActionButton = {
                 Box(
                     modifier = Modifier
@@ -812,28 +790,3 @@ fun Path.buildCustomPath(size: androidx.compose.ui.geometry.Size, cornerRadius: 
 }
 
 
-@Composable
-fun cuadroAvisoInventario() {
-    Box(
-        contentAlignment = Alignment.Center, modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        AreShapeOnBorderCenterSurface(
-            cornerRadius = 15.dp,
-            centerCircleRadius = 50.dp
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Error", color = Color.Red, fontSize = 15.sp)
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(text = "Lo siento!", color = Color.Black, fontSize = 20.sp)
-                Spacer(modifier = Modifier.height(17.dp))
-                Text(text = "Debes iniciar visita para realizar el inventario", color = Color.Gray, fontSize = 15.sp)
-                Spacer(modifier = Modifier.height(30.dp))
-            }
-        }
-    }
-}

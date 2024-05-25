@@ -5,7 +5,9 @@ import com.portalgm.y_trackcomercial.data.api.A0_YTV_STOCK_ALMACENClient
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.A0_YTV_STOCK_ALMACENDAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.views.daos.StockDao
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosDetalleLotes
- import com.portalgm.y_trackcomercial.util.SharedPreferences
+import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosItemCodesStock
+import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosItemCodesStockPriceList
+import com.portalgm.y_trackcomercial.util.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -58,4 +60,24 @@ class A0_YTV_STOCK_ALMACENRepository @Inject constructor(
             )
         }
     }
+
+    suspend fun getStockItemCode(): List<DatosItemCodesStock> {
+        return stockDao.getStockItemCode()
+
+    }
+
+    suspend fun getStockItemCodePriceList(): List<DatosItemCodesStockPriceList> {
+        return stockDao.getStockItemCodeWithPriceList()
+    }
+
+    suspend fun getItemUmedidaCambio(itemCode: String, /*priceList: Int,*/um:String): List<DatosItemCodesStockPriceList> {
+        return stockDao.getItemUmedidaCambio(itemCode,um)
+    }
+
+
+    suspend fun getStockExistenciaPlanchaByItemCode(itemCode: String): Int{
+        return stockDao.getStockExistenciaPlanchaByItemCode(itemCode)
+
+    }
+
 }

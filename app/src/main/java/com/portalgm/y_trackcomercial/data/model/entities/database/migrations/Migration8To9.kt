@@ -15,7 +15,6 @@ class Migration8to9 : Migration(8, 9) {
                 `idVisita`  BIGINT NOT NULL,
                 `docEntryPedido` TEXT,
                 `condicion` TEXT,
-                
                 `licTradNum` TEXT,
                 `lineNumbCardCode` INTEGER NOT NULL,
                 `cardCode` TEXT,
@@ -33,16 +32,25 @@ class Migration8to9 : Migration(8, 9) {
                 `xmlNombre` TEXT,
                 `iva` TEXT,
                 `vigenciaTimbrado` TEXT,
+                `naturalezaReceptor` TEXT,
                 `tipoContribuyente` TEXT,
                 `ci` TEXT,
                 `address` TEXT,
                 `correo` TEXT,
                 `contado` TEXT,
                 `totalIvaIncluido` TEXT,
+                `totalIva` TEXT,
+                `totalSinIva` TEXT,
                 `anulado`        TEXT NOT NULL DEFAULT 'N',
                 `pymntGroup` TEXT,
                 `estado` TEXT,
-                `docEntrySap` TEXT
+                `docEntrySap` TEXT,
+                `U_SIFENCIUDAD` TEXT,
+                `U_DEPTOCOD` TEXT,
+                `U_SIFENNCASA` TEXT,
+                `txtSifen` TEXT,
+                 `STREET` TEXT
+
             )
         """)
 
@@ -111,7 +119,10 @@ class Migration8to9 : Migration(8, 9) {
             `ItemCode` TEXT NOT NULL,
             `PriceList` TEXT,
             `Listname` TEXT NOT NULL,
-            `Price` TEXT
+            `Price` TEXT,
+            `Price` TEXT,
+            `UM` TEXT,
+            `BaseQty` INTEGER,
             `    
              )
         """)
@@ -162,12 +173,51 @@ class Migration8to9 : Migration(8, 9) {
             `PymntGroup`    TEXT                        ,
             `DocStatus`     TEXT                        ,
             `CANCELED`      TEXT                        ,
-            `estado`        TEXT NOT NULL DEFAULT 'P'
-             `    
+            `U_DEPTOCOD`      TEXT                      ,
+            `U_SIFENNCASA`      TEXT                    ,
+            `U_SIFENCIUDAD`      TEXT                  ,
+            `correo`      TEXT                  ,
+            `estado`        TEXT NOT NULL DEFAULT 'P'         `    
              )
         """)
+
             database.execSQL("ALTER TABLE OCRD ADD COLUMN CreditDisp TEXT")
             database.execSQL("ALTER TABLE OCRD ADD COLUMN CreditLine TEXT")
             database.execSQL("ALTER TABLE OCRD ADD COLUMN Balance TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN U_SIFENCIUDAD TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN U_DEPTOCOD TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN U_SIFENNCASA TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN cardCode2 TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN LineNum INTEGER")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN LicTradNum TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN PymntGroup TEXT")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN GroupNum INTEGER")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN STREET TEXT")
+
+
+            database.execSQL("""
+            CREATE TABLE OCRD_UBICACION_NEW (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                idCab TEXT NOT NULL,
+                latitud TEXT NOT NULL,
+                longitud TEXT NOT NULL,
+                FOREIGN KEY(idCab) REFERENCES OINV_POS(id) ON DELETE CASCADE
+            )
+        """.trimIndent())
+
+            // Copiar los datos de la tabla antigua a la nueva tabla
+            database.execSQL("""
+            INSERT INTO OCRD_UBICACION_NEW (id, idCab, latitud, longitud)
+            SELECT id, idCab, latitud, longitud FROM OCRD_UBICACION
+        """.trimIndent())
+
+            // Eliminar la tabla antigua
+            database.execSQL("DROP TABLE OCRD_UBICACION")
+
+            // Renombrar la nueva tabla a la antigua
+            database.execSQL("ALTER TABLE OCRD_UBICACION_NEW RENAME TO OCRD_UBICACION")
+            database.execSQL("ALTER TABLE OCRD ADD COLUMN ListNum INTEGER NOT NULL DEFAULT 0")
+
         }
+
      }

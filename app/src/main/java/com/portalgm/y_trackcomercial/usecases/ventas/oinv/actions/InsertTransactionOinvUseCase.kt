@@ -1,4 +1,4 @@
-package com.portalgm.y_trackcomercial.usecases.ventas.oinv
+package com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions
 
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_LOTES_POS
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_POS

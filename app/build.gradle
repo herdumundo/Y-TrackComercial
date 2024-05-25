@@ -26,10 +26,10 @@ android {
     {
         debug
         {
-            /*        buildConfigField "String", "BASE_URL", "\"http://192.168.6.143:8000/\""
-                     buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.143:00/\"" */
-          buildConfigField "String", "BASE_URL", "\"https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
-          buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"wss://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
+                  buildConfigField "String", "BASE_URL", "\"http://192.168.6.133:8000/\""
+                     buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"ws://192.168.6.133:8000/\""
+          /*  buildConfigField "String", "BASE_URL", "\"https://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""
+          buildConfigField "String", "BASE_URL_WEB_SOCKET", "\"wss://app-ytrack-b.wonderfulisland-f986ad78.eastus2.azurecontainerapps.io/\""*/
 
  debuggable true
 }
@@ -95,7 +95,6 @@ debugImplementation 'androidx.compose.ui:ui-test-manifest'
 implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
 
 implementation 'com.google.android.material:material:1.11.0-alpha01'
-
 implementation "com.squareup.retrofit2:retrofit:2.9.0"
 implementation "com.squareup.retrofit2:converter-gson:2.9.0"
 implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'

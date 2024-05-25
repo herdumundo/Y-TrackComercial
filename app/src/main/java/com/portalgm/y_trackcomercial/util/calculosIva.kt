@@ -26,7 +26,7 @@ object calculosIva {
     fun calcularIva5(total:Int): Double {
         // Calcula el 5% de ese total
          var totalIva5=total/21.toFloat()
-        return  redondeoPersonalizado(totalIva5.toDouble()).toDouble()
+        return  redondeoPersonalizado(totalIva5.toDouble())
     }
     fun redondeoPersonalizado(valor: Double): Double {
         val valorBD = BigDecimal(valor.toString())

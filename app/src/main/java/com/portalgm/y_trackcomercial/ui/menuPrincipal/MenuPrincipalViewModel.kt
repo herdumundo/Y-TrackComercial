@@ -100,9 +100,9 @@ class MenuPrincipalViewModel @Inject constructor(
                 _mensajeDialog.value = "Cargando Clientes..."
                 customerRepository.fetchCustomers()
 
-                _mensajeDialog.value = "Cargando Ubicaciones..."
+   /*             _mensajeDialog.value = "Cargando Ubicaciones..."
                 ocrdUbicacionesRepository.fetchOcrdUbicaciones()
-
+*/
                 _mensajeDialog.value = "Cargando Permisos ..."
 
                 val result = authUseCase(getUserLogin(), getPasswordUserName())

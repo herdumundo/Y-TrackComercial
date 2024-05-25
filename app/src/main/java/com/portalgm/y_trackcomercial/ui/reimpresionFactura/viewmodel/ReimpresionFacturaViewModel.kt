@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
 import com.portalgm.y_trackcomercial.services.bluetooth.ImpresionResultado
 import com.portalgm.y_trackcomercial.services.bluetooth.servicioBluetooth
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvByDateUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.UpdateFirmaOinvUseCase
 import com.portalgm.y_trackcomercial.util.firmadorFactura.firmarFactura
 import com.portalgm.y_trackcomercial.util.impresion.layoutFactura
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReimpresionFacturaViewModel @Inject constructor(
-    private val getOinvByDateUseCase:GetOinvByDateUseCase,
+    private val getOinvByDateUseCase: GetOinvByDateUseCase,
     private val getOinvUseCase: GetOinvUseCase,
     private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
 ): ViewModel() {
@@ -111,7 +111,7 @@ class ReimpresionFacturaViewModel @Inject constructor(
             firmarFactura.generarStringSiedi(listaFactura,"2")
         }
     }
-    fun finalizarFirma(qr: String, xml: String) {
+    fun finalizarFirma(qr: String, xml: String, txtSiedi: String?) {
         viewModelScope.launch {
             try {
                 val jsonObject = JSONObject(qr)
@@ -119,7 +119,8 @@ class ReimpresionFacturaViewModel @Inject constructor(
                     jsonObject.getString("qr"),
                     xml,
                     jsonObject.getString("cdc"),
-                    _docEntry.value!!
+                    _docEntry.value!!,
+                    txtSiedi!!
                 )
                 _mensajePantalla.value = "Firmado con exito."
                 _loadingPantalla.value = false
@@ -130,13 +131,14 @@ class ReimpresionFacturaViewModel @Inject constructor(
             }
         }
     }
-    fun processReceivedData(datosXml: String?, datosQrCdc: String?) {
+    fun processReceivedData(datosXml: String?, datosQrCdc: String?, txtSiedi: String?) {
         if (datosQrCdc.equals("null")) {
             _mensajePantalla.value = "Ha ocurrido en error al firmar \n$datosXml"
             _loadingPantalla.value = false
             _dialogPantalla.value = true
+            Log.e("YtrackMen", datosXml.toString())
         } else {
-            finalizarFirma(datosQrCdc!!, datosXml!!)
+            finalizarFirma(datosQrCdc!!, datosXml!!,txtSiedi)
         }
     }
 }

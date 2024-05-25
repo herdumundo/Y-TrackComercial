@@ -10,9 +10,6 @@ import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeActividadesRe
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeMovimientosRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarLotesDeUbicacionesNuevasRequest
 import com.portalgm.y_trackcomercial.data.api.request.EnviarVisitasRequest
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinv
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinvNew
-import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
 import com.portalgm.y_trackcomercial.usecases.auditLog.CountLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.EnviarLogPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.auditLog.GetLogPendienteUseCase
@@ -31,9 +28,13 @@ import com.portalgm.y_trackcomercial.usecases.newPass.GetNewPassPendientesUseCas
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNuevasPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.CountUseOinvPendientesCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.ExportarOinvPendientesUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvPendientesExportarUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvPendientesCancelacionesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.exports.ExportarOinvCancelacionesPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.exports.ExportarOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.imports.ImportarFacturasProcesadasSapUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvNoProcesadasSapUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvPendientesExportarUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountNroFacturaPendienteUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ExportarNroFacturaPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetNroFacturaPendienteUseCase
@@ -51,8 +52,10 @@ class ExportacionViewModel @Inject constructor(
     private val countMovimientoUseCase: CountMovimientoUseCase,
     private val countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase,
     private val countNewPassPendienteUseCase: CountNewPassPendienteUseCase,
-    private val countUseOinvPendientesCase: CountUseOinvPendientesCase,
+    private val countOinvPendientesUseCase: CountOinvPendientesUseCase,
     private val countNroFacturaPendienteUseCase: CountNroFacturaPendienteUseCase,
+    private val countOinvPendientesCancelacionesUseCase: CountOinvPendientesCancelacionesUseCase,
+    private val countOinvNoProcesadasSapUseCase: CountOinvNoProcesadasSapUseCase,
 
     private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
     private val getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
@@ -72,7 +75,8 @@ class ExportacionViewModel @Inject constructor(
     private val enviarNewPassPendientesUseCase: ExportarNewPassPendientesUseCase,
     private val exportarOinvPendientesUseCase: ExportarOinvPendientesUseCase,
     private val exportarNroFacturaPendientesUseCase: ExportarNroFacturaPendientesUseCase,
-
+    private val exportarOinvCancelacionesPendientesUseCase: ExportarOinvCancelacionesPendientesUseCase,
+    private val importarFacturasProcesadasSapUseCase: ImportarFacturasProcesadasSapUseCase,
 
     ) : ViewModel() {
 
@@ -113,6 +117,9 @@ class ExportacionViewModel @Inject constructor(
     private val _loadingLog: MutableLiveData<Boolean> = MutableLiveData()
     val loadingLog: LiveData<Boolean> = _loadingLog
 
+    private val _loadingFacturasNoProcesadasSap: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingFacturasNoProcesadasSap: LiveData<Boolean> = _loadingFacturasNoProcesadasSap
+
     private val _loadingMovimientos: MutableLiveData<Boolean> = MutableLiveData()
     val loadingMovimientos: LiveData<Boolean> = _loadingMovimientos
 
@@ -122,9 +129,18 @@ class ExportacionViewModel @Inject constructor(
     private val _loadingonuevoNroFacturaCount: MutableLiveData<Boolean> = MutableLiveData()
     val loadingonuevoNroFacturaCount: LiveData<Boolean> = _loadingonuevoNroFacturaCount
 
+    private val _loadingAnulacionFacturaCount: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingAnulacionFacturaCount: LiveData<Boolean> = _loadingAnulacionFacturaCount
 
     private val _loadingOinv: MutableLiveData<Boolean> = MutableLiveData()
     val loadingOinv: LiveData<Boolean> = _loadingOinv
+
+    private val _anulacionFacturaCount: MutableLiveData<Int> = MutableLiveData()
+    val anulacionFacturaCount: LiveData<Int> = _anulacionFacturaCount
+
+    private val _facturasNoProcesadasSapCount: MutableLiveData<Int> = MutableLiveData()
+    val  facturasNoProcesadasSapCount: LiveData<Int> = _facturasNoProcesadasSapCount
+
     val batchSize = 5
 
 
@@ -138,8 +154,10 @@ class ExportacionViewModel @Inject constructor(
                 4 -> countMovimientoUseCase.CountPendientes()
                 5 -> countUbicacionesNuevasPendientesUseCase.CountPendientes()
                 6 -> countNewPassPendienteUseCase.CountPendientes()
-                7 -> countUseOinvPendientesCase.CountPendientes()
+                7 -> countOinvPendientesUseCase.CountPendientes()
                 8 -> countNroFacturaPendienteUseCase.Obtener()
+                9 -> countOinvPendientesCancelacionesUseCase.CountPendientes()
+                10 -> countOinvNoProcesadasSapUseCase.CountPendientes()
 
                 else -> 0 // O cualquier valor predeterminado si tipoRegistro no es 1 ni 2
             }
@@ -153,6 +171,8 @@ class ExportacionViewModel @Inject constructor(
                     6 -> _newPassCount.value = cantPendientes
                     7 -> _pendientesOinvCount.value = cantPendientes
                     8 -> _nuevoNroFacturaCount.value = cantPendientes
+                    9 -> _anulacionFacturaCount.value = cantPendientes
+                    10 -> _facturasNoProcesadasSapCount.value = cantPendientes
 
                 }
             }
@@ -165,11 +185,12 @@ class ExportacionViewModel @Inject constructor(
             val cantPendientesAuditTrail = countAuditTrailUseCase.CountPendientesExportacion()
             val cantPendientesLog = countLogPendientesUseCase.CountPendientes()
             val cantPendientesMovimientos = countMovimientoUseCase.CountPendientes()
-            val cantUbicacionesNuevasPendientesUseCase =
-                countUbicacionesNuevasPendientesUseCase.CountPendientes()
+            val cantUbicacionesNuevasPendientesUseCase = countUbicacionesNuevasPendientesUseCase.CountPendientes()
             val cantNuevoPassPendientesUseCase = countNewPassPendienteUseCase.CountPendientes()
-            val countUseOinvPendientesCase = countUseOinvPendientesCase.CountPendientes()
+            val countUseOinvPendientesCase = countOinvPendientesUseCase.CountPendientes()
             val countNroFacturaPendientesUseCase = countNroFacturaPendienteUseCase.Obtener()
+            val countOinvPendientesCancelaciones = countOinvPendientesCancelacionesUseCase.CountPendientes()
+            val countOinvNoProcesadasSapUseCase = countOinvNoProcesadasSapUseCase.CountPendientes()
 
             withContext(Dispatchers.Main) {
                 _visitasCount.value = cantPendientesVisitas
@@ -180,6 +201,8 @@ class ExportacionViewModel @Inject constructor(
                 _newPassCount.value = cantNuevoPassPendientesUseCase
                 _pendientesOinvCount.value = countUseOinvPendientesCase
                 _nuevoNroFacturaCount.value=countNroFacturaPendientesUseCase
+                _anulacionFacturaCount.value=countOinvPendientesCancelaciones
+                _facturasNoProcesadasSapCount.value=countOinvNoProcesadasSapUseCase
             }
         }
     }
@@ -292,7 +315,7 @@ class ExportacionViewModel @Inject constructor(
 
                     7 -> {
                         if (!loadingOinv.value!!) {
-                            if (countUseOinvPendientesCase.CountPendientes() > 0) {
+                            if (countOinvPendientesUseCase.CountPendientes() > 0) {
                                 _loadingOinv.value = true
                                 val lotesPendientes =  getOinvPendientesExportarUseCase.getPendientes()
                                 //val enviarmovimientosRequest =  LotesMovimientosOinv(lotesPendientes)
@@ -316,6 +339,25 @@ class ExportacionViewModel @Inject constructor(
                         }
                     }
 
+                    9 -> {
+                        if (!loadingAnulacionFacturaCount.value!!) {
+                            if (countOinvPendientesCancelacionesUseCase.CountPendientes() > 0) {
+                                _loadingAnulacionFacturaCount.value = true
+                                exportarOinvCancelacionesPendientesUseCase.exportarDatos()
+                                _loadingAnulacionFacturaCount.value = false
+                            }
+                        }
+                    }
+                    10 -> {
+                        if (!loadingFacturasNoProcesadasSap.value!!) {
+                            if (countOinvNoProcesadasSapUseCase.CountPendientes() > 0) {
+                                _loadingFacturasNoProcesadasSap.value = true
+                                importarFacturasProcesadasSapUseCase.exportarDatos()
+                                _loadingFacturasNoProcesadasSap.value = false
+                            }
+                        }
+                    }
+
                 }
                 getTablasRegistradas(tipoRegistro)
             } catch (e: Exception) {
@@ -325,7 +367,9 @@ class ExportacionViewModel @Inject constructor(
     }
 
     fun setFalseLoading() {
+        _loadingFacturasNoProcesadasSap.value = false
         _loadingAuditTrail.value = false
+        _loadingAnulacionFacturaCount.value = false
         _loadingVisitas.value = false
         _loadingLog.value = false
         _loadingMovimientos.value = false

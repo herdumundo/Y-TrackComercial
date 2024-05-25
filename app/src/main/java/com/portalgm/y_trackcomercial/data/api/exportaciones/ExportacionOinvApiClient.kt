@@ -1,6 +1,7 @@
 package com.portalgm.y_trackcomercial.data.api.exportaciones
 
 import com.portalgm.y_trackcomercial.data.api.response.ApiResponse
+import com.portalgm.y_trackcomercial.data.api.response.ApiResponseFacturaProcesadaSap
 import com.portalgm.y_trackcomercial.data.api.response.ApiResponseFacturacion
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
 import com.portalgm.y_trackcomercial.repository.ventasRepositories.ConfirmacionData
@@ -17,7 +18,14 @@ interface ExportacionOinvApiClient {
 
 
     @POST("/vimar/ventas/CONFIRMAR_FACTURAS")
-     suspend fun confirmarFacturas(@Body confirmacionData: ConfirmacionData, @Header("Authorization") authorization: String): ApiResponse
+    suspend fun confirmarFacturas(@Body confirmacionData: ConfirmacionData, @Header("Authorization") authorization: String): ApiResponse
+
+
+    @POST("/vimar/ventas/CANCELAR_FACTURAS")
+    suspend fun cancelarFacturas(@Body confirmacionData: ConfirmacionData, @Header("Authorization") authorization: String): ApiResponse
+
+    @POST("/vimar/ventas/DOCENTRYS_SAP_PROCESADOS")
+    suspend fun confirmarFacturasSap(@Body confirmacionData: ConfirmacionData, @Header("Authorization") authorization: String): ApiResponseFacturaProcesadaSap
 
 
 

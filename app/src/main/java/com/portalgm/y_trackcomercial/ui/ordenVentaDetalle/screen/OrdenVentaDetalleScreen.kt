@@ -53,9 +53,7 @@ fun OrdenVentaDetalleScreen(
 ) {
     val articulosMenu by ordenVentaDetalleViewModel.productos.observeAsState(initial = emptyList())
     val lotes by ordenVentaDetalleViewModel.lotesIncializados.observeAsState(initial = emptyList())
-    val mostrarBotonRegistrar by ordenVentaDetalleViewModel.mostrarBotonRegistrar.observeAsState(
-        false
-    )
+    val mostrarBotonRegistrar by ordenVentaDetalleViewModel.mostrarBotonRegistrar.observeAsState(false)
     val dialogPantalla by ordenVentaDetalleViewModel.dialogPantalla.observeAsState(false)
     val cuadroLoading by ordenVentaDetalleViewModel.loadingPantalla.observeAsState(false)
     val cuadroLoadingMensaje by ordenVentaDetalleViewModel.mensajePantalla.observeAsState("")
@@ -345,7 +343,7 @@ fun ProductosItemRow(
                                         }
                                         // Ajusta el tamaño del TextField, por ejemplo usando fillMaxWidth con un factor menor
                                         TextField(
-                                            value = cantidadIngresada,
+                                            value = if(cantidadIngresada.equals("null")) "" else cantidadIngresada,
                                             onValueChange = { newValue ->
 
                                                 newValue.let { nuevaCantidad ->

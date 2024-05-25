@@ -10,6 +10,11 @@ data class OrdenVentaCabItem(
     val pymntGroup: String,
     val slpName: String,
     val licTradNum: String,
-    val groupNum: String
+    val groupNum: String,
+    val u_sifenncasa: String,
+    val u_deptocod: String,
+    val u_sifenciudad: String,
+    val correo: String,
+
 )
 

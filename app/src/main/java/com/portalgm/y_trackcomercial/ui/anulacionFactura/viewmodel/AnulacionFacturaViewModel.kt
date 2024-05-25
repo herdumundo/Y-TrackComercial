@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateAnularFacturaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvByDateUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.UpdateAnularFacturaOinvUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,8 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnulacionFacturaViewModel @Inject constructor(
-    private val getOinvByDateUseCase:GetOinvByDateUseCase,
-    private val updateAnularFacturaOinvUseCase:UpdateAnularFacturaOinvUseCase
+    private val getOinvByDateUseCase: GetOinvByDateUseCase,
+    private val updateAnularFacturaOinvUseCase: UpdateAnularFacturaOinvUseCase
 ): ViewModel() {
     // Fecha seleccionada como MutableStateFlow
     private val _selectedDate = MutableStateFlow(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))

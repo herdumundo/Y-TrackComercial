@@ -2,7 +2,6 @@ package com.portalgm.y_trackcomercial.repository.ventasRepositories
 
 import android.util.Log
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionOinvApiClient
-import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_LOTES_DAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.OINV_DAO
 import com.portalgm.y_trackcomercial.data.model.entities.database.YtrackDatabase
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_LOTES_POS
@@ -29,8 +28,14 @@ class OinvRepository @Inject constructor
     suspend fun insertOinvPos(oinv: OINV_POS): Long {
         return oinvPosDao.insertOinv(oinv)
     }
-    suspend fun updateFirmaOinvPos(qr: String,xml:String,cdc:String,docEntry: Long)  {
-          oinvPosDao.updateFirmaFactura(qr,xml,cdc,docEntry)
+    suspend fun updateFirmaOinvPos(
+        qr: String,
+        xml: String,
+        cdc: String,
+        docEntry: Long,
+        txtSiedi: String
+    )  {
+          oinvPosDao.updateFirmaFactura(qr,xml,cdc,docEntry,txtSiedi)
     }
     suspend fun insertarVentaCompleta(
         oinv: OINV_POS,
@@ -46,39 +51,69 @@ class OinvRepository @Inject constructor
     suspend fun getAllOinvPosByDate(fecha:String) = oinvPosDao.getOinvPosByDate(fecha)
 
     suspend fun updateAnularFactura(docEntry: Long)  {
-        oinvPosDao.updateAnularFactura(docEntry)
+        val estado= oinvPosDao.getEstadoFacturaById(docEntry)
+        if(estado=="C"){
+            oinvPosDao.updateAnularFactura(docEntry)
+        }
+        else{
+            oinvPosDao.updateAnularFacturaNoEnviadaAzure(docEntry)
+        }
     }
-    suspend fun getAllCountPendientesExportar(): Int {
-      return  oinvPosDao.getOinvCountPendientes()
-    }
+    suspend fun getAllCountPendientesExportar(): Int {   return  oinvPosDao.getOinvCountPendientes()    }
+    suspend fun getAllCountPendientesExportarCancelaciones(): Int {   return  oinvPosDao.getOinvCountPendientesCancelaciones()    }
+    suspend fun getCountDocentriesNoProcesadosSap(): Int {   return  oinvPosDao.getCountDocentriesNoProcesadosSap()    }
+
+
 
     suspend fun exportarDatos(lotes:  DatosMovimientosOinv) {
         try {
-             val apiResponse = exportacionOinvApiClient.uploadData(
-                lotes,
-                sharedPreferences.getToken().toString()
-            )
+            val apiResponse = exportacionOinvApiClient.uploadData(lotes, sharedPreferences.getToken().toString())
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
-
                 oinvPosDao.updateExportadoCerradoPorLotes(apiResponse.docEntries)
                 // Preparar los docEntries para la confirmación
                 val confirmacionData = ConfirmacionData(docEntries = apiResponse.docEntries)
-
                 // Hacer la segunda llamada a la API para confirmar los docEntries
-                val confirmacionResponse = exportacionOinvApiClient.confirmarFacturas(
-                    confirmacionData,
-                    sharedPreferences.getToken().toString()
-                )
+                exportacionOinvApiClient.confirmarFacturas(confirmacionData,sharedPreferences.getToken().toString())
             }
         } catch (e: Exception) {
             Log.i("Mensaje", e.toString())
         }
     }
+
+    suspend fun exportarDatosCancelacion() {
+        try {
+            val docEntries = oinvPosDao.getOinvCancelacion()
+            val confirmacionData = ConfirmacionData(docEntries = docEntries)
+            val apiResponse = exportacionOinvApiClient.cancelarFacturas(confirmacionData, sharedPreferences.getToken().toString())
+            if (apiResponse.tipo == 0) {
+                oinvPosDao.updateExportadoCerradoPorLotes(docEntries)
+            }
+        } catch (e: Exception) {
+            Log.i("Mensaje", e.toString())
+        }
+    }
+
+    suspend fun importarFacturasProcesadasDocentries() {
+        try {
+            val docEntries = oinvPosDao.getDocentriesNoProcesadosSap()
+            val confirmacionData = ConfirmacionData(docEntries = docEntries)
+            val apiResponse = exportacionOinvApiClient.confirmarFacturasSap(confirmacionData, sharedPreferences.getToken().toString())
+
+            if (apiResponse.tipo == 0) {
+                     apiResponse.docEntries.forEach { entry ->
+                        oinvPosDao.updateExportadoCerradoPorLotes(entry.docEntrySap, entry.docEntry)
+                    }
+                 Log.i("Mensaje", "Actualización exitosa")
+            }
+        } catch (e: Exception) {
+            Log.e("Mensaje", "Error: ${e.message}", e)
+        }
+    }
+
 }
 
-
-// Clase de datos para la confirmación
 data class ConfirmacionData(
-    val docEntries: List<String>
+    val docEntries: List<Long>
 )
+

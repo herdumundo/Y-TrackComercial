@@ -1,91 +1,76 @@
 package com.portalgm.y_trackcomercial.data.model.entities.ventas_entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+
 @Entity(tableName = "A0_YTV_ORDEN_VENTA")
 data class A0_YTV_ORDEN_VENTA_Entity(
     @PrimaryKey
-    @SerializedName( "id")
+    @SerializedName("id")
     val id: String,
-    @SerializedName( "DocEntry")
+    @SerializedName("DocEntry")
     val docEntry: String,
-    @SerializedName( "LineNumDet")
+    @SerializedName("LineNumDet")
     val lineNumDet: Int,
-
-    @SerializedName( "DocNum")
+    @SerializedName("DocNum")
     val docNum: String?,
-
-    @SerializedName( "DocDate")
+    @SerializedName("DocDate")
     val docDate: String,
-
-    @SerializedName( "DocDueDate")
+    @SerializedName("DocDueDate")
     val docDueDate: String?,
-
-    @SerializedName( "DocTotal")
+    @SerializedName("DocTotal")
     val docTotal: String,
-
-    @SerializedName( "CardCode")
+    @SerializedName("CardCode")
     val cardCode: String?,
-
-    @SerializedName( "IdCliente")
+    @SerializedName("IdCliente")
     val idCliente: String?,
-
-    @SerializedName(  "CardName")
+    @SerializedName("CardName")
     val cardName: String?,
-
-    @SerializedName( "ShipToCode")
+    @SerializedName("ShipToCode")
     val shipToCode: String?,
-
-    @SerializedName( "LineNum")
+    @SerializedName("LineNum")
     val lineNum: String,
-
-    @SerializedName( "LicTradNum")
+    @SerializedName("LicTradNum")
     val licTradNum: String,
-
-    @SerializedName( "ItemCode")
+    @SerializedName("ItemCode")
     val itemCode: String,
-
-    @SerializedName( "ItemName")
+    @SerializedName("ItemName")
     val itemName: String,
-
-    @SerializedName( "Quantity")
+    @SerializedName("Quantity")
     val quantity: String,
-
-    @SerializedName( "unitMsr")
+    @SerializedName("unitMsr")
     val unitMsr: String?,
-
-    @SerializedName( "PriceAfVAT")
+    @SerializedName("PriceAfVAT")
     val priceAfVAT: String?,
-
-    @SerializedName( "TaxCode")
+    @SerializedName("TaxCode")
     val taxCode: String?,
-
-    @SerializedName( "LineTotal")
+    @SerializedName("LineTotal")
     val lineTotal: String?,
-
-    @SerializedName( "VatSum")
+    @SerializedName("VatSum")
     val vatSum: String?,
-
-    @SerializedName( "SlpCode")
+    @SerializedName("SlpCode")
     val slpCode: String?,
-
-    @SerializedName( "SlpName")
+    @SerializedName("SlpName")
     val slpName: String?,
-
-    @SerializedName( "GroupNum")
+    @SerializedName("GroupNum")
     val groupNum: String?,
-
-    @SerializedName( "PymntGroup")
+    @SerializedName("PymntGroup")
     val pymntGroup: String?,
-
-    @SerializedName( "DocStatus")
+    @SerializedName("DocStatus")
     val docStatus: String?,
-
-    @SerializedName( "CANCELED")
+    @SerializedName("CANCELED")
     val canceled: String?,
+    @SerializedName("U_DEPTOCOD")
+    var u_deptocod: String?,
+    @SerializedName("U_SIFENNCASA")
+    var u_sifenncasa: String?,
+    @SerializedName( "U_SIFENCIUDAD")
+    var u_sifenciudad: String?,
+    @SerializedName( "correo")
+    var correo: String?,
+    @SerializedName("estado")
+    val estado: String = "P"
 
-    @SerializedName( "estado")
-    val estado: String= "P"
-
- )
+)

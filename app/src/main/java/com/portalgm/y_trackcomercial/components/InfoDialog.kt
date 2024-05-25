@@ -17,8 +17,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.portalgm.y_trackcomercial.ui.inventario.screen.AreShapeOnBorderCenterSurface
 
 @Composable
 fun InfoDialog(
@@ -631,6 +633,33 @@ fun InfoDialogSinBoton(
                     //.........................Spacer
                     Spacer(modifier = Modifier.height(24.dp))
                 }
+            }
+        }
+    }
+
+
+}
+@Composable
+fun cuadroAvisoDenegado(Texto: String  ) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        AreShapeOnBorderCenterSurface(
+            cornerRadius = 15.dp,
+            centerCircleRadius = 50.dp
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                androidx.compose.material.Text(text = "Error", color = Color.Red, fontSize = 15.sp)
+                Spacer(modifier = Modifier.height(10.dp))
+                androidx.compose.material.Text(text = "Lo siento!", color = Color.Black, fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(17.dp))
+                androidx.compose.material.Text(text = Texto , color = Color.Gray, fontSize = 15.sp)
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
     }

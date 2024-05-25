@@ -21,4 +21,10 @@ data class A0_YTV_LISTA_PRECIOS_Entity(
     @SerializedName( "Price")
     val price: String?,
 
+    @SerializedName( "UM")
+    val um: String,
+
+    @SerializedName( "BaseQty")
+    val baseQty: Int
+
 )

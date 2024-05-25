@@ -14,7 +14,7 @@ interface OcrdUbicacionesDao {
     fun getOcrdUbicaciones(): LiveData<List<OcrdUbicacionEntity>>
 
     @Query("SELECT count(*) FROM ocrd_ubicacion   ")
-    fun getOcrdUbicacionesCount():  Int
+    suspend fun getOcrdUbicacionesCount():  Int
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

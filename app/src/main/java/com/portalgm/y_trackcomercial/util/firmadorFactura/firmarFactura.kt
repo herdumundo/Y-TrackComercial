@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.util.firmadorFactura
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
@@ -27,20 +28,10 @@ object firmarFactura {
             /**1*/
             stringBuilder.append("1;")
             stringBuilder.append(/*1.1*/"INVOICE;")
-            stringBuilder.append(/*1.2*/"${
-                HoraActualUtils.convertirFormatoISO8601AFechaHora(
-                    oinvDetails.oinvPos.docDate!!
-                )
-            };"
-            )
+            stringBuilder.append(/*1.2*/"${HoraActualUtils.convertirFormatoISO8601AFechaHora( oinvDetails.oinvPos.docDate!!)};")
             stringBuilder.append(/*1.3*/"ORIGINAL;")
-            stringBuilder.append(/*1.4*/"${oinvDetails.oinvPos.timb}-${
-                oinvDetails.oinvPos.numAtCard!!.replace(
-                    "-",
-                    ""
-                )
-            };"
-            )
+            //stringBuilder.append(/*1.4*/"${oinvDetails.oinvPos.timb}-${oinvDetails.oinvPos.numAtCard!!.replace("-","")};")
+            stringBuilder.append(/*1.4*/"12559861-0010010000122;")
             stringBuilder.append(/*1.5*/";")
             stringBuilder.append(/*1.6*/"80002754-0;")
             stringBuilder.append(/*1.7*/"RUC;")
@@ -100,27 +91,28 @@ object firmarFactura {
             }
             /**5*/
             stringBuilder.append("5;")
-            stringBuilder.append(/*5.1*/"1023810;")
-            stringBuilder.append(/*5.2*/"51190;")
+            stringBuilder.append(/*5.1*/"${oinvDetails.oinvPos.totalSinIva!!.toDouble().toInt()};")
+            stringBuilder.append(/*5.2*/"${oinvDetails.oinvPos.totalIva!!.toDouble().toInt()};")
             stringBuilder.append(/*5.3*/"VALUE_ADDED_TAX;")
-            stringBuilder.append(/*5.4*/"1023810;")
-            stringBuilder.append(/*5.5*/"51190;")
-            stringBuilder.append(/*5.6*/"STANDARD_RATE;")
-            stringBuilder.append(/*5.7*/"VALUE_ADDED_TAX;")
-            stringBuilder.append(/*5.8*/"0;")
+            stringBuilder.append(/*5.4*/"${oinvDetails.oinvPos.totalSinIva!!.toDouble().toInt()};")
+            stringBuilder.append(/*5.5*/"${oinvDetails.oinvPos.totalIva!!.toDouble().toInt()};")
+            stringBuilder.append(/*5.6*/"5;")
+            stringBuilder.append(/*5.7*/"STANDARD_RATE;")
+            stringBuilder.append(/*5.8*/"VALUE_ADDED_TAX;")
             stringBuilder.append(/*5.9*/"0;")
-            stringBuilder.append(/*5.10*/"10;")
-            stringBuilder.append(/*5.11*/"STANDARD_RATE;")
-            stringBuilder.append(/*5.12*/"VALUE_ADDED_TAX;")
-            stringBuilder.append(/*5.13*/"0;")
+            stringBuilder.append(/*5.10*/"0;")
+            stringBuilder.append(/*5.11*/"10;")
+            stringBuilder.append(/*5.12*/"STANDARD_RATE;")
+            stringBuilder.append(/*5.13*/"VALUE_ADDED_TAX;")
             stringBuilder.append(/*5.14*/"0;")
             stringBuilder.append(/*5.15*/"0;")
-            stringBuilder.append(/*5.16*/"STANDARD_RATE;")
-            stringBuilder.append(/*5.17*/"1075000;")
-            stringBuilder.append(/*5.18*/"BASIC_NET;")
-            stringBuilder.append(/*5.19*/"RECEIPT_OF_GOODS;")
-            stringBuilder.append(/*5.20*/"DAYS;")
-            stringBuilder.appendLine(/*5.21*/"0;")
+            stringBuilder.append(/*5.16*/"0;")
+            stringBuilder.append(/*5.17*/"STANDARD_RATE;")
+            stringBuilder.append(/*5.18*/"${oinvDetails.oinvPos.totalIvaIncluido!!.toDouble().toInt()};")
+            stringBuilder.append(/*5.19*/"BASIC_NET;")
+            stringBuilder.append(/*5.20*/"RECEIPT_OF_GOODS;")
+            stringBuilder.append(/*5.21*/"DAYS;")
+            stringBuilder.appendLine(/*5.22*/"${if(oinvDetails.oinvPos.contado.equals("1")){""}else{ extraerEnteros(if(oinvDetails.oinvPos.pymntGroup!!.equals("CREDITO"))"30" else oinvDetails.oinvPos.pymntGroup!! )}};")
             /**9*/
             stringBuilder.append("9;")
             stringBuilder.append(/*9.1*/"3;")
@@ -132,7 +124,8 @@ object firmarFactura {
             stringBuilder.appendLine(";")
             /**101*/
             stringBuilder.append("101;")
-            stringBuilder.append(/*101.1*/"${HoraActualUtils.convertIsoToDateSimple(oinvDetails.oinvPos.vigenciaTimbrado!!)};")
+            // stringBuilder.append(/*101.1*/"${HoraActualUtils.convertIsoToDateSimple(oinvDetails.oinvPos.vigenciaTimbrado!!)};")
+            stringBuilder.append(/*101.1*/"2022-09-19;")
             stringBuilder.append(/*101.2*/";")
             stringBuilder.appendLine(/*101.3*/"1;")
             /**102*/
@@ -144,24 +137,24 @@ object firmarFactura {
             stringBuilder.appendLine(/*102.5*/";")
             /**103*/
             stringBuilder.append("103;")
-            stringBuilder.append(/*103.1*/"1;")
+            stringBuilder.append(/*103.1*/"${oinvDetails.oinvPos.naturalezaReceptor/*103.4*/};")//CONTRIBUYENTE O NO CONTRIBUYENTE // 1 CONTRIBUYENTE O 2 NO CONTRIBUYENTE
             stringBuilder.append(/*103.2*/"2;")
             stringBuilder.append(/*103.3*/"PRY;")
-            stringBuilder.append(/*103.4*/"${oinvDetails.oinvPos.tipoContribuyente/*103.4*/};")
-            stringBuilder.append(/*103.5*/";")
-            stringBuilder.append(/*103.6*/";")
+            stringBuilder.append(/*103.4*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("1")){oinvDetails.oinvPos.tipoContribuyente}else{""}/*103.4*/};") // SI ES 1 INFORMAR, SI ES 2 NO INFORMAR , SI ES 1 PONER 1-FISICA O 2-JURIDICA
+            stringBuilder.append(/*103.5*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("2")){"1"}else{""}};")// SI NO ES CONTRIBUYENTE PONER 1-CEDULA PARAGUAYA O SI ES CONTRIBUYENTE DEJAR VACIO
+            stringBuilder.append(/*103.6*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("2")){oinvDetails.oinvPos.licTradNum}else{""}};")// SI ES CEDULA DE IDENTIDAD PONER EL NRO DE LA CEDULA DE IDENTIDAD, SI LA FACTURA ES SIN NOMBRE ENTONCES PONER 0
             stringBuilder.append(/*103.7*/"${oinvDetails.oinvPos.cardName};")
             stringBuilder.append(/*103.8*/"${oinvDetails.oinvPos.cardName};")
-            stringBuilder.append(/*103.9*/"${oinvDetails.oinvPos.address};")
+            stringBuilder.append(/*103.9*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("1")){oinvDetails.oinvPos.STREET}else{""}};")// ES OBLIGATORIO SI ES CONTRIBUYENTE
             stringBuilder.append(/*103.10*/";")
             stringBuilder.append(/*103.11*/";")
             stringBuilder.append(/*103.12*/"${oinvDetails.oinvPos.correo};")
             stringBuilder.append(/*103.13*/"${oinvDetails.oinvPos.cardCode};")
-            stringBuilder.append(/*103.14*/";")
-            stringBuilder.append(/*103.15*/"1;")
-            stringBuilder.append(/*103.16*/"1;")
+            stringBuilder.append(/*103.14*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("2")){"Cédula paraguaya"}else{""}/*103.4*/};")
+            stringBuilder.append(/*103.15*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("1")){oinvDetails.oinvPos.u_sifenncasa}else{""}/*103.15*/};")
+            stringBuilder.append(/*103.16*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("1")){oinvDetails.oinvPos.u_deptocod}else{""}/*103.16*/};")//
             stringBuilder.append(/*103.17*/";")
-            stringBuilder.appendLine(/*103.18*/"1;")
+            stringBuilder.appendLine(/*103.18*/"${if(oinvDetails.oinvPos.naturalezaReceptor.equals("1")){oinvDetails.oinvPos.u_sifenciudad}else{""}/*103.18*/};")
             /**104*/
             stringBuilder.append("104;")
             stringBuilder.append(/*104.1*/"1;")
@@ -240,6 +233,17 @@ object firmarFactura {
         // Retornar el string completo
         sharedData.clase_a_enviarSiedi.value=claseEnviar
         sharedData.txtSiedi.value = stringBuilder.toString()
+        Log.i("YtrackMen",  sharedData.txtSiedi.value!!)
         _initFacturaEvent.postValue(Event(Unit))
     }
 }
+
+
+fun extraerEnteros(cadena: String): Int {
+    // Filtra solo los caracteres que son dígitos y únelos en una nueva cadena
+    val soloNumeros = cadena.filter { it.isDigit() }
+    // Convierte la cadena de números en un entero
+    return soloNumeros.toInt()
+}
+
+

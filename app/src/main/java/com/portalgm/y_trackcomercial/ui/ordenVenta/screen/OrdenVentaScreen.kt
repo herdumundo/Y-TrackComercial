@@ -16,44 +16,48 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.portalgm.y_trackcomercial.components.CardOrdenVenta
+import com.portalgm.y_trackcomercial.components.cuadroAvisoDenegado
 import com.portalgm.y_trackcomercial.data.model.models.ventas.OrdenVentaCabItem
 import com.portalgm.y_trackcomercial.ui.ordenVenta.viewmodel.OrdenVentaViewModel
-import com.portalgm.y_trackcomercial.util.HoraActualUtils
 
 @Composable
 fun OrdenVentaScreen(
     ordenVentaViewModel: OrdenVentaViewModel,
      navController: NavHostController
 ) {
-    val listaOrdenVenta: List<OrdenVentaCabItem> by ordenVentaViewModel.listaOrdenVenta.observeAsState(
-        initial = emptyList()
-    )
+    val listaOrdenVenta: List<OrdenVentaCabItem> by ordenVentaViewModel.listaOrdenVenta.observeAsState(initial = emptyList())
     val isLoading by ordenVentaViewModel.isLoading.observeAsState(initial = false)
+    val registrosConPendiente by ordenVentaViewModel.registrosConPendiente.observeAsState(0)
 
     LaunchedEffect(ordenVentaViewModel) {
         ordenVentaViewModel.obtenerLista()
     }
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(listaOrdenVenta, key = { item -> item.docNum }) { item ->
-                CardOrdenVenta(
-                    title1 = item.shipToCode,
-                    title2 = "Fecha de entrega: "+  item.docDueDate ,
-                    title3 = item.docNum,
-                    buttonText="Ir",
-                    icono= Icons.Filled.ReceiptLong,
-                    isAnulado = false,
-                    isImpresion = false,
-                    fondoColor = Color(0xFFFFF5A1),
-                    onClick = {  navController.navigate("ordenVentaDetalle/${item.docNum}") }
-                )
-                Spacer(Modifier.height(8.dp))
+    if(registrosConPendiente==0){
+        cuadroAvisoDenegado("Debes iniciar visita para realizar ventas")
+    }
+    else{
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(listaOrdenVenta, key = { item -> item.docNum }) { item ->
+                    CardOrdenVenta(
+                        title1 = item.shipToCode,
+                        title2 = "Fecha de entrega: "+  item.docDueDate ,
+                        title3 = item.docNum,
+                        buttonText="Ir",
+                        icono= Icons.Filled.ReceiptLong,
+                        isAnulado = false,
+                        isImpresion = false,
+                        fondoColor = Color(0xFFFFF5A1),
+                        onClick = {  navController.navigate("ordenVentaDetalle/${item.docNum}") }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
             }
         }
     }
+
 }

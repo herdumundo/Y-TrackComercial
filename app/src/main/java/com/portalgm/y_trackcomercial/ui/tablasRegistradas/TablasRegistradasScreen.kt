@@ -18,7 +18,7 @@ fun ScreenTablasRegistradas(
     val tablaInfo = listOf(
         TablaInfo("Permisos de horarios", tablasRegistradasViewModel.permisoVisitaCount, R.drawable.ic_clock_permiso, tablasRegistradasViewModel.loadingpermisoVisitaCount, 9, "Obteniendo permisos..."),
         TablaInfo("Clientes cargados", tablasRegistradasViewModel.ocrdCount, R.drawable.ic_clientes, tablasRegistradasViewModel.loadingOcrdCount, 1, "Actualizando Clientes..."),
-        TablaInfo("Ubicaciones cargadas", tablasRegistradasViewModel.ocrdUbicacionesCount, R.drawable.ic_map, tablasRegistradasViewModel.loadingUbicacionesCount, 2, "Actualizando ubicaciones..."),
+        TablaInfo("Ubicaciones cargadas", tablasRegistradasViewModel.ocrdUbicacionesCount, R.drawable.ic_map, tablasRegistradasViewModel.loadingUbicacionesCount, 0, "Actualizando ubicaciones..."),
         TablaInfo("Permisos otorgados", tablasRegistradasViewModel.rutasAccesoCount, R.drawable.ic_permisos, tablasRegistradasViewModel.loadingRutasAccesosCount, 3, "Actualizando permisos otorgados..."),
         TablaInfo("Lotes disponibles", tablasRegistradasViewModel.lotesListasCount, R.drawable.ic_lotes, tablasRegistradasViewModel.loadingLotesListasCount, 4, "Actualizando lotes disponibles..."),
         TablaInfo("Horarios cargados", tablasRegistradasViewModel.horariosUsuarioCount, R.drawable.ic_step, tablasRegistradasViewModel.loadingHorariosUsuarioCount, 5, "Actualizando horarios cargados..."),

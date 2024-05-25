@@ -22,15 +22,16 @@ interface A0_YTV_ORDEN_VENTADAO {
     @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode," +
             "substr(datetime(substr(docDueDate, 1, 19)), 9, 2) || '/' ||\n" +
             "    substr(datetime(substr(docDueDate, 1, 19)), 6, 2) || '/' ||\n" +
-            "    substr(datetime(substr(docDueDate, 1, 19)), 1, 4) AS   docDueDate,pymntGroup,A0_YTV_ORDEN_VENTA.slpName,licTradNum " +
-            "   from a0_ytv_orden_venta INNER JOIN A0_YTV_VENDEDOR ON A0_YTV_ORDEN_VENTA.slpCode=A0_YTV_VENDEDOR.slpcode where A0_YTV_ORDEN_VENTA.estado='P' order by  datetime(substr(docDueDate, 1, 19)) desc/*idCliente in (select idOcrd from visitas where pendienteSincro='N')*/")
+            "    substr(datetime(substr(docDueDate, 1, 19)), 1, 4) AS   docDueDate,pymntGroup,A0_YTV_ORDEN_VENTA.slpName,licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo  " +
+            "   from a0_ytv_orden_venta INNER JOIN A0_YTV_VENDEDOR ON A0_YTV_ORDEN_VENTA.slpCode=A0_YTV_VENDEDOR.slpcode " +
+            " where A0_YTV_ORDEN_VENTA.estado='P' and  idCliente in (select idOcrd from visitas where pendienteSincro='N') order by  datetime(substr(docDueDate, 1, 19)) desc/**/")
     suspend fun getOrdenVentaCab(): List<OrdenVentaCabItem>
-    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum from a0_ytv_orden_venta where docNum=:docNum")
+    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaCabById(docNum: Int): List<OrdenVentaCabItem>
 
-    @Query(" select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT," +
-            "case unitMsr when  'Unidad'then quantity  when  'Docena' then  quantity*12  when  'Plancha' then  quantity*30   else quantity end as quantityUnidad," +
-            "case when  unitMsr='Unidad'then 'Paquete' else unitMsr end as unitMsr from a0_ytv_orden_venta where docNum=:docNum")
+    @Query("    select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT," +
+            "   case unitMsr when  'Unidad'then quantity  when  'Docena' then  quantity*12  when  'Plancha' then  quantity*30   else quantity end as quantityUnidad," +
+            "   case when  unitMsr='Unidad'then 'Paquete' else unitMsr end as unitMsr from a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaDet(docNum:Int): List<OrdenVentaDetItem>
 
     @Transaction

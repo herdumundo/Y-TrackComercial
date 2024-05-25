@@ -23,10 +23,3 @@ data class OinvPosWithDetails(
     val detailsLotes: List<INV1_LOTES_POS>
 )
 
-data class LotesMovimientosOinv(
-    val lotesDemovimientos: List<OinvPosWithDetails>
-)
-
-data class LotesMovimientosOinvNew(
-    val lotesDemovimientos:List<DetalleCompleto>
-)

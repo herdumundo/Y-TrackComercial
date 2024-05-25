@@ -41,6 +41,7 @@ class layoutFactura {
                     "[C]===============================================\n" +
                     "[L]<b>RUC: ${oinvDetails.oinvPos.licTradNum}  </b> \n" +
                     "[L]<b>Cliente: ${oinvDetails.oinvPos.cardName}  </b> \n" +
+                    "[L]<b>Direccion: ${oinvDetails.oinvPos.STREET}  </b> \n" +
                     "[L]<b>Nro de factura: ${oinvDetails.oinvPos.numAtCard} </b>   \n" +
                     "[L]<b>Fecha factura:  ${HoraActualUtils.convertirFormatoISO8601AFechaHora(oinvDetails.oinvPos.docDate!!)} </b>   \n" +
                     "[L]\n" +

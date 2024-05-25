@@ -7,4 +7,21 @@ data class DatosDetalleLotes(
     val loteLargo: String? ,
     val whsCode: String? ,
     val quantity: String?
+ )
+
+data class DatosItemCodesStock(
+    val itemName: String?,
+    val itemCode: String?,
+    val quantity: String?
+)
+
+data class DatosItemCodesStockPriceList(
+    val itemName: String?,
+    val itemCode: String?,
+    val quantity: String?,
+    val price: String?,
+    val priceList: Int,
+    val unitMsr: String?,
+    val baseQty : Int,
+
 )

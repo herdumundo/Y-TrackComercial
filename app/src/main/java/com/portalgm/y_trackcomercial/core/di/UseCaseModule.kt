@@ -46,10 +46,11 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.CountUbicacionesNue
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.ExportarNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacionesPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.InsertarNuevaUbicacionUseCase
+import com.portalgm.y_trackcomercial.usecases.ocrd.GetDatosClienteUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrd.GetOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrd.ImportarOcrdUseCase
 import com.portalgm.y_trackcomercial.usecases.ocrdUbicaciones.ImportarOcrdUbicacionesUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvUseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.GetTimerGpsHilo1UseCase
 import com.portalgm.y_trackcomercial.usecases.parametros.ImportarParametrosUseCase
 import com.portalgm.y_trackcomercial.usecases.permisoVisita.CountRegistrosPermisosVisitaUseCase
@@ -61,20 +62,28 @@ import com.portalgm.y_trackcomercial.usecases.ventas.inv1.InsertInv1UseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.inv1Lotes.InsertInv1LotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.CountRegistrosListaPreciosUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.listaPrecios.ImportarListaPreciosUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvByDateUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.InsertTransactionOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateAnularFacturaOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.UpdateFirmaOinvUseCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.CountUseOinvPendientesCase
-import com.portalgm.y_trackcomercial.usecases.ventas.oinv.ExportarOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvPendientesCancelacionesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.GetOinvByDateUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.InsertOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.InsertTransactionOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.UpdateAnularFacturaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions.UpdateFirmaOinvUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.exports.ExportarOinvCancelacionesPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.exports.ExportarOinvPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.imports.ImportarFacturasProcesadasSapUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.oinv.queries.CountOinvNoProcesadasSapUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.CountOrdenVentaUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabByIdUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCabUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDetUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountExistenciaStockPlanchaByItemCodeUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetItemUmedidaCambioUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockItemCodeUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockItemPriceListCodeUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockLotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
@@ -580,8 +589,8 @@ object UseCaseModule {
     @ViewModelScoped
     fun providegetOinvPendientesCountUseCase(
         repository: OinvRepository
-    ): CountUseOinvPendientesCase {
-        return CountUseOinvPendientesCase(repository)
+    ): CountOinvPendientesUseCase {
+        return CountOinvPendientesUseCase(repository)
     }
 
     @Provides
@@ -631,6 +640,77 @@ object UseCaseModule {
         return GetStockLotesUseCase(repository)
     }
 
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetStockItemCodeUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): GetStockItemCodeUseCase {
+        return GetStockItemCodeUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetStockItemPriceListCodeUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): GetStockItemPriceListCodeUseCase {
+        return GetStockItemPriceListCodeUseCase(repository)
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideCountExistenciaStockPlanchaByItemCodeUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): CountExistenciaStockPlanchaByItemCodeUseCase {
+        return CountExistenciaStockPlanchaByItemCodeUseCase(repository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetItemUmedidaCambioUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): GetItemUmedidaCambioUseCase {
+        return GetItemUmedidaCambioUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetDatosClienteUseCase(
+        repository: CustomerRepository
+    ): GetDatosClienteUseCase {
+        return GetDatosClienteUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideExportarOinvCancelacionesPendientesUseCase(
+        repository: OinvRepository
+    ): ExportarOinvCancelacionesPendientesUseCase {
+        return ExportarOinvCancelacionesPendientesUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountUseOinvPendientesCancelacionesCase(
+        repository: OinvRepository
+    ): CountOinvPendientesCancelacionesUseCase {
+        return CountOinvPendientesCancelacionesUseCase(repository)
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideImportarFacturasProcesadasSapUseCase(
+        repository: OinvRepository
+    ): ImportarFacturasProcesadasSapUseCase {
+        return ImportarFacturasProcesadasSapUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideCountOinvNoProcesadasSapUseCase(
+        repository: OinvRepository
+    ): CountOinvNoProcesadasSapUseCase {
+        return CountOinvNoProcesadasSapUseCase(repository)
+    }
 
 
 

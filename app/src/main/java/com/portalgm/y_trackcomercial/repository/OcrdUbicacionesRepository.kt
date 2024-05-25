@@ -30,7 +30,7 @@ class OcrdUbicacionesRepository @Inject constructor(
         ocrdUbicacionesDao.insertAllOcrdUbicaciones(list)
     }
 
-    fun getOcrdUbicacionesCount():  Int  {
+    suspend fun getOcrdUbicacionesCount():  Int  {
         return ocrdUbicacionesDao.getOcrdUbicacionesCount()
     }
 }

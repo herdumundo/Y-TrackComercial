@@ -8,8 +8,9 @@ data class ApiResponse(
 data class ApiResponseFacturacion(
     val msg: String,
     val tipo: Int,
-    val docEntries: List<String> // Suponiendo que docEntries es una lista de enteros
+    val docEntries: List<Long> // Suponiendo que docEntries es una lista de enteros
 )
+
 
 
 data class ApiKeyGMSResponse(
@@ -25,3 +26,15 @@ data class ApiResponseLimiteCreditoNroFactura(
     val Balance: Long,
     val CreditDisp: Long,
  )
+
+
+data class DocEntry(
+    val docEntry: Long,
+    val docEntrySap: Long
+)
+
+data class ApiResponseFacturaProcesadaSap(
+    val tipo: Int,
+    val msg: String,
+    val docEntries: List<DocEntry>
+)

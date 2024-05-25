@@ -1,4 +1,4 @@
-package com.portalgm.y_trackcomercial.usecases.ventas.oinv
+package com.portalgm.y_trackcomercial.usecases.ventas.oinv.actions
 
 import com.portalgm.y_trackcomercial.repository.ventasRepositories.OinvRepository
 import javax.inject.Inject

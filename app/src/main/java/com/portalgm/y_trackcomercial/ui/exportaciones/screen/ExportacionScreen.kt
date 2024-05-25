@@ -30,6 +30,8 @@ fun ScreenExportaciones(
     val newPassCount by exportacionViewModel.newPassCount.observeAsState()
     val pendientesOinvCount by exportacionViewModel.pendientesOinvCount.observeAsState()
     val pendientesNroNuevoFacturaCount by exportacionViewModel.nuevoNroFacturaCount.observeAsState()
+    val anulacionFacturaCount by exportacionViewModel.anulacionFacturaCount.observeAsState()
+    val facturasNoProcesadasSapCount by exportacionViewModel.facturasNoProcesadasSapCount.observeAsState()
 
     val loadingVisitas by exportacionViewModel.loadingVisitas.observeAsState(false)
     val loadingAuditTrail by exportacionViewModel.loadingAuditTrail.observeAsState(false)
@@ -39,6 +41,12 @@ fun ScreenExportaciones(
     val loadingNewPass by exportacionViewModel.loadingNewPass.observeAsState(false)
     val loadingOinv by exportacionViewModel.loadingOinv.observeAsState(false)
     val loadingNroNuevoFactura by exportacionViewModel.loadingonuevoNroFacturaCount.observeAsState(false)
+    val loadingAnulacionFactura by exportacionViewModel.loadingAnulacionFacturaCount.observeAsState(false)
+    val loadingFacturasNoProcesadasSap by exportacionViewModel.loadingFacturasNoProcesadasSap.observeAsState(false)
+
+    val colorCardFacturasNoProcesadasSap = if (facturasNoProcesadasSapCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeCardFacturasNoProcesadasSap = if (facturasNoProcesadasSapCount == 0) "Procesos sin pendientes" else "Procesar facturas pendientes a SAP"
+
 
     val colorCard = if (visitasCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeCard = if (visitasCount == 0) "Visitas sin pendientes" else "Exportar visitas"
@@ -64,6 +72,9 @@ fun ScreenExportaciones(
     val colorNuevoNroFactura = if (pendientesNroNuevoFacturaCount == 0) Color(0xFF126300) else Color(0xFFB90000)
     val mensajeNuevoNroFactura= if (pendientesNroNuevoFacturaCount == 0) "Nuevo nro de factura sin pendientes" else "Exportar Nuevo nro de Facturas"
 
+    val colorFacturaAnulacion = if (anulacionFacturaCount == 0) Color(0xFF126300) else Color(0xFFB90000)
+    val mensajeFacturaAnulacion= if (anulacionFacturaCount == 0) "Anulacion de Facturas sin pendientes" else "Exportar Anulacion de Facturas"
+
 
     val tablaInfo = listOf(
         TablaInfo(colorCard,mensajeCard, visitasCount, R.drawable.ic_clock_permiso, loadingVisitas, 1, "Enviando visitas..."),
@@ -74,6 +85,9 @@ fun ScreenExportaciones(
         TablaInfo(colorCardNuevaContraseña,mensajeCardNuevoPass, newPassCount, R.drawable.ic_permisos, loadingNewPass, 6, "Enviando Nueva Clave..."),
         TablaInfo(colorCardOinv,mensajeCardOinv, pendientesOinvCount, R.drawable.ic_lotes, loadingOinv, 7, "Enviando Facturas..."),
         TablaInfo(colorNuevoNroFactura,mensajeNuevoNroFactura, pendientesNroNuevoFacturaCount, R.drawable.ic_lotes, loadingNroNuevoFactura, 8, "Enviando Nuevo nro de Facturas..."),
+        TablaInfo(colorFacturaAnulacion,mensajeFacturaAnulacion, anulacionFacturaCount, R.drawable.ic_lotes, loadingAnulacionFactura, 9, "Enviando Anulacion de Facturas..."),
+        TablaInfo(colorCardFacturasNoProcesadasSap,mensajeCardFacturasNoProcesadasSap, facturasNoProcesadasSapCount, R.drawable.ic_lugar, loadingFacturasNoProcesadasSap, 10, "Buscando facturas procesadas a SAP..."),
+
         )
     LazyColumn {
         items(tablaInfo) { info ->

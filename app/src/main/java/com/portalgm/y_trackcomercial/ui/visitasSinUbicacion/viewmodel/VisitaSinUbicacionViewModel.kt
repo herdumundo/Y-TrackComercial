@@ -159,13 +159,13 @@ class VisitaSinUbicacionViewModel @Inject constructor(
              //  _validacionVisita.value = horariosUsuarioRepository.validacionInicioHora(false)
 
 
-             if (_developerModeEnabled.value==true)
+          /*   if (_developerModeEnabled.value==true)
              {
                  mostrarMensajeDialogo("Error, el modo desarrollador se encuentra habilitado.")
                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Modo desarrollador activado", "Se ha activado el modo desarrollador", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)
                  _buttonTextRegistro.value = "Reintentar"
-             } // SI SE COLOCO LA ZONA HORARIA MANUAL
-             else if (isAutomaticTimeZone == 0)
+             } */// SI SE COLOCO LA ZONA HORARIA MANUAL
+           /*  else */if (isAutomaticTimeZone == 0)
              {
                  mostrarMensajeDialogo("Error, la zona horaria debe estar automatica")
                  LogUtils.insertLog(logRepository, LocalDateTime.now().toString(), "Zona horaria manual ", "Zona horaria manual activada", sharedPreferences.getUserId(), sharedPreferences.getUserName()!!, "REGISTRO DE VISITAS",porceBateria)

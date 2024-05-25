@@ -69,6 +69,7 @@ import com.portalgm.y_trackcomercial.ui.ordenVenta.viewmodel.OrdenVentaViewModel
 import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.OrdenVentaDetalleViewModel
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
+import com.portalgm.y_trackcomercial.ui.repartoLibre.viewmodel.RepartoLibreViewModel
 import com.portalgm.y_trackcomercial.ui.stockAlmacen.viewmodel.StockAlmacenViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppViewModel
@@ -115,6 +116,7 @@ class MainActivity : ComponentActivity() {
     private val ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel by viewModels()
     private val reimpresionFacturaViewModel: ReimpresionFacturaViewModel by viewModels()
     private val anulacionFacturaViewModel: AnulacionFacturaViewModel by viewModels()
+    private val repartoLibreViewModel: RepartoLibreViewModel by viewModels()
 
 
     private val updateType = AppUpdateType.IMMEDIATE
@@ -167,10 +169,16 @@ class MainActivity : ComponentActivity() {
                           // Usa los datos como necesites, por ejemplo, enviándolos al ViewModel
 
                         if(firmarFactura.sharedData.clase_a_enviarSiedi.value.equals("1")){
-                            ordenVentaDetalleViewModel.processReceivedData(datosXml, datosQrCdc)
+                            ordenVentaDetalleViewModel.processReceivedData(datosXml, datosQrCdc,
+                                firmarFactura.sharedData.txtSiedi.value)
                         }
-                        else {
-                            reimpresionFacturaViewModel.processReceivedData(datosXml, datosQrCdc)
+                        else if(firmarFactura.sharedData.clase_a_enviarSiedi.value.equals("2")) {
+                            reimpresionFacturaViewModel.processReceivedData(datosXml, datosQrCdc,
+                                firmarFactura.sharedData.txtSiedi.value)
+                        }
+                        else if(firmarFactura.sharedData.clase_a_enviarSiedi.value.equals("3")) {
+                            repartoLibreViewModel.processReceivedData(datosXml, datosQrCdc,
+                                firmarFactura.sharedData.txtSiedi.value)
                         }
                     }
                 }
@@ -304,7 +312,8 @@ class MainActivity : ComponentActivity() {
                     ordenVentaViewModel,
                     ordenVentaDetalleViewModel,
                     reimpresionFacturaViewModel,
-                    anulacionFacturaViewModel
+                    anulacionFacturaViewModel,
+                    repartoLibreViewModel
 
                 )
             }
@@ -601,7 +610,8 @@ fun Router(
     ordenVentaViewModel: OrdenVentaViewModel,
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
     reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
-    anulacionFacturaViewModel: AnulacionFacturaViewModel
+    anulacionFacturaViewModel: AnulacionFacturaViewModel,
+    repartoLibreViewModel: RepartoLibreViewModel
 ) {
     NavHost(
         navController = navController,
@@ -632,7 +642,8 @@ fun Router(
                 ordenVentaViewModel,
                 ordenVentaDetalleViewModel,
                 reimpresionFacturaViewModel,
-                anulacionFacturaViewModel
+                anulacionFacturaViewModel,
+                repartoLibreViewModel
             )
         }
         composable("login") { LoginScreen(loginViewModel, navController) }
