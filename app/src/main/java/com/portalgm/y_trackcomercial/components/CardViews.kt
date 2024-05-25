@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,15 +23,12 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -39,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.portalgm.y_trackcomercial.R
 
 @Composable
 fun cardViewLoadingTablas(
@@ -291,6 +290,120 @@ fun CardOrdenVenta(
         }
     }
 }
+
+
+@Composable
+fun CardOrdenVenta2(
+    title1: String,
+    title2: String,
+    title3: String,
+    buttonText: String,
+    icono: ImageVector,
+    isAnulado: Boolean, // Controlar si se muestra el ribbon de "Anulado"
+    isImpresion: Boolean, // Controlar si se muestra el ribbon de "Anulado"
+    fondoColor: Color,
+    onClick: () -> Unit,
+) {
+    Box {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = 5.dp, // Usar elevation en lugar de shadowElevation
+            color = fondoColor
+        ) {
+            Box {
+                // Imagen de fondo
+                Image(
+                    painter = painterResource(id = R.drawable.launcher), // Reemplaza con tu recurso de imagen
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.Center),
+                    alpha = 0.1f // Ajustar la transparencia de la marca de agua
+                )
+
+                // Contenido de la tarjeta
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = title1,
+                        style = androidx.compose.material3.MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        if (!isAnulado || isImpresion) {
+                            Button(
+                                shape = RoundedCornerShape(4.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9E0400)),
+                                onClick = { onClick() }
+                            ) {
+                                Row {
+                                    Icon(
+                                        imageVector = icono,
+                                        contentDescription = "Print",
+                                        tint = Color.White
+                                    )
+                                    Text(
+                                        text = buttonText,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        fontSize = 16.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(title3.length>1){
+            Ribbon2(ribbonNumber = title2)
+        }
+
+    }
+}
+
+
+@Composable
+fun Ribbon2(ribbonNumber: String) {
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(
+                color = Color(0xFF9E0400),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    bottomEnd = 12.dp,
+                    topEnd = 12.dp,
+                    bottomStart = 12.dp
+                )
+            )
+            .padding(
+                PaddingValues(
+                    horizontal = 8.dp,
+                    vertical = 2.dp
+                )
+            ) // Ajusta el padding para el tamaño del texto
+    ) {
+        Text(
+            text = ribbonNumber,
+            color = Color.White,
+            fontSize = 20.sp, // Ajusta el tamaño del texto si es necesario
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
 
 @Composable
 fun Ribbon(ribbonNumber: String) {

@@ -72,6 +72,7 @@ class Migration8to9 : Migration(8, 9) {
                 `docEntry` BIGINT NOT NULL,
                 `ItemCode` TEXT NOT NULL,
                 `Lote` TEXT,
+                `LoteLargo` TEXT,
                 `Quantity` INTEGER NOT NULL,
                 `QuantityCalculado` TEXT NOT NULL,
                 FOREIGN KEY(`docEntry`) REFERENCES `OINV_POS`(`docEntry`) ON DELETE CASCADE
@@ -97,7 +98,7 @@ class Migration8to9 : Migration(8, 9) {
             `U_TimbradoNro` TEXT,
             `U_fecha_autoriz_timb` TEXT,  
             `U_FechaVto` TEXT,
-            `estado` TEXT
+            `estado` TEXT NOT NULL DEFAULT 'C'
              )
         """)
 
@@ -120,16 +121,16 @@ class Migration8to9 : Migration(8, 9) {
             database.execSQL("""
             CREATE TABLE IF NOT EXISTS `A0_YTV_STOCK_ALMACEN` (
             `id` TEXT NOT NULL PRIMARY KEY,
-            `ItmsGrpCod` TEXT ,
-            `ItmsGrpNam` TEXT,
-            `ItemCode` TEXT,
-            `BatchNum` TEXT,
+            `ItemCode` TEXT ,
+            `ItemName` TEXT,
             `WhsCode` TEXT,
-            `Quantity` TEXT         
+            `Quantity` TEXT,
+            `DistNumber` TEXT,
+            `LoteLargo` TEXT,
+            `UpdateDate` TEXT         
             `    
              )
         """)
-
 
             // Crear la tabla A0_YTV_ORDEN_VENTA
             database.execSQL("""

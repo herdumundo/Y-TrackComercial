@@ -12,6 +12,7 @@ data class DetalleCompleto(
     val series: String?,
     val taxCode: String?,
     val cardCode: String?,
+    val cardName: String?,
     val lineNumbCardCode: Int?,
     val idVisita: Long?,
     val numAtCard: String?,
@@ -69,7 +70,8 @@ fun transformarDatosConDetalle(datos: List<OinvPosWithDetails>): List<DetalleCom
                 precioUnitIvaIncluido = detail.precioUnitIvaInclu,
                 whsCode = detail.whsCode,
                 totalLineaIvaIncluido=detail.totalSinIva.toInt()+detail.totalIva.toInt(),
-                estado = oinv.oinvPos.estado
+                estado = oinv.oinvPos.estado,
+                cardName = oinv.oinvPos.cardName
                 )
         }
     }

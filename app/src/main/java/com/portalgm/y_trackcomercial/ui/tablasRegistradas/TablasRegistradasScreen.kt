@@ -29,7 +29,7 @@ fun ScreenTablasRegistradas(
         TablaInfo("Lista de precios", tablasRegistradasViewModel.listaPrecioCount, R.drawable.ic_egg, tablasRegistradasViewModel.loadingListaPrecioCount, 11, "Actualizando lista de precios ..."),
         TablaInfo("Stock por almacen", tablasRegistradasViewModel.almacenStockCount, R.drawable.ic_egg, tablasRegistradasViewModel.loadingAlmacenStockCount, 12, "Actualizando stock ..."),
         TablaInfo("Ordenes de ventas", tablasRegistradasViewModel.ordenVentaCount, R.drawable.ic_products, tablasRegistradasViewModel.loadingordenVenta, 13, "Actualizando ordenes de ventas ..."))
-    LaunchedEffect(Unit) {
+     LaunchedEffect(Unit) {
         tablasRegistradasViewModel.getTablasRegistradas()
     }
     LazyColumn {

@@ -1,30 +1,21 @@
 package com.portalgm.y_trackcomercial.repository.ventasRepositories
 
 import android.util.Log
-import androidx.room.Query
 import com.portalgm.y_trackcomercial.data.api.exportaciones.ExportacionOinvApiClient
-import com.portalgm.y_trackcomercial.data.api.request.DatosFacturaConLotes
- import com.portalgm.y_trackcomercial.data.api.request.datos_oinv_inv1
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_LOTES_DAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.OINV_DAO
 import com.portalgm.y_trackcomercial.data.model.entities.database.YtrackDatabase
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_LOTES_POS
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_POS
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.OINV_POS
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinv
-import com.portalgm.y_trackcomercial.data.model.models.LotesMovimientosOinvNew
-import com.portalgm.y_trackcomercial.data.model.models.OinvPosWithDetails
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosMovimientosOinv
-import com.portalgm.y_trackcomercial.data.model.models.ventas.DetalleCompleto
 import com.portalgm.y_trackcomercial.data.model.models.ventas.procesarDatos
-import com.portalgm.y_trackcomercial.data.model.models.ventas.transformarDatosConDetalle
 import com.portalgm.y_trackcomercial.util.SharedPreferences
 import javax.inject.Inject
 
 class OinvRepository @Inject constructor
     (
     private val oinvPosDao: OINV_DAO,
-    private val inv1LotesDao: INV1_LOTES_DAO,
     private val sharedPreferences: SharedPreferences,
     private val database: YtrackDatabase, // Inyecta la instancia de la base de datos
     private val exportacionOinvApiClient: ExportacionOinvApiClient // Paso 1: Agregar el ApiClient al constructor
@@ -45,10 +36,11 @@ class OinvRepository @Inject constructor
         oinv: OINV_POS,
         inv1List: List<INV1_POS>,
         inv1LotesList: List<INV1_LOTES_POS>,
-        idOrdenVenta:String
+        idOrdenVenta:String,
+        ultimoNroFactura:String
     ):Long {
         // La lógica de transacción iría aquí.
-      return  database.insertarVentaCompleta(oinv, inv1List, inv1LotesList, idOrdenVenta)
+      return  database.insertarVentaCompleta(oinv, inv1List, inv1LotesList, idOrdenVenta,ultimoNroFactura)
     }
 
     suspend fun getAllOinvPosByDate(fecha:String) = oinvPosDao.getOinvPosByDate(fecha)

@@ -57,8 +57,7 @@ import com.portalgm.y_trackcomercial.services.workManager.ExportDataWorker
 import com.portalgm.y_trackcomercial.ui.anulacionFactura.viewmodel.AnulacionFacturaViewModel
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
-import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
-import com.portalgm.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
+ import com.portalgm.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.portalgm.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
 import com.portalgm.y_trackcomercial.ui.login2.LoginScreen
 import com.portalgm.y_trackcomercial.ui.login2.LoginViewModel
@@ -70,6 +69,7 @@ import com.portalgm.y_trackcomercial.ui.ordenVenta.viewmodel.OrdenVentaViewModel
 import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.OrdenVentaDetalleViewModel
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
+import com.portalgm.y_trackcomercial.ui.stockAlmacen.viewmodel.StockAlmacenViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppViewModel
 import com.portalgm.y_trackcomercial.ui.visitaAuditor.viewmodel.VisitaAuditorViewModel
@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
     private val nuevaUbicacionViewModel: NuevaUbicacionViewModel by viewModels()
     private val cambioPassViewModel: CambioPassViewModel by viewModels()
     private val visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel by viewModels()
-    private val oinvViewModel: OinvViewModel by viewModels()
+    private val stockAlmacenViewModel: StockAlmacenViewModel by viewModels()
     private val ordenVentaViewModel: OrdenVentaViewModel by viewModels()
     private val ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel by viewModels()
     private val reimpresionFacturaViewModel: ReimpresionFacturaViewModel by viewModels()
@@ -300,7 +300,7 @@ class MainActivity : ComponentActivity() {
                     cambioPassViewModel,
                     sharedPreferences,
                     visitaSinUbicacionViewModel,
-                    oinvViewModel,
+                    stockAlmacenViewModel,
                     ordenVentaViewModel,
                     ordenVentaDetalleViewModel,
                     reimpresionFacturaViewModel,
@@ -597,7 +597,7 @@ fun Router(
     cambioPassViewModel: CambioPassViewModel,
     sharedPreferences: SharedPreferences,
     visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
-    oinvViewModel: OinvViewModel,
+    stockAlmacenViewModel: StockAlmacenViewModel,
     ordenVentaViewModel: OrdenVentaViewModel,
     ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
     reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
@@ -628,7 +628,7 @@ fun Router(
                 cambioPassViewModel,
                 sharedPreferences,
                 visitaSinUbicacionViewModel,
-                oinvViewModel,
+                stockAlmacenViewModel,
                 ordenVentaViewModel,
                 ordenVentaDetalleViewModel,
                 reimpresionFacturaViewModel,

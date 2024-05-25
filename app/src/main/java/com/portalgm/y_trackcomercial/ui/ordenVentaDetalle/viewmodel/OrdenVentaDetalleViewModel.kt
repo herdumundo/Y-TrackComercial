@@ -29,6 +29,7 @@ import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaCab
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDetUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetDatosFacturaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetUltimoNroFacturaAzureUseCase
 import com.portalgm.y_trackcomercial.util.HoraActualUtils
 import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.calculosIva
@@ -39,6 +40,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -51,10 +55,12 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     private val getDatosDetalleLotesUseCase: GetDatosDetalleLotesUseCase,
     private val insertTransactionOinvUseCase: InsertTransactionOinvUseCase, // Inyecta la instancia de la base de datos
     private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
+    private val getUltimoNroFacturaAzureUseCase: GetUltimoNroFacturaAzureUseCase, // Inyecta la instancia de la base de datos
+
 
 ) : ViewModel() {
-  /*  private val _initFacturaEvent = MutableLiveData<Event<Unit>>()
-    val initFacturaEvent: LiveData<Event<Unit>> = _initFacturaEvent*/
+    /*  private val _initFacturaEvent = MutableLiveData<Event<Unit>>()
+      val initFacturaEvent: LiveData<Event<Unit>> = _initFacturaEvent*/
 
     private val _productos = MutableLiveData<List<ProductoItem>>()
     val productos: LiveData<List<ProductoItem>> = _productos
@@ -112,17 +118,19 @@ class OrdenVentaDetalleViewModel @Inject constructor(
             }
         }
     }
-    fun mostrarConfirmacion( ){
-        _pantallaConfirmacion.value=true
+
+    fun mostrarConfirmacion() {
+        _pantallaConfirmacion.value = true
     }
-    fun cancelar(){
-        _pantallaConfirmacion.value=false
+
+    fun cancelar() {
+        _pantallaConfirmacion.value = false
     }
 
     fun registrar(productos: List<OrdenVentaProductosSeleccionados>) {
         val INV1_POS_LIST = mutableListOf<INV1_POS>()
         val INV1_LOTES_POS_LIST = mutableListOf<INV1_LOTES_POS>()
-        var lineNumInv1=0
+        var lineNumInv1 = 0
         _mensajePantalla.value = "Procesando factura..."
         _loadingPantalla.value = true
         // Aquí puedes agregar lógica para procesar los productos seleccionados
@@ -132,11 +140,44 @@ class OrdenVentaDetalleViewModel @Inject constructor(
 
         var totalFactura = 0.0
         _productosSeleccionados.value!!.forEach { producto ->
-            if(producto.itemCode.length==1)totalFactura += producto.quantity.toDouble() * producto.priceAfVAT
+            if (producto.itemCode.length == 1) totalFactura += producto.quantity.toDouble() * producto.priceAfVAT
             else totalFactura += producto.quantity.toInt() * producto.priceAfVAT.toInt()
         }
 
         viewModelScope.launch {
+            _mensajePantalla.value = "Preparando nro de factura..."
+
+            val datosAzure =
+                getUltimoNroFacturaAzureUseCase.Obtener(_datosOrdenVenta.value!![0].cardCode)
+            val nroFactura =
+                datosAzure.ult_nro_fact//LA SUMA DEL NRO SIGUIENTE SE HACE DENTRO DE LA FUNCION OBTENER.
+            val limiteCredito   =datosAzure.creditLine
+
+            val balance = datosAzure.Balance + totalFactura.toLong()
+            val creditDisp = datosAzure.CreditDisp - totalFactura.toLong()
+
+            val numeroFacturaConCeros = String.format("%07d", nroFactura)
+            val decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+            decimalFormatSymbols.groupingSeparator = '.' // Punto como separador de miles
+            val formatter = DecimalFormat("#,##0", decimalFormatSymbols)
+
+            if (_datosOrdenVenta.value!![0].pymntGroup != "Contado") {
+                if (balance > limiteCredito) {
+                    _mensajePantalla.value = "Limite de crédito excedido \n\n" +
+                            " Línea de crédito: ${formatter.format(limiteCredito)} Gs.\n" +
+                            " Saldo disponible:  ${
+                                formatter.format(
+                                    creditDisp
+                                )
+                            } Gs. \n Importe a facturar  ${formatter.format(totalFactura)}  Gs. "
+                    _loadingPantalla.value = false
+                    _pantallaConfirmacion.value = false
+                    _dialogPantalla.value = true
+                    return@launch
+                }
+            }
+            _mensajePantalla.value = "Preparando insercion cabecera..."
+
             /**PREPARA CABECERA*/
             val OINV_POS = OINV_POS(
                 idVisita = 0,
@@ -149,8 +190,8 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 docDate = HoraActualUtils.obtenerFechaHoraActual(),
                 docDueDate = _datosOrdenVenta.value!![0].docDueDate,
                 series = _datosFactura.value!![0].U_SERIEFACT.toString(),
-                folioNumber = _datosFactura.value!![0].ult_nro_fact.toInt(),
-                numAtCard = _datosFactura.value!![0].u_esta + "-" + _datosFactura.value!![0].u_pemi + "-" + _datosFactura.value!![0].ult_nro_fact,
+                folioNumber = nroFactura,
+                numAtCard = _datosFactura.value!![0].u_esta + "-" + _datosFactura.value!![0].u_pemi + "-" + numeroFacturaConCeros,
                 slpCode = _datosFactura.value!![0].slpcode,
                 timb = _datosFactura.value!![0].U_TimbradoNro.toString(),
                 cdc = "",
@@ -170,10 +211,11 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 }, // 1 si es contado 2 si es credito
                 totalIvaIncluido = totalFactura.toString(),
                 estado = "S",
-                condicion =  _datosOrdenVenta.value!![0].groupNum,
-                pymntGroup=_datosOrdenVenta.value!![0].pymntGroup,
+                condicion = _datosOrdenVenta.value!![0].groupNum,
+                pymntGroup = _datosOrdenVenta.value!![0].pymntGroup,
                 docEntrySap = "-"
             )
+            _mensajePantalla.value = "Preparando insercion detalle..."
             /**PREPARA DETALLE DE LA FACTURA*/
             _productosSeleccionados.value!!.forEach { producto ->
                 val newDet = INV1_POS(
@@ -184,32 +226,37 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                     whsCode = _datosFactura.value!![0].U_DEPOSITO!!,
                     quantity = producto.quantity.toString(),
                     priceAfterVat = producto.priceAfVAT.toInt().toString(),
-                    precioUnitSinIva =  calculosIva.redondeoPersonalizado(calculosIva.calcularPrecioSinIva(producto.priceAfVAT)).toInt().toString(),
+                    precioUnitSinIva = calculosIva.redondeoPersonalizado(
+                        calculosIva.calcularPrecioSinIva(
+                            producto.priceAfVAT
+                        )
+                    ).toInt().toString(),
                     precioUnitIvaInclu = producto.priceAfVAT.toInt().toString(),
                     totalSinIva = calculosIva.calcularTotalSinIva(
                         producto.quantity.toDouble(),
                         producto.priceAfVAT
                     ).toInt().toString(),
-                    totalIva = calculosIva.calcularIva(producto.quantity.toDouble(), producto.priceAfVAT).toInt().toString(),
+                    totalIva = calculosIva.calcularIva(
+                        producto.quantity.toDouble(),
+                        producto.priceAfVAT
+                    ).toInt().toString(),
                     uomEntry = 1,
                     taxCode = "5"
                 )
                 INV1_POS_LIST.add(newDet)
                 lineNumInv1 += 1
             }
+            _mensajePantalla.value = "Preparando insercion detalle lotes..."
+
             /**PREPARA DETALLE DE LOS LOTES*/
-            _cantidadesIngresadasPorLote.forEach { (batchNum, cantidad) ->
+            _cantidadesIngresadasPorLote.forEach { (distNumber, cantidad) ->
                 if (cantidad.toDouble() > 0) {
-                    val lote = lotesIncializados.value?.find { it.batchNum == batchNum && it.itemCode in itemCodesSeleccionados }
+                    val lote =  lotesIncializados.value?.find { it.loteLargo == distNumber && it.itemCode in itemCodesSeleccionados }
 
                     val itemCode = lote?.itemCode ?: ""
-                   // var unitMsr =  ""
-                    val unitMsr = _productosSeleccionados.value?.find { it.itemCode == itemCode }?.unitMsr ?: ""
-                 /*   productos.forEach {
-                        if(it.itemCode==lote!!.itemCode){
-                            unitMsr=it.unitMsr
-                        }
-                    }*/
+                    val unitMsr =
+                        _productosSeleccionados.value?.find { it.itemCode == itemCode }?.unitMsr
+                            ?: ""
 
                     val quantityCalculado = when (unitMsr) {
                         "Docena" -> cantidad.toDouble() / 12
@@ -223,7 +270,8 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                             itemCode = itemCode,
                             quantity = cantidad.toString(),
                             quantityCalculado = calculosIva.formatearCantidad(quantityCalculado),
-                            lote = batchNum,
+                            lote = lote.distNumber,
+                            loteLargo = lote.loteLargo
                         )
                         INV1_LOTES_POS_LIST.add(newDet)
                     }
@@ -234,14 +282,17 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 OINV_POS,
                 INV1_POS_LIST,
                 INV1_LOTES_POS_LIST,
-                _docNum.value.toString()
+                _docNum.value.toString(),
+                numeroFacturaConCeros
             )
             _docEntryGenerado.value = docEntry
+            _mensajePantalla.value = "Preparando firmado factura..."
+
             // Obtener los datos de la base de datos
             val oinvList = withContext(Dispatchers.IO) {
                 getOinvUseCase.execute(docEntry)
             }
-            firmarFactura.generarStringSiedi(oinvList,"1")
+            firmarFactura.generarStringSiedi(oinvList, "1")
         }
     }
 
@@ -251,17 +302,19 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         selections: Map<ProductoItem, MutableState<Boolean>>,
         quantities: Map<ProductoItem, MutableState<Number>>,
         quantitiesUnidad: Map<ProductoItem, MutableState<Int>>,
-     ): List<OrdenVentaProductosSeleccionados> {
+    ): List<OrdenVentaProductosSeleccionados> {
         val selectedItems = articulosMenu.filter { selections[it]?.value == true }
         return selectedItems.map { item ->
             OrdenVentaProductosSeleccionados(
                 itemName = item.name,
-                quantity = if(item.itemCode.length==1) quantities[item]?.value?.toDouble() ?: 0.0 else quantities[item]?.value?.toInt() ?: 0  ,//quantities[item]?.value ?: 0.0,
+                quantity = if (item.itemCode.length == 1) quantities[item]?.value?.toDouble()
+                    ?: 0.0 else quantities[item]?.value?.toInt()
+                    ?: 0,//quantities[item]?.value ?: 0.0,
                 itemCode = item.itemCode,
                 lineNumDet = item.lineNum,
                 priceAfVAT = item.price,
                 unitMsr = item.unitMsr,
-                quantityUnidad= (quantitiesUnidad[item]?.value?.toDouble()?: 0.0).toInt()
+                quantityUnidad = (quantitiesUnidad[item]?.value?.toDouble() ?: 0.0).toInt()
             )
         }
     }
@@ -281,6 +334,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
             _pantallaConfirmacion.value = false
         }
     }
+
     fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Number) {
         // Convertir la cantidad previa y nueva a Double para cálculos consistentes
         val cantidadPrevia = _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0.0).toDouble()
@@ -292,7 +346,8 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         // Actualizar el total de cantidades por producto basado en la diferencia calculada
         val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
         val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
-        val cantidadActualizada = (cantidadActual + diferencia).coerceAtLeast(0.0)  // Asegura que la cantidad no sea negativa
+        val cantidadActualizada =
+            (cantidadActual + diferencia).coerceAtLeast(0.0)  // Asegura que la cantidad no sea negativa
 
         // Guardar la cantidad actualizada
         cantidadesActuales[itemCode] = cantidadActualizada
@@ -300,72 +355,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         // Llamar a la función para comprobar el estado del botón
         comprobarEstadoBoton(_productosSeleccionados.value!!)
     }
- /*   fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Double) {
-        val esDouble = itemCode.length == 1 // Determinar si necesita manejarlo como Double
-        val cantidadPrevia: Double = if (esDouble) {
-            _cantidadesIngresadasPorLoteDouble.getOrDefault(batchNum, 0.0)
-        } else {
-            _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0).toDouble()
-        }
-        val nuevaCantidadDouble = nuevaCantidad.toDouble()
-        val diferencia = nuevaCantidadDouble - cantidadPrevia
 
-        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
-        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
-        val cantidadActualizada = (cantidadActual + diferencia).coerceAtLeast(0.0)
-
-        cantidadesActuales[itemCode] = cantidadActualizada
-        _totalIngresadoPorProducto.value = cantidadesActuales
-
-      /*  if (esDouble) {
-            _cantidadesIngresadasPorLoteDouble[batchNum] = nuevaCantidadDouble
-        } else {*/
-            _cantidadesIngresadasPorLote[batchNum] = nuevaCantidad
-       // }
-        comprobarEstadoBoton(_productosSeleccionados.value!!)
-    }
-
-
-    fun actualizarCantidadIngresada(batchNum: String, itemCode: String, nuevaCantidad: Double) {
-        // Obtener la cantidad previamente ingresada para este lote, si no hay ninguna, asume cero
-        val cantidadPrevia = _cantidadesIngresadasPorLote.getOrDefault(batchNum, 0.0)
-        // Actualizar con la nueva cantidad ingresada
-        _cantidadesIngresadasPorLote[batchNum] = nuevaCantidad
-        // Calcular la diferencia de cantidades
-        val diferencia = nuevaCantidad - cantidadPrevia
-        // Actualizar el total de cantidades por producto basado en la diferencia calculada
-        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
-        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
-        val cantidadActualizada =
-            (cantidadActual + diferencia).coerceAtLeast(0.0) // Asegura que la cantidad no sea negativa
-
-        // Guardar la cantidad actualizada
-        cantidadesActuales[itemCode] = cantidadActualizada
-        _totalIngresadoPorProducto.value = cantidadesActuales
-
-        // Llamar a la función para comprobar el estado del botón
-        comprobarEstadoBoton(_productosSeleccionados.value!!)
-    }*//*
-    fun actualizarCantidadIngresadaDouble(batchNum: String, itemCode: String, nuevaCantidad: Int) {
-        // Obtener la cantidad previamente ingresada para este lote, si no hay ninguna, asume cero
-        val cantidadPrevia = _cantidadesIngresadasPorLoteDouble.getOrDefault(batchNum, 0.0)
-        // Actualizar con la nueva cantidad ingresada
-        _cantidadesIngresadasPorLoteDouble[batchNum] = nuevaCantidad.toDouble()
-        // Calcular la diferencia de cantidades
-        val diferencia = nuevaCantidad - cantidadPrevia
-        // Actualizar el total de cantidades por producto basado en la diferencia calculada
-        val cantidadesActuales = _totalIngresadoPorProducto.value.toMutableMap()
-        val cantidadActual = cantidadesActuales[itemCode] ?: 0.0
-        val cantidadActualizada =
-            (cantidadActual + diferencia).coerceAtLeast(0.0) // Asegura que la cantidad no sea negativa
-
-        // Guardar la cantidad actualizada
-        cantidadesActuales[itemCode] = cantidadActualizada
-        _totalIngresadoPorProducto.value = cantidadesActuales
-
-        // Llamar a la función para comprobar el estado del botón
-        comprobarEstadoBoton(_productosSeleccionados.value!!)
-    }*/
     fun inicializarProductosSeleccionados(productos: List<OrdenVentaProductosSeleccionados>) {
         _productosSeleccionados.value = productos
     }
@@ -373,7 +363,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     // Obtener la suma de cantidades cargadas por itemCode
     fun getCantidadCargadaPorItemCode(itemCode: String): Double {
         val suma = _totalIngresadoPorProducto.value.getOrDefault(itemCode, 0.0)
-         return suma
+        return suma
     }
 
     // Función para obtener la cantidad ingresada para un lote específico
@@ -397,7 +387,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     private suspend fun cargarDatosAdicionales(docNum: Int) {
         _datosOrdenVenta.value = getOrdenVentaCabByIdUseCase.Obtener(docNum)
         _datosFactura.value = getDatosFacturaUseCase.Obtener()
-        _nroFactura.value=(_datosFactura.value!![0].ult_nro_fact.toInt()+1).toString()
+        _nroFactura.value = (_datosFactura.value!![0].ult_nro_fact.toInt()).toString()
         _docNum.value = docNum
     }
 
@@ -410,7 +400,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 price = it.priceAfVAT.toDouble(),
                 initialQuantity = it.quantity.toDouble(),
                 unitMsr = it.unitMsr,
-                quantityUnidad=it.quantityUnidad
+                quantityUnidad = it.quantityUnidad
             )
         }
     }
@@ -429,17 +419,20 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         _docNum.value = null
         _cantidadCargadaTotal.value = null
         _dialogPantalla.value = false
+        _pantallaConfirmacion.value = false
     }
-
 
 
     /**
      * IMPRESION Y FIRMADOR*/
-   suspend fun imprimir(json: List<OinvPosWithDetails>, qr: String, cdc: String) {
+    suspend fun imprimir(json: List<OinvPosWithDetails>, qr: String, cdc: String) {
         // Asegúrate de que las operaciones de impresión se realicen en el contexto de I/O
+        _mensajePantalla.value = "Preparando impresión..."
+
         withContext(Dispatchers.IO) {
             val servicioBluetooth = servicioBluetooth()
-            val resultadoImpresion = servicioBluetooth.imprimir(layoutFactura().layoutFactura(json, qr, cdc))
+            val resultadoImpresion =
+                servicioBluetooth.imprimir(layoutFactura().layoutFactura(json, qr, cdc))
 
             // Regresa al hilo principal para actualizar la UI
             withContext(Dispatchers.Main) {
@@ -450,6 +443,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                         _mensajePantalla.value = mensajeExito
                         _loadingPantalla.value = false
                         _dialogPantalla.value = true
+                        _pantallaConfirmacion.value = false
                     }
                     is ImpresionResultado.Error -> {
                         val mensajeError = resultadoImpresion.mensaje
@@ -457,16 +451,16 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                         _mensajePantalla.value = mensajeError
                         _loadingPantalla.value = false
                         _dialogPantalla.value = true
+                        _pantallaConfirmacion.value = false
                     }
-
-                    else -> {}
-                }
+                 }
             }
         }
-
     }
 
     fun prepararImpresion(qr: String, xml: String) {
+        _mensajePantalla.value = "Preparando impresión..."
+
         viewModelScope.launch {
             try {
                 val listaFactura = getOinvUseCase.execute(_docEntryGenerado.value!!)
@@ -497,6 +491,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     }
 
 }
+
 data class ProductoItem(
     val lineNum: Int,
     val name: String,

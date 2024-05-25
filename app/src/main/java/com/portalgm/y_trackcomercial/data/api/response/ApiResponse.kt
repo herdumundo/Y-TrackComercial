@@ -15,3 +15,13 @@ data class ApiResponseFacturacion(
 data class ApiKeyGMSResponse(
     val apiKey: String,
 )
+
+
+data class ApiResponseLimiteCreditoNroFactura(
+    val ult_nro_fact: Int,
+    val cardCode: String,
+    val creditLine: Long,
+    val totalFactura: Long,
+    val Balance: Long,
+    val CreditDisp: Long,
+ )

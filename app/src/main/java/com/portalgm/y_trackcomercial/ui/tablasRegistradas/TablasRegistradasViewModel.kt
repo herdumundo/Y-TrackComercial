@@ -122,6 +122,9 @@ class TablasRegistradasViewModel @Inject constructor(
     private val _loadingordenVenta: MutableLiveData<Boolean> = MutableLiveData()
     val loadingordenVenta: LiveData<Boolean> = _loadingordenVenta
 
+    private val _loadingonuevoNroFacturaCount: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingonuevoNroFacturaCount: LiveData<Boolean> = _loadingonuevoNroFacturaCount
+
 
     private val _ubicacionesPvCount: MutableLiveData<Int> = MutableLiveData()
     val ubicacionesPvCount: LiveData<Int> = _ubicacionesPvCount
@@ -140,6 +143,9 @@ class TablasRegistradasViewModel @Inject constructor(
 
     private val _ordenVentaCount: MutableLiveData<Int> = MutableLiveData()
     val ordenVentaCount: LiveData<Int> = _ordenVentaCount
+
+    private val _nuevoNroFacturaCount: MutableLiveData<Int> = MutableLiveData()
+    val nuevoNroFacturaCount: LiveData<Int> = _nuevoNroFacturaCount
 
 
     fun getUserName(): String = sharedPreferences.getUserName().toString()

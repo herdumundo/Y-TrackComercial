@@ -306,7 +306,7 @@ fun ProductosItemRow(
                     // Filtrar los lotes basándose en el texto de búsqueda
                     val lotesFiltrados = lotes.filter { it.itemCode == productosItem.itemCode }
                         .filter { lote ->
-                            searchText.isEmpty() || lote.batchNum?.contains(
+                            searchText.isEmpty() || lote.distNumber?.contains(
                                 searchText,
                                 ignoreCase = true
                             ) == true
@@ -319,7 +319,7 @@ fun ProductosItemRow(
                         items(lotesFiltrados) { lote ->
                             var cantidadIngresada by rememberSaveable {
                                 mutableStateOf(
-                                    ordenVentaDetalleViewModel.getCantidadIngresadaParaLote(lote.batchNum!!)
+                                    ordenVentaDetalleViewModel.getCantidadIngresadaParaLote(lote.loteLargo!!)
                                 )
                             }
                             Card(
@@ -335,7 +335,7 @@ fun ProductosItemRow(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Column(modifier = Modifier.weight(2f)) { // Aumenta el peso si necesitas más espacio para los textos
                                             Text(
-                                                "Lote: ${lote.batchNum}",
+                                                "Lote: ${lote.distNumber}",
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                             Text(
@@ -356,7 +356,7 @@ fun ProductosItemRow(
                                                             cantidadIngresada =
                                                                 nuevaCantidad.toString()
                                                             ordenVentaDetalleViewModel.actualizarCantidadIngresada(
-                                                                lote.batchNum!!,
+                                                                lote.loteLargo!!,
                                                                 lote.itemCode!!,
                                                                 nuevaCantidad
                                                             )
@@ -365,7 +365,7 @@ fun ProductosItemRow(
                                                         // Si newValue no es un número, dejar el campo vacío
                                                         cantidadIngresada = ""
                                                         ordenVentaDetalleViewModel.actualizarCantidadIngresada(
-                                                            lote.batchNum!!,
+                                                            lote.loteLargo!!,
                                                             lote.itemCode!!,
                                                             0
                                                         )

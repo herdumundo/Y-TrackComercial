@@ -57,8 +57,6 @@ import com.portalgm.y_trackcomercial.ui.cambioPass.screen.InfoDialogNewPass
 import com.portalgm.y_trackcomercial.ui.cambioPass.viewmodel.CambioPassViewModel
 import com.portalgm.y_trackcomercial.ui.exportaciones.screen.ScreenExportaciones
 import com.portalgm.y_trackcomercial.ui.exportaciones.viewmodel.ExportacionViewModel
-import com.portalgm.y_trackcomercial.ui.facturacion.screen.FacturaScreen
-import com.portalgm.y_trackcomercial.ui.facturacion.viewmodel.OinvViewModel
 import com.portalgm.y_trackcomercial.ui.informeInventario.screen.ScreenInformeInventario
 import com.portalgm.y_trackcomercial.ui.informeInventario.viewmodel.InformeInventarioViewModel
 import com.portalgm.y_trackcomercial.ui.inventario.viewmodel.InventarioViewModel
@@ -76,6 +74,8 @@ import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.screen.RastreoUsuarioMap
 import com.portalgm.y_trackcomercial.ui.rastreoUsuarios.viewmodel.RastreoUsuariosViewModel
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.screen.ReimpresionFacturaScreen
 import com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel.ReimpresionFacturaViewModel
+import com.portalgm.y_trackcomercial.ui.stockAlmacen.screen.StockAlmacenScreen
+import com.portalgm.y_trackcomercial.ui.stockAlmacen.viewmodel.StockAlmacenViewModel
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.ScreenTablasRegistradas
 import com.portalgm.y_trackcomercial.ui.tablasRegistradas.TablasRegistradasViewModel
 import com.portalgm.y_trackcomercial.ui.updateApp.UpdateAppScreen
@@ -114,7 +114,7 @@ fun MenuPrincipal(
      cambioPassViewModel: CambioPassViewModel,
      sharedPreferences: SharedPreferences,
      visitaSinUbicacionViewModel: VisitaSinUbicacionViewModel,
-     oinvViewModel: OinvViewModel,
+     stockAlmacenViewModel: StockAlmacenViewModel,
      ordenVentaViewModel: OrdenVentaViewModel,
      ordenVentaDetalleViewModel: OrdenVentaDetalleViewModel,
      reimpresionFacturaViewModel: ReimpresionFacturaViewModel,
@@ -303,9 +303,9 @@ fun MenuPrincipal(
                     )
                 }
                 //////////////////////////////////////////////FACTURACIONES
-                composable("facturacion") {
+                composable("stock") {
 
-                    FacturaScreen(oinvViewModel=oinvViewModel )
+                    StockAlmacenScreen(stockAlmacenViewModel=stockAlmacenViewModel )
                 }
                 composable("ordenVenta") {
 

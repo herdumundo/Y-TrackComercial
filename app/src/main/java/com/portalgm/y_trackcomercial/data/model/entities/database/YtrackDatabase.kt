@@ -16,6 +16,8 @@ import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.A0_YTV_VENDEDORDA
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_DAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_LOTES_DAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.OINV_DAO
+import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.views.daos.StockDao
+import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.views.dataviews.V_STOCK_ALMACEN
 import com.portalgm.y_trackcomercial.data.model.entities.*
 import com.portalgm.y_trackcomercial.data.model.entities.logs.*
 import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_POS
@@ -57,13 +59,19 @@ import com.portalgm.y_trackcomercial.data.model.entities.ventas_entities.INV1_LO
         A0_YTV_ORDEN_VENTA_Entity::class,
         INV1_LOTES_POS::class
      ],
-
+    views = [V_STOCK_ALMACEN::class],
     version =9,
     exportSchema = false
 )
 abstract class YtrackDatabase : RoomDatabase() {
     @Transaction
-    open suspend fun insertarVentaCompleta(oinv: OINV_POS, inv1List: List<INV1_POS>, inv1LotesList: List<INV1_LOTES_POS>,idOrdenVenta:String): Long {
+    open suspend fun insertarVentaCompleta(
+        oinv: OINV_POS,
+        inv1List: List<INV1_POS>,
+        inv1LotesList: List<INV1_LOTES_POS>,
+        idOrdenVenta: String,
+        ultimoNroFactura: String
+    ): Long {
         // Insertamos el registro principal y obtenemos su ID autogenerado
         val docEntry = OinvDao().insertOinv(oinv)
         // Preparamos los registros relacionados con el ID obtenido
@@ -72,7 +80,7 @@ abstract class YtrackDatabase : RoomDatabase() {
         // Insertamos los registros relacionados
         INV1_DAO().insertAllInv1(inv1List)
         INV1_LOTES_DAO().insertAll(inv1LotesList)
-        A0_YTV_VENDEDOR_DAO().updateNumeroFactura()
+        A0_YTV_VENDEDOR_DAO().updateNumeroFactura(ultimoNroFactura)
         A0_YTV_VENDEDOR_DAO().updateEstadoPendiente()
         A0_YTV_ORDEN_VENTADAO_DAO().updateCerrado(idOrdenVenta)
         return docEntry
@@ -102,7 +110,6 @@ abstract class YtrackDatabase : RoomDatabase() {
     abstract fun A0_YTV_LISTA_PRECIOS_DAO(): A0_YTV_LISTA_PRECIOSDAO
     abstract fun  A0_YTV_STOCK_ALMACEN_DAO(): A0_YTV_STOCK_ALMACENDAO
     abstract fun  A0_YTV_ORDEN_VENTADAO_DAO(): A0_YTV_ORDEN_VENTADAO
-
-
+    abstract fun stockDao(): StockDao
 
 }

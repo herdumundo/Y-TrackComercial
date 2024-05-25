@@ -34,6 +34,9 @@ import com.portalgm.y_trackcomercial.usecases.nuevaUbicacion.GetNuevasUbicacione
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.CountUseOinvPendientesCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.ExportarOinvPendientesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.oinv.GetOinvPendientesExportarUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountNroFacturaPendienteUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ExportarNroFacturaPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetNroFacturaPendienteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +52,7 @@ class ExportacionViewModel @Inject constructor(
     private val countUbicacionesNuevasPendientesUseCase: CountUbicacionesNuevasPendientesUseCase,
     private val countNewPassPendienteUseCase: CountNewPassPendienteUseCase,
     private val countUseOinvPendientesCase: CountUseOinvPendientesCase,
+    private val countNroFacturaPendienteUseCase: CountNroFacturaPendienteUseCase,
 
     private val getVisitasPendientesUseCase: GetVisitasPendientesUseCase,
     private val getAuditTrailPendienteUseCase: GetAuditTrailPendienteUseCase,
@@ -57,6 +61,7 @@ class ExportacionViewModel @Inject constructor(
     private val getNuevasUbicacionesPendientesUseCase: GetNuevasUbicacionesPendientesUseCase,
     private val getNewPassPendientesUseCase: GetNewPassPendientesUseCase,
     private val getOinvPendientesExportarUseCase: GetOinvPendientesExportarUseCase,
+    private val getNroFacturaPendienteUseCase: GetNroFacturaPendienteUseCase,
 
 
     private val enviarVisitasPendientesUseCase: EnviarVisitasPendientesUseCase,
@@ -66,6 +71,7 @@ class ExportacionViewModel @Inject constructor(
     private val enviarNuevasUbicacionesPendientesUseCase: ExportarNuevasUbicacionesPendientesUseCase,
     private val enviarNewPassPendientesUseCase: ExportarNewPassPendientesUseCase,
     private val exportarOinvPendientesUseCase: ExportarOinvPendientesUseCase,
+    private val exportarNroFacturaPendientesUseCase: ExportarNroFacturaPendientesUseCase,
 
 
     ) : ViewModel() {
@@ -91,6 +97,9 @@ class ExportacionViewModel @Inject constructor(
     private val _pendientesOinvCount: MutableLiveData<Int> = MutableLiveData()
     val pendientesOinvCount: LiveData<Int> = _pendientesOinvCount
 
+    private val _nuevoNroFacturaCount: MutableLiveData<Int> = MutableLiveData()
+    val nuevoNroFacturaCount: LiveData<Int> = _nuevoNroFacturaCount
+
 
     private val _loadingVisitas: MutableLiveData<Boolean> = MutableLiveData()
     val loadingVisitas: LiveData<Boolean> = _loadingVisitas
@@ -110,6 +119,10 @@ class ExportacionViewModel @Inject constructor(
     private val _loadingNewPass: MutableLiveData<Boolean> = MutableLiveData()
     val loadingNewPass: LiveData<Boolean> = _loadingNewPass
 
+    private val _loadingonuevoNroFacturaCount: MutableLiveData<Boolean> = MutableLiveData()
+    val loadingonuevoNroFacturaCount: LiveData<Boolean> = _loadingonuevoNroFacturaCount
+
+
     private val _loadingOinv: MutableLiveData<Boolean> = MutableLiveData()
     val loadingOinv: LiveData<Boolean> = _loadingOinv
     val batchSize = 5
@@ -126,6 +139,7 @@ class ExportacionViewModel @Inject constructor(
                 5 -> countUbicacionesNuevasPendientesUseCase.CountPendientes()
                 6 -> countNewPassPendienteUseCase.CountPendientes()
                 7 -> countUseOinvPendientesCase.CountPendientes()
+                8 -> countNroFacturaPendienteUseCase.Obtener()
 
                 else -> 0 // O cualquier valor predeterminado si tipoRegistro no es 1 ni 2
             }
@@ -138,6 +152,7 @@ class ExportacionViewModel @Inject constructor(
                     5 -> _ubicacionesNuevasCount.value = cantPendientes
                     6 -> _newPassCount.value = cantPendientes
                     7 -> _pendientesOinvCount.value = cantPendientes
+                    8 -> _nuevoNroFacturaCount.value = cantPendientes
 
                 }
             }
@@ -154,6 +169,7 @@ class ExportacionViewModel @Inject constructor(
                 countUbicacionesNuevasPendientesUseCase.CountPendientes()
             val cantNuevoPassPendientesUseCase = countNewPassPendienteUseCase.CountPendientes()
             val countUseOinvPendientesCase = countUseOinvPendientesCase.CountPendientes()
+            val countNroFacturaPendientesUseCase = countNroFacturaPendienteUseCase.Obtener()
 
             withContext(Dispatchers.Main) {
                 _visitasCount.value = cantPendientesVisitas
@@ -163,7 +179,7 @@ class ExportacionViewModel @Inject constructor(
                 _ubicacionesNuevasCount.value = cantUbicacionesNuevasPendientesUseCase
                 _newPassCount.value = cantNuevoPassPendientesUseCase
                 _pendientesOinvCount.value = countUseOinvPendientesCase
-
+                _nuevoNroFacturaCount.value=countNroFacturaPendientesUseCase
             }
         }
     }
@@ -289,6 +305,17 @@ class ExportacionViewModel @Inject constructor(
                         }
                     }
 
+                    8 -> {
+                        if (!loadingonuevoNroFacturaCount.value!!) {
+                            if (countNroFacturaPendienteUseCase.Obtener() > 0) {
+                                _loadingonuevoNroFacturaCount.value = true
+                                val lotesPendientes =  getNroFacturaPendienteUseCase.Obtener()
+                                exportarNroFacturaPendientesUseCase.exportarDatos(lotesPendientes)
+                                _loadingonuevoNroFacturaCount.value = false
+                            }
+                        }
+                    }
+
                 }
                 getTablasRegistradas(tipoRegistro)
             } catch (e: Exception) {
@@ -305,6 +332,7 @@ class ExportacionViewModel @Inject constructor(
         _loadingNuevasUbicaciones.value = false
         _loadingNewPass.value = false
         _loadingOinv.value = false
+        _loadingonuevoNroFacturaCount.value = false
 
     }
 }

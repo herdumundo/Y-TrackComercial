@@ -7,6 +7,6 @@ import javax.inject.Singleton
 
 @Singleton
 interface A0_YTV_STOCK_ALMACENClient {
-    @POST("/vimar/ventas/A0_YTV_STOCK_ALMACEN") // Reemplaza "tu/ruta/api" por la ruta correcta de tu API
+    @POST("/vimar/ventas/A0_YTV_STOCK_ALMACEN")
     suspend fun getDatos(@Header("Authorization") authorization: String): List<A0_YTV_STOCK_ALMACEN_Entity>
  }

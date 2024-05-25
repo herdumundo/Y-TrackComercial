@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.portalgm.y_trackcomercial.data.api.request.balanceOcrd
 import com.portalgm.y_trackcomercial.data.model.entities.OCRDEntity
 import com.portalgm.y_trackcomercial.data.model.models.OcrdItem
 
@@ -36,4 +37,6 @@ interface CustomerDao {
     @Query("SELECT id,Address,CardCode,CardName FROM ocrd   ")
     fun getAllCustomers():  List<OCRDEntity>
 
+    @Query("update ocrd set balance=:balance,creditLine=:creditLine,creditDisp=:creditDisp where cardCode=:cardCode")
+    suspend fun  updateBalanceOcrd(cardCode:String,balance:Long,creditLine:Long,creditDisp:Long)
 }

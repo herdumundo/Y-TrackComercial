@@ -19,6 +19,7 @@ import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.A0_YTV_STOCK_ALMA
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.A0_YTV_VENDEDORDAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_DAO
 import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.INV1_LOTES_DAO
+import com.portalgm.y_trackcomercial.data.model.dao.ventasDaos.views.daos.StockDao
 
 
 import dagger.Module
@@ -197,7 +198,11 @@ object DataBaseModule  {
     fun provideINV1_LOTES_DAO(database: YtrackDatabase): INV1_LOTES_DAO {
         return database.INV1_LOTES_DAO()
     }
-
+    @Provides
+    @Singleton
+    fun provideSTOCK_DAO(database: YtrackDatabase): StockDao {
+        return database.stockDao()
+    }
 
 
 }

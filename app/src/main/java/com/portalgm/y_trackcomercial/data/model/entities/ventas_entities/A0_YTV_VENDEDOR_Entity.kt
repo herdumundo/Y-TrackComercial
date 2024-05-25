@@ -57,6 +57,7 @@ data class A0_YTV_VENDEDOR_Entity(
 
     @SerializedName( "U_FechaVto")
     val U_FechaVto: String?,
+
     @SerializedName( "estado")
-    val estado: String?
+    val estado: String= "C"
 )

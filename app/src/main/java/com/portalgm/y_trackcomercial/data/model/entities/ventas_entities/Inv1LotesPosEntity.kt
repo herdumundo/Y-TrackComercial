@@ -21,6 +21,7 @@ data class INV1_LOTES_POS(
     @ColumnInfo(name = "docEntry")          var docEntry: Long,
     @ColumnInfo(name = "ItemCode")          var itemCode: String,
     @ColumnInfo(name = "Lote")              var lote: String?,
+    @ColumnInfo(name = "LoteLargo")         var loteLargo: String?,
     @ColumnInfo(name = "Quantity")          var quantity: String,
     @ColumnInfo(name = "QuantityCalculado") var quantityCalculado: String,
 )

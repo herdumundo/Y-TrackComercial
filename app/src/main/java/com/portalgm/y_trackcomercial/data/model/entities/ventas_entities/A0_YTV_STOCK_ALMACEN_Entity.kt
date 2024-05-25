@@ -8,21 +8,26 @@ data class A0_YTV_STOCK_ALMACEN_Entity(
     @PrimaryKey
     @SerializedName( "id")
     val id: String,
-    @SerializedName( "ItmsGrpCod")
-    val itmsGrpCod: String?,
-
-    @SerializedName( "ItmsGrpNam")
-    val itmsGrpNam: String?,
 
     @SerializedName( "ItemCode")
     val itemCode: String?,
 
-    @SerializedName( "BatchNum")
-    val batchNum: String?,
+    @SerializedName( "ItemName")
+    val itemName: String?,
 
     @SerializedName( "WhsCode")
     val whsCode: String?,
 
     @SerializedName( "Quantity")
-    val quantity: String?
+    val quantity: String?,
+
+    @SerializedName( "DistNumber")
+    val distNumber: String?,
+
+    @SerializedName( "LoteLargo")
+    val loteLargo: String?,
+
+    @SerializedName( "UpdateDate")
+    val updateDate: String?,
+
 )

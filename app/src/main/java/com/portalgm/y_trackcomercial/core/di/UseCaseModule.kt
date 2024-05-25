@@ -75,9 +75,14 @@ import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDet
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockLotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ExportarNroFacturaPendientesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountNroFacturaPendienteUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetDatosFacturaUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetNroFacturaPendienteUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.GetUltimoNroFacturaAzureUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.ImportarVendedoresUseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetDatosVisitaActivaUseCase
 import com.portalgm.y_trackcomercial.usecases.visitas.GetHorasTranscurridasVisitasUseCase
@@ -586,6 +591,49 @@ object UseCaseModule {
     ): ExportarOinvPendientesUseCase {
         return ExportarOinvPendientesUseCase(repository)
     }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetNroFacturaPendienteUseCase(
+        repository: A0_YtvVentasRepository
+    ): GetNroFacturaPendienteUseCase {
+        return GetNroFacturaPendienteUseCase(repository)
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideExportarNroFacturaPendientesUseCase(
+        repository: A0_YtvVentasRepository
+    ): ExportarNroFacturaPendientesUseCase {
+        return ExportarNroFacturaPendientesUseCase(repository)
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideGetCountNroFacturaPendienteUseCase(
+        repository: A0_YtvVentasRepository
+    ): CountNroFacturaPendienteUseCase {
+        return CountNroFacturaPendienteUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetUltimoNroFacturaAzureUseCase(
+        repository: A0_YtvVentasRepository
+    ): GetUltimoNroFacturaAzureUseCase {
+        return GetUltimoNroFacturaAzureUseCase(repository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetStockLotesUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): GetStockLotesUseCase {
+        return GetStockLotesUseCase(repository)
+    }
+
+
+
+
 
 }
 
