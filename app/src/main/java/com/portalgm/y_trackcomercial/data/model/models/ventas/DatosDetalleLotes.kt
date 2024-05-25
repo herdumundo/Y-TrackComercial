@@ -8,3 +8,9 @@ data class DatosDetalleLotes(
     val whsCode: String? ,
     val quantity: String?
 )
+
+data class DatosItemCodesStock(
+    val itemName: String?,
+    val itemCode: String?,
+    val quantity: String?
+)

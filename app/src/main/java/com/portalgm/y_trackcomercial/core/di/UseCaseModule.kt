@@ -75,6 +75,7 @@ import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.GetOrdenVentaDet
 import com.portalgm.y_trackcomercial.usecases.ventas.ordenVenta.ImportarOrdenVentaUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.CountRegistrosStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetDatosDetalleLotesUseCase
+import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockItemCodeUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.GetStockLotesUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.stockAlmacen.ImportarStockAlmacenUseCase
 import com.portalgm.y_trackcomercial.usecases.ventas.vendedores.CountRegistrosVendedoresUseCase
@@ -629,6 +630,15 @@ object UseCaseModule {
         repository: A0_YTV_STOCK_ALMACENRepository
     ): GetStockLotesUseCase {
         return GetStockLotesUseCase(repository)
+    }
+
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetStockItemCodeUseCase(
+        repository: A0_YTV_STOCK_ALMACENRepository
+    ): GetStockItemCodeUseCase {
+        return GetStockItemCodeUseCase(repository)
     }
 
 
