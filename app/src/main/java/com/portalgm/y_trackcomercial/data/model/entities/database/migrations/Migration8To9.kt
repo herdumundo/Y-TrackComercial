@@ -177,7 +177,9 @@ class Migration8to9 : Migration(8, 9) {
             `U_SIFENNCASA`      TEXT                    ,
             `U_SIFENCIUDAD`      TEXT                  ,
             `correo`      TEXT                  ,
-            `estado`        TEXT NOT NULL DEFAULT 'P'         `    
+            `estado`        TEXT NOT NULL DEFAULT 'P'   `,
+            `STREET`      TEXT                  ,
+
              )
         """)
 

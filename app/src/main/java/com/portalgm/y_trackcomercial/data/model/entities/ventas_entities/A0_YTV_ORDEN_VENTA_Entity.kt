@@ -71,6 +71,8 @@ data class A0_YTV_ORDEN_VENTA_Entity(
     @SerializedName( "correo")
     var correo: String?,
     @SerializedName("estado")
-    val estado: String = "P"
+    val estado: String = "P",
+    @SerializedName("STREET")
+    val STREET: String?
 
 )

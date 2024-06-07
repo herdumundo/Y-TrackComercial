@@ -15,6 +15,7 @@ data class OrdenVentaCabItem(
     val u_deptocod: String,
     val u_sifenciudad: String,
     val correo: String,
+    val STREET: String,
 
 )
 

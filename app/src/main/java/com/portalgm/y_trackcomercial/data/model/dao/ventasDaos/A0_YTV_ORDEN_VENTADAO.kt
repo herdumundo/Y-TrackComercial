@@ -19,14 +19,18 @@ interface A0_YTV_ORDEN_VENTADAO {
     @Query("SELECT COUNT(*) FROM A0_YTV_ORDEN_VENTA")
     fun getCount(): Int
 
-    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode," +
-            "substr(datetime(substr(docDueDate, 1, 19)), 9, 2) || '/' ||\n" +
-            "    substr(datetime(substr(docDueDate, 1, 19)), 6, 2) || '/' ||\n" +
-            "    substr(datetime(substr(docDueDate, 1, 19)), 1, 4) AS   docDueDate,pymntGroup,A0_YTV_ORDEN_VENTA.slpName,licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo  " +
-            "   from a0_ytv_orden_venta INNER JOIN A0_YTV_VENDEDOR ON A0_YTV_ORDEN_VENTA.slpCode=A0_YTV_VENDEDOR.slpcode " +
-            " where A0_YTV_ORDEN_VENTA.estado='P' and  idCliente in (select idOcrd from visitas where pendienteSincro='N') order by  datetime(substr(docDueDate, 1, 19)) desc/**/")
+    @Query("    SELECT  DISTINCT docNum,docDate,lineNum as lineNumbCardCode,groupNum, cardCode,shipToCode," +
+            "       substr(datetime(substr(docDueDate, 1, 19)), 9, 2) || '/' ||\n" +
+            "       substr(datetime(substr(docDueDate, 1, 19)), 6, 2) || '/' ||\n" +
+            "       substr(datetime(substr(docDueDate, 1, 19)), 1, 4) AS   docDueDate,pymntGroup,A0_YTV_ORDEN_VENTA.slpName," +
+            "       licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo,STREET  " +
+            "   FROM a0_ytv_orden_venta INNER JOIN A0_YTV_VENDEDOR ON A0_YTV_ORDEN_VENTA.slpCode=A0_YTV_VENDEDOR.slpcode " +
+            "   WHERE A0_YTV_ORDEN_VENTA.estado='P' AND  idCliente in (select idOcrd from visitas where pendienteSincro='N') order by  datetime(substr(docDueDate, 1, 19)) desc/**/")
     suspend fun getOrdenVentaCab(): List<OrdenVentaCabItem>
-    @Query("select  distinct docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate,pymntGroup,slpName,licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo from a0_ytv_orden_venta where docNum=:docNum")
+    @Query("    SELECT  " +
+            "       DISTINCT docNum,docDate,lineNum as lineNumbCardCode,groupNum,cardCode,shipToCode,docDueDate," +
+            "       pymntGroup,slpName,licTradNum,u_deptocod,u_sifenciudad,u_sifenncasa,correo,STREET " +
+            "   FROM a0_ytv_orden_venta where docNum=:docNum")
     suspend fun getOrdenVentaCabById(docNum: Int): List<OrdenVentaCabItem>
 
     @Query("    select  id,lineNumDet,licTradNum,itemCode,itemName,quantity,priceAfVAT," +

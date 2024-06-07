@@ -412,7 +412,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 txtSifen = "",
                 totalIva = totalIva.toString(),
                 totalSinIva = (totalFactura-totalIva).toString(),
-                STREET=""
+                STREET=_datosOrdenVenta.value!![0].STREET
 
             )
             _mensajePantalla.value = "Preparando insercion detalle..."

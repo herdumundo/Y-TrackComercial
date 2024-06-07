@@ -30,8 +30,8 @@ object firmarFactura {
             stringBuilder.append(/*1.1*/"INVOICE;")
             stringBuilder.append(/*1.2*/"${HoraActualUtils.convertirFormatoISO8601AFechaHora( oinvDetails.oinvPos.docDate!!)};")
             stringBuilder.append(/*1.3*/"ORIGINAL;")
-            //stringBuilder.append(/*1.4*/"${oinvDetails.oinvPos.timb}-${oinvDetails.oinvPos.numAtCard!!.replace("-","")};")
-            stringBuilder.append(/*1.4*/"12559861-0010010000122;")
+            stringBuilder.append(/*1.4*/"${oinvDetails.oinvPos.timb}-${oinvDetails.oinvPos.numAtCard!!.replace("-","")};")
+            // stringBuilder.append(/*1.4*/"12559861-0010010000122;")
             stringBuilder.append(/*1.5*/";")
             stringBuilder.append(/*1.6*/"80002754-0;")
             stringBuilder.append(/*1.7*/"RUC;")
@@ -124,8 +124,8 @@ object firmarFactura {
             stringBuilder.appendLine(";")
             /**101*/
             stringBuilder.append("101;")
-            // stringBuilder.append(/*101.1*/"${HoraActualUtils.convertIsoToDateSimple(oinvDetails.oinvPos.vigenciaTimbrado!!)};")
-            stringBuilder.append(/*101.1*/"2022-09-19;")
+            stringBuilder.append(/*101.1*/"${HoraActualUtils.convertIsoToDateSimple(oinvDetails.oinvPos.vigenciaTimbrado!!)};")
+            // stringBuilder.append(/*101.1*/"2022-09-19;")
             stringBuilder.append(/*101.2*/";")
             stringBuilder.appendLine(/*101.3*/"1;")
             /**102*/
