@@ -10,7 +10,8 @@ import androidx.room.DatabaseView
         T0.Quantity - IFNULL(SUM(CASE WHEN T2.docEntrySap = '-' and T2.anulado='N' THEN T1.Quantity ELSE 0 END), 0) AS quantiy,
         T0.distNumber,
         T0.loteLargo,
-        T0.Quantity AS stockInicial4
+        T0.Quantity AS stockInicial4,
+        T0.CodeBars
     FROM 
         A0_YTV_STOCK_ALMACEN T0
     LEFT JOIN 
@@ -23,6 +24,7 @@ import androidx.room.DatabaseView
 data class V_STOCK_ALMACEN(
     val itemCode: String?,
     val itemName: String?,
+    val CodeBars: String?,
     val whsCode: String?,
     val quantiy: Long?,
     val distNumber: String?,

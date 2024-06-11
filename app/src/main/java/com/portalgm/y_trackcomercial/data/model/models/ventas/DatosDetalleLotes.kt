@@ -22,6 +22,7 @@ data class DatosItemCodesStockPriceList(
     val price: String?,
     val priceList: Int,
     val unitMsr: String?,
+    val CodeBars: String,
     val baseQty : Int,
 
 )

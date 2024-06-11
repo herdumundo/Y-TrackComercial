@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -36,6 +37,7 @@ import com.portalgm.y_trackcomercial.util.SharedData
 import com.portalgm.y_trackcomercial.util.calculosIva
 import com.portalgm.y_trackcomercial.util.firmadorFactura.firmarFactura
 import com.portalgm.y_trackcomercial.util.impresion.layoutFactura
+import com.portalgm.y_trackcomercial.util.registrosVentas.ProductoItem
 import com.portalgm.y_trackcomercial.util.registrosVentas.funcionesFacturas
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +61,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
     private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
     private val getUltimoNroFacturaAzureUseCase: GetUltimoNroFacturaAzureUseCase, // Inyecta la instancia de la base de datos
     private val visitasRepository: VisitasRepository,
-
+    private val context: Context
     ) : ViewModel() {
 
     private val _productos = MutableLiveData<List<ProductoItem>>()
@@ -131,7 +133,9 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 lineNumDet = item.lineNum,
                 priceAfVAT = item.price,
                 unitMsr = item.unitMsr,
-                quantityUnidad = (quantitiesUnidad[item]?.value?.toDouble() ?: 0.0).toInt()
+                quantityUnidad = (quantitiesUnidad[item]?.value?.toDouble() ?: 0.0).toInt(),
+                CodeBars = item.CodeBars,
+                uMedida=item.uMedida
             )
         }
     }
@@ -217,7 +221,9 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                 price = it.priceAfVAT.toDouble(),
                 initialQuantity = it.quantity.toDouble(),
                 unitMsr = it.unitMsr,
-                quantityUnidad = it.quantityUnidad
+                quantityUnidad = it.quantityUnidad,
+                CodeBars = it.CodeBars,
+                uMedida=it.uMedida
             )
         }
     }
@@ -247,7 +253,7 @@ class OrdenVentaDetalleViewModel @Inject constructor(
         _mensajePantalla.value = "Preparando impresión..."
 
         withContext(Dispatchers.IO) {
-            val servicioBluetooth = servicioBluetooth()
+            val servicioBluetooth = servicioBluetooth(context)
             val resultadoImpresion =
                 servicioBluetooth.imprimir(layoutFactura().layoutFactura(json, qr, cdc))
 
@@ -426,22 +432,14 @@ class OrdenVentaDetalleViewModel @Inject constructor(
                     whsCode = _datosFactura.value!![0].U_DEPOSITO!!,
                     quantity = producto.quantity.toString(),
                     priceAfterVat = producto.priceAfVAT.toInt().toString(),
-                    precioUnitSinIva = calculosIva.redondeoPersonalizado(
-                        calculosIva.calcularPrecioSinIva(
-                            producto.priceAfVAT
-                        )
-                    ).toInt().toString(),
+                    precioUnitSinIva = calculosIva.redondeoPersonalizado(  calculosIva.calcularPrecioSinIva(  producto.priceAfVAT ) ).toInt().toString(),
                     precioUnitIvaInclu = producto.priceAfVAT.toInt().toString(),
-                    totalSinIva = calculosIva.calcularTotalSinIva(
-                        producto.quantity.toDouble(),
-                        producto.priceAfVAT
-                    ).toInt().toString(),
-                    totalIva = calculosIva.calcularIva(
-                        producto.quantity.toDouble(),
-                        producto.priceAfVAT
-                    ).toInt().toString(),
+                    totalSinIva = calculosIva.calcularTotalSinIva(  producto.quantity.toDouble(), producto.priceAfVAT ).toInt().toString(),
+                    totalIva = calculosIva.calcularIva( producto.quantity.toDouble(), producto.priceAfVAT  ).toInt().toString(),
                     uomEntry = 1,
-                    taxCode = "5"
+                    taxCode = "5",
+                    CodeBars=producto.CodeBars,
+                    uMedida=producto.uMedida
                 )
                 INV1_POS_LIST.add(newDet)
                 lineNumInv1 += 1
@@ -498,13 +496,5 @@ class OrdenVentaDetalleViewModel @Inject constructor(
 
 }
 
-data class ProductoItem(
-    val lineNum: Int,
-    val name: String,
-    val itemCode: String,
-    val price: Double,
-    val initialQuantity: Number,
-    val quantityUnidad: Int,
-    val unitMsr: String
-)
+
 

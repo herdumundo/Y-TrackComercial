@@ -41,7 +41,7 @@ import com.portalgm.y_trackcomercial.components.DialogLoading
 import com.portalgm.y_trackcomercial.components.InfoDialogDosBotonBoolean
 import com.portalgm.y_trackcomercial.components.InfoDialogOk
 import com.portalgm.y_trackcomercial.data.model.models.ventas.DatosDetalleLotes
-import com.portalgm.y_trackcomercial.ui.ordenVentaDetalle.viewmodel.ProductoItem
+import com.portalgm.y_trackcomercial.util.registrosVentas.ProductoItem
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale

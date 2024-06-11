@@ -32,7 +32,9 @@ class INV1_REPOSITORY @Inject constructor
               totalSinIva= lote.TotalSinIva,
               totalIva= lote.TotalIva,
               uomEntry =  lote.UoMEntry,
-              taxCode =  lote.TaxCode
+              taxCode =  lote.TaxCode,
+              CodeBars=lote.CodeBars,
+              uMedida =lote.uMedida,
             )
         }
 

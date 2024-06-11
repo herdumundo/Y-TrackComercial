@@ -5,6 +5,7 @@ package com.portalgm.y_trackcomercial.data.model.models.ventas
     val LineNum: Int,
     val ItemCode: String,
     val ItemName: String,
+    val CodeBars: String,
     val WhsCode: String,
     val Quantity: Int,
     val PriceAfterVat: String,
@@ -13,5 +14,6 @@ package com.portalgm.y_trackcomercial.data.model.models.ventas
     val TotalSinIva: String,
     val TotalIva: String,
     val UoMEntry: Int,
+    val uMedida: Int,
     var TaxCode: String
     )

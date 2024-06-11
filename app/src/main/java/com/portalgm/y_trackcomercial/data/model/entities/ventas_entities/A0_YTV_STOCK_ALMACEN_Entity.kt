@@ -15,6 +15,10 @@ data class A0_YTV_STOCK_ALMACEN_Entity(
     @SerializedName( "ItemName")
     val itemName: String?,
 
+    @SerializedName( "CodeBars")
+    val CodeBars: String?,
+
+
     @SerializedName( "WhsCode")
     val whsCode: String?,
 

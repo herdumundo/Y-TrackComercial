@@ -1,5 +1,6 @@
 package com.portalgm.y_trackcomercial.ui.reimpresionFactura.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +31,8 @@ class ReimpresionFacturaViewModel @Inject constructor(
     private val getOinvByDateUseCase: GetOinvByDateUseCase,
     private val getOinvUseCase: GetOinvUseCase,
     private val updateFirmaOinvUseCase: UpdateFirmaOinvUseCase, // Inyecta la instancia de la base de datos
+    private val context: Context
+
 ): ViewModel() {
     // Fecha seleccionada como MutableStateFlow
     private val _selectedDate = MutableStateFlow(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -53,6 +56,7 @@ class ReimpresionFacturaViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate) {
         _selectedDate.value = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     }
+
     fun searchFacturasByDate() {
         // Ejemplo: Implementa llamada al usecase aquí
         viewModelScope.launch {
@@ -76,7 +80,7 @@ class ReimpresionFacturaViewModel @Inject constructor(
 
             // Asegúrate de que las operaciones de impresión se realicen en el contexto de I/O
             withContext(Dispatchers.IO) {
-                val servicioBluetooth = servicioBluetooth()
+                val servicioBluetooth = servicioBluetooth(context =context )
                 val resultadoImpresion = servicioBluetooth.imprimir(layoutFactura().layoutFactura(_facturasFiltradas.value!!, _facturasFiltradas.value!![0].oinvPos.qr!!, _facturasFiltradas.value!![0].oinvPos.cdc!!))
 
                 // Regresa al hilo principal para actualizar la UI

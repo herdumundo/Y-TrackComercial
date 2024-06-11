@@ -186,7 +186,7 @@ fun LoginDivider() {
 fun ImageLogo(modifier: Modifier) {
     Column(modifier = modifier) {
         Image(
-            painter = painterResource(id = R.drawable.ytrack2), contentDescription = "Logo"
+            painter = painterResource(id = R.drawable.launcher), contentDescription = "Logo"
         )
     }
 }

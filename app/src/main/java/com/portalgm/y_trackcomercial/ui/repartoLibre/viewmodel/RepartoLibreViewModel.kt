@@ -1,6 +1,7 @@
 package com.portalgm.y_trackcomercial.ui.repartoLibre.viewmodel
 
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -55,6 +56,7 @@ class RepartoLibreViewModel @Inject constructor(
     private val getStockItemPriceListCodeUseCase: GetStockItemPriceListCodeUseCase,
     private val getDatosClienteUseCase: GetDatosClienteUseCase,
     private val visitasRepository: VisitasRepository,
+    private val context: Context,
 
     private val getDatosDetalleLotesUseCase: GetDatosDetalleLotesUseCase,
     private val countExistenciaStockPlanchaByItemCodeUseCase: CountExistenciaStockPlanchaByItemCodeUseCase,
@@ -273,7 +275,9 @@ class RepartoLibreViewModel @Inject constructor(
                     totalSinIva = totalSinIva,
                     totalIva = totalIva,
                     uomEntry = 1,
-                    taxCode = "5"
+                    taxCode = "5",
+                    CodeBars = producto.CodeBars,
+                    uMedida = producto.uMedida
                 )
                 INV1_POS_LIST.add(newDet)
                 lineNumInv1 += 1
@@ -367,7 +371,9 @@ class RepartoLibreViewModel @Inject constructor(
                 itemCode = item.itemCode,
                 priceAfVAT = precios[item.itemCode]?.value!!,
                 unitMsr = item.unitMsr,
-                quantityUnidad = (quantitiesUnidad[item.itemCode]?.value?.toDouble() ?: 0.0).toInt()
+                quantityUnidad = (quantitiesUnidad[item.itemCode]?.value?.toDouble() ?: 0.0).toInt(),
+                CodeBars= item.CodeBars,
+                uMedida = item.baseQty
             )
         }
     }
@@ -480,7 +486,8 @@ class RepartoLibreViewModel @Inject constructor(
                 initialQuantity = 0,
                 unitMsr = it.unitMsr!!,
                 quantityUnidad = 0,
-                baseQty = it.baseQty
+                baseQty = it.baseQty,
+                CodeBars = it.CodeBars
             )
         }
     }
@@ -550,7 +557,7 @@ class RepartoLibreViewModel @Inject constructor(
         _mensajePantalla.value = "Preparando impresión..."
 
         withContext(Dispatchers.IO) {
-            val servicioBluetooth = servicioBluetooth()
+            val servicioBluetooth = servicioBluetooth(context)
             val resultadoImpresion =
                 servicioBluetooth.imprimir(layoutFactura().layoutFactura(json, qr, cdc))
 
@@ -588,6 +595,7 @@ data class ProductoItem(
     val initialQuantity: Number,
     val quantityUnidad: Int,
     val unitMsr: String,
+    val CodeBars: String,
     val baseQty: Int,
 )
 
@@ -600,6 +608,8 @@ data class ProductosSeleccionados(
     val quantity: Number,
     val quantityUnidad: Int,
     val priceAfVAT: Double,
-    val unitMsr: String
+    val unitMsr: String,
+    val CodeBars: String,
+    val uMedida: Int,
 
 )

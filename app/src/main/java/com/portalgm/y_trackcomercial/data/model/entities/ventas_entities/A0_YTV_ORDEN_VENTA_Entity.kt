@@ -73,6 +73,12 @@ data class A0_YTV_ORDEN_VENTA_Entity(
     @SerializedName("estado")
     val estado: String = "P",
     @SerializedName("STREET")
-    val STREET: String?
+    val STREET: String?,
+    @SerializedName("uMedida")
+    val uMedida: Int,
+    @SerializedName("CodeBars")
+    val CodeBars: String?
+
+
 
 )

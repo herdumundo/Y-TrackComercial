@@ -25,6 +25,7 @@ data class INV1_POS(
     @ColumnInfo(name = "LineNum")           var lineNum: Int,
     @ColumnInfo(name = "ItemCode")          var itemCode: String,
     @ColumnInfo(name = "ItemName")          var itemName: String?,
+    @ColumnInfo(name = "CodeBars")          var CodeBars: String?,
     @ColumnInfo(name = "WhsCode")           var whsCode: String,
     @ColumnInfo(name = "Quantity")          var quantity: String,
     @ColumnInfo(name = "PriceAfterVat")     var priceAfterVat: String,/*IVA INCLUIDO PRECION UNITARIO*/
@@ -33,6 +34,8 @@ data class INV1_POS(
     @ColumnInfo(name = "TotalSinIva")       var totalSinIva: String,
     @ColumnInfo(name = "TotalIva")          var totalIva: String,
     @ColumnInfo(name = "UoMEntry")          var uomEntry: Int,
-    @ColumnInfo(name = "TaxCode")           var taxCode: String?
+    @ColumnInfo(name = "TaxCode")           var taxCode: String?,
+    @ColumnInfo(name = "uMedida")           var uMedida: Int?
+
 
 )

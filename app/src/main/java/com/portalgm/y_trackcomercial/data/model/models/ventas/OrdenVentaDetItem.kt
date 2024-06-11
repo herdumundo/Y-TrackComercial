@@ -4,12 +4,14 @@ data class OrdenVentaDetItem(
     val id: String,
     val lineNumDet: Int,
     val licTradNum: String,
+    val CodeBars:String,
     val itemCode: String ,
     val itemName: String ,
     val quantity: String ,
     val quantityUnidad: Int,
     val priceAfVAT: String,
     val unitMsr: String,
+    val uMedida:Int
 )
 
 

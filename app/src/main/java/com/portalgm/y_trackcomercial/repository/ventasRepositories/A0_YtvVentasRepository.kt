@@ -34,10 +34,7 @@ class A0_YtvVentasRepository @Inject constructor(
     suspend fun getDatosFactura(): List<A0_YTV_VENDEDOR_Entity> = A0_YTV_VENDEDORDao.getDatosFactura()
     suspend fun exportarDatos(lotes: nroFacturaPendiente) {
         try {
-            val apiResponse = A0_YTV_VENDEDORClient.uploadData(
-                lotes,
-                sharedPreferences.getToken().toString()
-            )
+            val apiResponse = A0_YTV_VENDEDORClient.uploadData(lotes,sharedPreferences.getToken().toString())
             // Puedes también manejar la respuesta de la API según el campo "tipo" del ApiResponse
             if (apiResponse.tipo == 0) {
                 Log.i("Mensaje", "Datos exportados correctamente")

@@ -30,6 +30,7 @@ data class DetalleCompleto(
     val itemName: String?,
     val quantity: String,
     val precioUnitIvaIncluido: String?,
+    val uMedida: Int,
     val txtSifen: String?
 )
 data class DetalleLote(
@@ -73,7 +74,8 @@ fun transformarDatosConDetalle(datos: List<OinvPosWithDetails>): List<DetalleCom
                 totalLineaIvaIncluido=detail.totalSinIva.toInt()+detail.totalIva.toInt(),
                 estado = oinv.oinvPos.estado,
                 cardName = oinv.oinvPos.cardName,
-                txtSifen = oinv.oinvPos.txtSifen
+                txtSifen = oinv.oinvPos.txtSifen,
+                uMedida = detail.uMedida!!
                 )
         }
     }
